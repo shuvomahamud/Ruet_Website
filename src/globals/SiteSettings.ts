@@ -27,15 +27,33 @@ export const SiteSettings: GlobalConfig = {
       defaultValue: 'info@ruetianusa.org',
     },
     {
+      name: 'chapterSupportEmail',
+      type: 'email',
+    },
+    {
+      name: 'primaryPhone',
+      type: 'text',
+    },
+    {
+      name: 'mailingAddress',
+      type: 'textarea',
+    },
+    {
+      name: 'contactResponseNote',
+      type: 'textarea',
+      defaultValue:
+        'Send us a message and the appropriate RUETIAN USA volunteer will follow up when available.',
+    },
+    {
       name: 'utilityMessage',
       type: 'text',
-      defaultValue: 'Association website foundation',
+      defaultValue: 'Connecting RUET alumni across the United States',
     },
     {
       name: 'footerNote',
       type: 'textarea',
       defaultValue:
-        'The website content, branding, and legal copy will continue to evolve as later implementation phases are completed.',
+        'Membership, chapters, events, and learning opportunities for the RUET alumni community.',
     },
   ],
   label: 'Site Settings',

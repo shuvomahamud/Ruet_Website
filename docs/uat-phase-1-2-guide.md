@@ -20,6 +20,7 @@ This guide covers the implemented work from:
 - Phase 2: public site shell, homepage foundation, public content routes, and ASME-inspired shared UI
 - Remaining-roadmap Phase 1: direct-API ownership/chapter isolation, private payment proofs, legal workflow primitives, and idempotent Zelle review (automated security verification only; public transaction UI remains later scope)
 - Remaining-roadmap Phase 2: public local authentication, Google sign-in/linking, protected profile settings, and audited account anonymization
+- Remaining-roadmap Phase 3: accessible desktop/mobile navigation, shared public components, institutional/contact pages, learning search/detail, legal templates, and metadata
 
 ## 2. UAT Scope
 
@@ -43,6 +44,10 @@ This guide covers the implemented work from:
 - signup, verification/resend, login, logout, forgot/reset password, and protected-route behavior
 - Google sign-in and safe account linking when Google credentials are configured
 - profile, primary chapter, communication preferences, and account anonymization
+- desktop mega-menus, mobile navigation drawer, keyboard focus behavior, and active navigation states
+- About mission/vision/governance content, the Contact form, and private contact submissions
+- learning search, category/content-type filters, pagination, rich content, related content, and metadata
+- privacy, terms-of-use, and membership-terms templates with explicit approval status
 
 ## 2.2 Explicitly out of scope for this UAT
 
@@ -58,7 +63,6 @@ Do not mark these as failures in this round because they are not implemented yet
 - system email delivery
 - chapter request public form
 - committee/history public pages beyond admin data entry
-- SEO metadata behavior beyond saving the admin records
 
 The transaction primitives behind Zelle review are implemented and automated, but they do not make the public membership/event flows or the manual-review queue part of this manual UAT round. Their evidence is in [phase-1-security-workflow-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-1-security-workflow-verification.md).
 
@@ -95,7 +99,7 @@ pnpm verify
 pnpm test:e2e
 ```
 
-The expected automated result after the remaining-roadmap Phase 2 gate is `21` integration tests and `8` browser tests passing.
+The expected automated result after the remaining-roadmap Phase 3 gate is `25` integration tests and `15` browser tests passing.
 
 For manual verification/reset delivery, configure the production-like email adapter when it becomes available in Phase 5 or use a test-only database token locally. Live Google UAT requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and an approved callback URL. Missing external credentials should be recorded as `Blocked`, not as missing application logic.
 
@@ -123,7 +127,8 @@ Create the following records first. This will make the public-site tests easier.
   - primary email: `info@ruetianusa.org`
   - utility message: `Professional alumni association platform`
 - `Header`
-  - confirm links for `About`, `Membership`, `Chapters`, `Events`, `Learning`, `Contact`
+  - confirm top-level links for `About`, `Membership`, `Chapters`, `Events`, `Learning`, `Contact`
+  - confirm child links and a featured panel for at least one mega-menu
 - `Footer`
   - confirm at least four link groups
 - `Home`
@@ -163,6 +168,11 @@ Create the following records first. This will make the public-site tests easier.
 - title: `Professional Development for Alumni`
 - excerpt: short summary
 - body: 2 to 3 paragraphs of text
+- rich body: add at least one heading, paragraph, and link
+- category: create and select a test category
+- content type: `article`
+- author and reading time: add recognizable test values
+- SEO title and description: add recognizable test values
 - publish the record
 
 ## 5.6 Announcement
@@ -248,6 +258,7 @@ Expected result:
   - Committee Terms
   - History Entries
   - Newsletter Campaigns
+  - Contact Submissions
 - globals visible:
   - Site Settings
   - Header
@@ -323,6 +334,22 @@ Expected result:
 
 - homepage loads successfully
 - hero title, description, and CTA labels reflect `Home` global values
+
+### UAT-PUB-04: Desktop and mobile navigation are keyboard usable
+
+Steps:
+
+1. At desktop width, tab to a top-level menu and open it.
+2. Press `Escape`.
+3. At a narrow mobile width, open the navigation drawer.
+4. Tab through the drawer and press `Escape`.
+
+Expected result:
+
+- the desktop panel exposes its child and featured links
+- `Escape` closes each menu and restores focus to its trigger
+- keyboard focus remains within the open mobile drawer
+- the membership CTA is visible in both layouts
 
 ## 6.4 Membership Plan
 
@@ -456,6 +483,25 @@ Expected result:
 - post title renders
 - excerpt renders in the hero
 - body content renders in the article section
+- rich content is preferred when present
+- author, publication date, reading time, and category render when configured
+- related published content from the same category appears when available
+- the browser title and description use the post SEO values
+
+### UAT-LRN-03: Learning search and filters preserve public visibility rules
+
+Steps:
+
+1. Create two published posts and one draft post with distinguishable titles.
+2. Assign a category and different content types to the published posts.
+3. Search for one published title, then filter by category and content type.
+
+Expected result:
+
+- search and filters update the URL and results
+- only matching published posts appear
+- draft posts never appear
+- clearing filters restores the full published list
 
 ## 6.8 Announcements
 
@@ -496,6 +542,33 @@ Steps:
 Expected result:
 
 - the custom not-found page appears
+
+### UAT-PAG-03: Contact form stores a protected submission
+
+Steps:
+
+1. Open `/contact` and submit valid name, email, topic, subject, and a message of at least 20 characters.
+2. Sign in as an admin and open `Contact Submissions`.
+
+Expected result:
+
+- the public form shows a success message
+- the submission is stored with status `new`
+- the collection is not publicly readable
+- public input cannot set internal notes, review status, or a trusted submission time
+
+### UAT-PAG-04: Legal templates expose approval state and navigation
+
+Steps:
+
+1. Open `/privacy-policy`, `/terms-of-use`, and `/membership-terms`.
+2. Edit one legal page in Payload, change a section, and republish it.
+
+Expected result:
+
+- each route shows its placeholder or approved status and last-updated date
+- long pages show an on-page table of contents linked to section anchors
+- published CMS edits appear without a code or layout change
 
 ## 6.10 Users And Role Data
 
@@ -657,15 +730,16 @@ Recommended order:
 
 1. Environment and admin access
 2. Globals and media
-3. Membership plan
-4. Chapters
-5. Events
-6. Posts
-7. Announcements
-8. Standard pages
-9. Users and role fields
-10. Authentication and account lifecycle
-11. Data-model-only collections
+3. Desktop and mobile navigation
+4. Institutional, contact, and legal pages
+5. Learning search, filters, detail, and metadata
+6. Membership plan
+7. Chapters
+8. Events
+9. Announcements
+10. Users and role fields
+11. Authentication and account lifecycle
+12. Data-model-only collections
 
 ## 8. Defect Logging Template
 
@@ -702,4 +776,5 @@ This UAT round should confirm that:
 - the public shell is connected to admin-managed content
 - the currently implemented public routes render real data correctly
 - the public account lifecycle is safe and usable
-- the repo is ready to continue into remaining-roadmap Phase 3
+- Phase 3 navigation, shared components, contact, learning, legal, metadata, responsive, and keyboard behavior meet their acceptance criteria
+- the repo is ready to continue into remaining-roadmap Phase 4

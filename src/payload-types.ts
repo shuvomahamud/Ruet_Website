@@ -72,6 +72,7 @@ export interface Config {
     media: Media;
     paymentProofs: PaymentProof;
     categories: Category;
+    contactSubmissions: ContactSubmission;
     pages: Page;
     posts: Post;
     announcements: Announcement;
@@ -102,6 +103,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     paymentProofs: PaymentProofsSelect<false> | PaymentProofsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    contactSubmissions: ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
@@ -330,6 +332,23 @@ export interface Category {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contactSubmissions".
+ */
+export interface ContactSubmission {
+  id: number;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  topic: 'general' | 'membership' | 'chapter' | 'events' | 'website';
+  status: 'new' | 'in_review' | 'closed';
+  submittedAt: string;
+  internalNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
@@ -339,8 +358,15 @@ export interface Page {
   heroTitle: string;
   heroDescription?: string | null;
   summary?: string | null;
+  pageType?: ('standard' | 'institutional' | 'legal') | null;
+  legalStatus?: ('placeholder' | 'approved') | null;
+  lastReviewedAt?: string | null;
   sections?:
     | {
+        /**
+         * Optional URL-safe anchor used by legal tables of contents.
+         */
+        anchor?: string | null;
         eyebrow?: string | null;
         title: string;
         body: string;
@@ -355,6 +381,15 @@ export interface Page {
    */
   generateSlug?: boolean | null;
   slug: string;
+  /**
+   * Optional page-level overrides. Site SEO defaults are used when these are empty.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    image?: (number | null) | Media;
+    noIndex?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -368,14 +403,45 @@ export interface Post {
   title: string;
   excerpt: string;
   body: string;
+  /**
+   * Preferred rich article body. The plain body remains as a legacy fallback.
+   */
+  richBody?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   featuredImage?: (number | null) | Media;
   categories?: (number | Category)[] | null;
+  authorName?: string | null;
+  readingTimeMinutes?: number | null;
+  featured?: boolean | null;
+  contentType?: ('article' | 'resource' | 'news') | null;
   publishedAt?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
   slug: string;
+  /**
+   * Optional page-level overrides. Site SEO defaults are used when these are empty.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    image?: (number | null) | Media;
+    noIndex?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -855,6 +921,10 @@ export interface PayloadLockedDocument {
         value: number | Category;
       } | null)
     | ({
+        relationTo: 'contactSubmissions';
+        value: number | ContactSubmission;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: number | Page;
       } | null)
@@ -1086,6 +1156,22 @@ export interface CategoriesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contactSubmissions_select".
+ */
+export interface ContactSubmissionsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  subject?: T;
+  message?: T;
+  topic?: T;
+  status?: T;
+  submittedAt?: T;
+  internalNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
@@ -1094,9 +1180,13 @@ export interface PagesSelect<T extends boolean = true> {
   heroTitle?: T;
   heroDescription?: T;
   summary?: T;
+  pageType?: T;
+  legalStatus?: T;
+  lastReviewedAt?: T;
   sections?:
     | T
     | {
+        anchor?: T;
         eyebrow?: T;
         title?: T;
         body?: T;
@@ -1107,6 +1197,14 @@ export interface PagesSelect<T extends boolean = true> {
   publishedAt?: T;
   generateSlug?: T;
   slug?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        noIndex?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1119,11 +1217,24 @@ export interface PostsSelect<T extends boolean = true> {
   title?: T;
   excerpt?: T;
   body?: T;
+  richBody?: T;
   featuredImage?: T;
   categories?: T;
+  authorName?: T;
+  readingTimeMinutes?: T;
+  featured?: T;
+  contentType?: T;
   publishedAt?: T;
   generateSlug?: T;
   slug?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        noIndex?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1529,6 +1640,10 @@ export interface SiteSetting {
   organizationName: string;
   tagline?: string | null;
   primaryEmail?: string | null;
+  chapterSupportEmail?: string | null;
+  primaryPhone?: string | null;
+  mailingAddress?: string | null;
+  contactResponseNote?: string | null;
   utilityMessage?: string | null;
   footerNote?: string | null;
   updatedAt?: string | null;
@@ -1556,6 +1671,26 @@ export interface Header {
           label: string;
           href: string;
           description?: string | null;
+        };
+        /**
+         * Optional child destinations displayed in desktop and mobile menus.
+         */
+        children?:
+          | {
+              link: {
+                label: string;
+                href: string;
+                description?: string | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        featured?: {
+          eyebrow?: string | null;
+          title?: string | null;
+          description?: string | null;
+          label?: string | null;
+          href?: string | null;
         };
         id?: string | null;
       }[]
@@ -1624,8 +1759,14 @@ export interface Home {
  */
 export interface SeoDefault {
   id: number;
+  siteName?: string | null;
   titleSuffix?: string | null;
   defaultDescription?: string | null;
+  defaultImage?: (number | null) | Media;
+  /**
+   * Optional social handle, including the leading @.
+   */
+  socialHandle?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1637,6 +1778,10 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   organizationName?: T;
   tagline?: T;
   primaryEmail?: T;
+  chapterSupportEmail?: T;
+  primaryPhone?: T;
+  mailingAddress?: T;
+  contactResponseNote?: T;
   utilityMessage?: T;
   footerNote?: T;
   updatedAt?: T;
@@ -1669,6 +1814,27 @@ export interface HeaderSelect<T extends boolean = true> {
               label?: T;
               href?: T;
               description?: T;
+            };
+        children?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                    description?: T;
+                  };
+              id?: T;
+            };
+        featured?:
+          | T
+          | {
+              eyebrow?: T;
+              title?: T;
+              description?: T;
+              label?: T;
+              href?: T;
             };
         id?: T;
       };
@@ -1738,8 +1904,11 @@ export interface HomeSelect<T extends boolean = true> {
  * via the `definition` "seoDefaults_select".
  */
 export interface SeoDefaultsSelect<T extends boolean = true> {
+  siteName?: T;
   titleSuffix?: T;
   defaultDescription?: T;
+  defaultImage?: T;
+  socialHandle?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

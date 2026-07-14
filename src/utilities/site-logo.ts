@@ -23,4 +23,3 @@ export const getSiteLogoPath = async (): Promise<string | null> => {
 
   return null
 }
-

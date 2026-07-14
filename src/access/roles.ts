@@ -62,6 +62,9 @@ export const serverFieldOnly: FieldAccess = () => false
 export const publicSignupFieldAccess: FieldAccess = ({ req }) =>
   req.context?.publicSignupValidated === true
 
+export const publicContactCreateAccess: Access = ({ req }) =>
+  isAdmin(req.user) || req.context?.publicContactSubmissionValidated === true
+
 export const publicUserCreateAccess: Access = ({ req }) => {
   if (isAdmin(req.user)) return true
 

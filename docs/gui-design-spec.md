@@ -21,6 +21,9 @@ Current implementation details that now affect design ownership:
 - the header logo is loaded from [public/brand](/Users/shuvomahamud/Projects/RUET_Website/public/brand)
 - the visible route copy for `about`, `membership`, `chapters`, `events`, `learning`, `contact`, and legal placeholder pages is now owned by Payload CMS page records
 - design changes to those pages should therefore assume CMS-managed heroes and section blocks rather than route-level hardcoded copy
+- structured desktop mega-menus, the focus-contained mobile drawer, and active navigation states now implement the shared header behavior
+- institutional, contact, learning, and legal compositions now use the shared cards, rails, filters, pagination, badges, CTA, stats, gallery, timeline, loading, empty, and error patterns
+- Phase 3 browser checks cover keyboard focus restoration and narrow-screen overflow on the main public routes
 
 ## 2. Experience Goals
 

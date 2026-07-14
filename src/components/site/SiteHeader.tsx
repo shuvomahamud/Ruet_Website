@@ -5,6 +5,7 @@ import { Container } from '@/components/ui/Container'
 import { fallbackHeader, fallbackSiteSettings } from '@/constants/site'
 import { getSiteLogoPath } from '@/utilities/site-logo'
 import { getHeaderGlobal, getSiteSettings } from '@/utilities/payload-public'
+import { PrimaryNavigation } from './PrimaryNavigation'
 
 export const SiteHeader = async () => {
   const [header, logoPath, siteSettings] = await Promise.all([
@@ -16,7 +17,14 @@ export const SiteHeader = async () => {
   const utilityLinks = header.utilityLinks?.length
     ? header.utilityLinks
     : fallbackHeader.utilityLinks
-  const mainLinks = header.mainLinks?.length ? header.mainLinks : fallbackHeader.mainLinks
+  const configuredMainLinks = header.mainLinks?.length ? header.mainLinks : fallbackHeader.mainLinks
+  const mainLinks = configuredMainLinks.map((item) => {
+    if (item.children?.length) return item
+    const defaultItem = fallbackHeader.mainLinks.find(
+      (fallback) => fallback.link.href === item.link.href,
+    )
+    return defaultItem ? { ...defaultItem, ...item, children: defaultItem.children } : item
+  })
   const ctaHref = header.primaryCtaHref || fallbackHeader.primaryCtaHref
   const ctaLabel = header.primaryCtaLabel || fallbackHeader.primaryCtaLabel
 
@@ -49,12 +57,13 @@ export const SiteHeader = async () => {
       <div className="site-header__main">
         <Container>
           <div className="site-header__main-row">
-            <div className="brand-lockup">
+            <Link aria-label="RUETIAN USA home" className="brand-lockup" href="/">
               {logoPath ? (
                 <Image
                   alt={`${siteSettings.organizationName || fallbackSiteSettings.organizationName} logo`}
                   className="brand-lockup__logo"
                   height="54"
+                  priority
                   src={logoPath}
                   width="54"
                 />
@@ -71,15 +80,9 @@ export const SiteHeader = async () => {
                   {siteSettings.tagline || fallbackSiteSettings.tagline}
                 </p>
               </div>
-            </div>
+            </Link>
 
-            <nav aria-label="Primary navigation" className="site-header__primary-nav">
-              {mainLinks.map((item, index) => (
-                <Link href={item.link?.href || '#'} key={`${item.link?.href}-${index}`}>
-                  {item.link?.label}
-                </Link>
-              ))}
-            </nav>
+            <PrimaryNavigation ctaHref={ctaHref} ctaLabel={ctaLabel} items={mainLinks} />
 
             <Link className="button button--primary" href={ctaHref}>
               {ctaLabel}

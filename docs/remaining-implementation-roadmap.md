@@ -38,14 +38,14 @@ Historical migration files must not be rewritten after they have been applied. S
 
 ### 2.2 Active backlog
 
-After completion of roadmap Phase 2, the tracked backlog contains:
+After completion of roadmap Phase 3, the tracked backlog contains:
 
-- `16` completed tasks
-- `15` partially implemented tasks
+- `21` completed tasks
+- `10` partially implemented tasks
 - `24` pending tasks
 - `2` superseded Stripe tasks
 
-There are `39` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
+There are `34` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
 
 ### 2.3 Work excluded from the approved launch scope
 
@@ -183,6 +183,8 @@ Required external input before production verification:
 - production email sender/domain configuration for verification and reset messages
 
 ## Phase 3: Shared Public Experience And Institutional Content
+
+Status: `Completed` on 2026-07-13. Evidence: [phase-3-public-experience-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-3-public-experience-verification.md).
 
 Goal: finish the reusable public UI and non-transactional institutional pages.
 

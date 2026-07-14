@@ -12,6 +12,7 @@ import { Categories } from './collections/Categories'
 import { ChapterRequests } from './collections/ChapterRequests'
 import { Chapters } from './collections/Chapters'
 import { CommitteeTerms } from './collections/CommitteeTerms'
+import { ContactSubmissions } from './collections/ContactSubmissions'
 import { EventRegistrations } from './collections/EventRegistrations'
 import { Events } from './collections/Events'
 import { HistoryEntries } from './collections/HistoryEntries'
@@ -54,6 +55,7 @@ export default buildConfig({
     Media,
     PaymentProofs,
     Categories,
+    ContactSubmissions,
     Pages,
     Posts,
     Announcements,

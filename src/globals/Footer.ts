@@ -53,12 +53,14 @@ export const Footer: GlobalConfig = {
     {
       name: 'newsletterSummary',
       type: 'textarea',
-      defaultValue: 'Newsletter sending will be enabled in a later phase once the email provider is configured.',
+      defaultValue:
+        'Receive organization news, chapter updates, event notices, and learning resources.',
     },
     {
       name: 'legalNotice',
       type: 'textarea',
-      defaultValue: 'Final legal copy is still an open item and will be added before launch.',
+      defaultValue:
+        'RUETIAN USA is an alumni-led community serving RUET graduates in the United States.',
     },
   ],
 }

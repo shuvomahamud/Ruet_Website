@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { PageHero } from '@/components/content/PageHero'
@@ -7,7 +8,19 @@ import { SiteHeader } from '@/components/site/SiteHeader'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { formatCurrency } from '@/utilities/formatters'
+import { createPageMetadata } from '@/utilities/metadata'
 import { getActiveMembershipPlan, getPublishedPageBySlug } from '@/utilities/payload-public'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPublishedPageBySlug('membership')
+
+  return createPageMetadata({
+    canonicalPath: '/membership',
+    description: page?.heroDescription,
+    seo: page?.seo,
+    title: page?.title || 'Membership',
+  })
+}
 
 export default async function MembershipPage() {
   const [page, plan] = await Promise.all([

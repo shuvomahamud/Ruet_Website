@@ -3,6 +3,7 @@ import type { GlobalConfig } from 'payload'
 import { anyone } from '@/access/anyone'
 import { adminsOnly } from '@/access/roles'
 import { navigationLinkField } from '@/fields/navigationLink'
+import { defaultMainNavigation } from '@/constants/site'
 
 export const Header: GlobalConfig = {
   slug: 'header',
@@ -39,15 +40,31 @@ export const Header: GlobalConfig = {
       admin: {
         initCollapsed: true,
       },
-      defaultValue: [
-        { link: { href: '/about', label: 'About' } },
-        { link: { href: '/membership', label: 'Membership' } },
-        { link: { href: '/chapters', label: 'Chapters' } },
-        { link: { href: '/events', label: 'Events' } },
-        { link: { href: '/learning', label: 'Learning' } },
-        { link: { href: '/contact', label: 'Contact' } },
+      defaultValue: defaultMainNavigation,
+      fields: [
+        navigationLinkField(),
+        {
+          name: 'children',
+          type: 'array',
+          admin: {
+            description: 'Optional child destinations displayed in desktop and mobile menus.',
+            initCollapsed: true,
+          },
+          fields: [navigationLinkField()],
+          maxRows: 8,
+        },
+        {
+          name: 'featured',
+          type: 'group',
+          fields: [
+            { name: 'eyebrow', type: 'text' },
+            { name: 'title', type: 'text' },
+            { name: 'description', type: 'textarea' },
+            { name: 'label', type: 'text' },
+            { name: 'href', type: 'text' },
+          ],
+        },
       ],
-      fields: [navigationLinkField()],
     },
     {
       name: 'primaryCtaLabel',

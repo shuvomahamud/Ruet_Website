@@ -15,7 +15,10 @@ import type {
   Post,
   SiteSetting,
   Header as HeaderGlobal,
+  Category,
+  SeoDefault,
 } from '@/payload-types'
+import type { Where } from 'payload'
 
 const getClient = async () => getPayload({ config: configPromise })
 
@@ -36,19 +39,20 @@ export const getCachedGlobal = <T>(slug: string, fallbackValue: T) =>
     { tags: [`global_${slug}`] },
   )
 
-export const getSiteSettings = () => getCachedGlobal<SiteSetting>('siteSettings', fallbackSiteSettings)()
+export const getSiteSettings = () =>
+  getCachedGlobal<SiteSetting>('siteSettings', fallbackSiteSettings)()
 export const getHeaderGlobal = () => getCachedGlobal<HeaderGlobal>('header', fallbackHeader)()
 export const getFooterGlobal = () => getCachedGlobal<Footer>('footer', fallbackFooter)()
 export const getHomeGlobal = () =>
   getCachedGlobal('home', {
     heroDescription:
-      'This foundation now supports dynamic content, publishing workflows, chapter structure, membership data models, and the public site shell needed for the next implementation phases.',
+      'Connect with RUET alumni across the United States through membership, regional chapters, events, and shared professional learning.',
     heroEyebrow: 'RUET Alumni Association',
     id: 0,
     heroTitle: 'A professional, chapter-centered home for RUET alumni in the United States.',
     membershipSectionDescription:
-      'The site is structured for one annual membership plan at launch, with configurable pricing and future-ready schema support.',
-    membershipSectionTitle: 'Membership foundation',
+      'Annual membership helps sustain alumni programming, regional chapters, professional development, and community connections.',
+    membershipSectionTitle: 'One community, year-round connection',
     primaryCtaHref: '/membership',
     primaryCtaLabel: 'Join Membership',
     secondaryCtaHref: '/chapters',
@@ -60,6 +64,15 @@ export const getHomeGlobal = () =>
       { label: 'Years of Community', value: '0' },
     ],
   })() as Promise<Home>
+
+export const getSeoDefaults = () =>
+  getCachedGlobal<SeoDefault>('seoDefaults', {
+    defaultDescription:
+      'RUETIAN USA is a chapter-driven alumni association platform for community, membership, events, and institutional continuity.',
+    id: 0,
+    siteName: 'RUETIAN USA',
+    titleSuffix: ' | RUETIAN USA',
+  } as SeoDefault)()
 
 export const getPublishedPageBySlug = async (slug: string): Promise<Page | null> => {
   const payload = await getClient()
@@ -100,11 +113,86 @@ export const getPublishedPosts = async (limit = 6): Promise<Post[]> => {
   return result.docs
 }
 
+export const getLearningCategories = async (): Promise<Category[]> => {
+  const payload = await getClient()
+  const result = await payload.find({
+    collection: 'categories',
+    depth: 0,
+    limit: 100,
+    overrideAccess: false,
+    pagination: false,
+    sort: 'title',
+  })
+  return result.docs
+}
+
+export const getLearningPosts = async ({
+  category,
+  contentType,
+  limit = 9,
+  page = 1,
+  query,
+}: {
+  category?: string
+  contentType?: string
+  limit?: number
+  page?: number
+  query?: string
+}) => {
+  const payload = await getClient()
+  const clauses: Where[] = [{ _status: { equals: 'published' } }]
+
+  if (query?.trim()) {
+    clauses.push({
+      or: [
+        { title: { contains: query.trim() } },
+        { excerpt: { contains: query.trim() } },
+        { body: { contains: query.trim() } },
+      ],
+    })
+  }
+
+  if (category) {
+    const categoryResult = await payload.find({
+      collection: 'categories',
+      depth: 0,
+      limit: 1,
+      overrideAccess: false,
+      where: { slug: { equals: category } },
+    })
+    if (!categoryResult.docs[0]) {
+      return {
+        docs: [],
+        hasNextPage: false,
+        hasPrevPage: false,
+        page: 1,
+        totalDocs: 0,
+        totalPages: 0,
+      }
+    }
+    clauses.push({ categories: { contains: categoryResult.docs[0].id } })
+  }
+
+  if (contentType && ['article', 'resource', 'news'].includes(contentType)) {
+    clauses.push({ contentType: { equals: contentType } })
+  }
+
+  return payload.find({
+    collection: 'posts',
+    depth: 2,
+    limit,
+    overrideAccess: false,
+    page: Math.max(1, page),
+    sort: ['-featured', '-publishedAt'],
+    where: { and: clauses },
+  })
+}
+
 export const getPublishedPostBySlug = async (slug: string): Promise<Post | null> => {
   const payload = await getClient()
   const result = await payload.find({
     collection: 'posts',
-    depth: 1,
+    depth: 2,
     limit: 1,
     overrideAccess: false,
     where: {
@@ -118,6 +206,26 @@ export const getPublishedPostBySlug = async (slug: string): Promise<Post | null>
   })
 
   return result.docs[0] ?? null
+}
+
+export const getRelatedPosts = async (post: Post, limit = 3): Promise<Post[]> => {
+  const payload = await getClient()
+  const categoryIDs = (post.categories ?? [])
+    .map((category) => (typeof category === 'number' ? category : category.id))
+    .filter((value): value is number => typeof value === 'number')
+  const clauses: Where[] = [{ _status: { equals: 'published' } }, { id: { not_equals: post.id } }]
+  if (categoryIDs.length) clauses.push({ categories: { in: categoryIDs } })
+
+  const result = await payload.find({
+    collection: 'posts',
+    depth: 2,
+    limit,
+    overrideAccess: false,
+    pagination: false,
+    sort: '-publishedAt',
+    where: { and: clauses },
+  })
+  return result.docs
 }
 
 export const getActiveAnnouncements = async (limit = 3): Promise<Announcement[]> => {

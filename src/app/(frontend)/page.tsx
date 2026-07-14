@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
 import { CollectionCard } from '@/components/content/CollectionCard'
 import { SiteFooter } from '@/components/site/SiteFooter'
@@ -6,6 +7,7 @@ import { SiteHeader } from '@/components/site/SiteHeader'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { formatCurrency } from '@/utilities/formatters'
+import { createPageMetadata } from '@/utilities/metadata'
 import {
   getActiveAnnouncements,
   getActiveChapters,
@@ -15,6 +17,16 @@ import {
   getPublishedPosts,
   getUpcomingEvents,
 } from '@/utilities/payload-public'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const home = await getHomeGlobal()
+
+  return createPageMetadata({
+    canonicalPath: '/',
+    description: home.heroDescription,
+    title: home.heroTitle || 'RUETIAN USA',
+  })
+}
 
 export default async function HomePage() {
   const [home, stats, announcements, chapters, events, posts, plan] = await Promise.all([
@@ -28,9 +40,18 @@ export default async function HomePage() {
   ])
 
   const statItems = [
-    { label: 'Members', value: stats.activeMembers > 0 ? `${stats.activeMembers}+` : home.stats?.[0]?.value },
-    { label: 'Chapters', value: stats.chapters > 0 ? String(stats.chapters) : home.stats?.[1]?.value },
-    { label: 'Upcoming Events', value: stats.events > 0 ? String(stats.events) : home.stats?.[2]?.value },
+    {
+      label: 'Members',
+      value: stats.activeMembers > 0 ? `${stats.activeMembers}+` : home.stats?.[0]?.value,
+    },
+    {
+      label: 'Chapters',
+      value: stats.chapters > 0 ? String(stats.chapters) : home.stats?.[1]?.value,
+    },
+    {
+      label: 'Upcoming Events',
+      value: stats.events > 0 ? String(stats.events) : home.stats?.[2]?.value,
+    },
     { label: 'Published Updates', value: stats.posts > 0 ? String(stats.posts) : '0' },
   ]
 
@@ -47,7 +68,10 @@ export default async function HomePage() {
                 <h1>{home.heroTitle}</h1>
                 <p className="hero__lede">{home.heroDescription}</p>
                 <div className="hero__actions">
-                  <Link className="button button--primary" href={home.primaryCtaHref || '/membership'}>
+                  <Link
+                    className="button button--primary"
+                    href={home.primaryCtaHref || '/membership'}
+                  >
                     {home.primaryCtaLabel || 'Join Membership'}
                   </Link>
                   <Link
@@ -60,11 +84,11 @@ export default async function HomePage() {
               </div>
 
               <aside className="hero__panel">
-                <p className="hero__panel-label">Why this foundation matters</p>
-                <h2>Phase 1 and Phase 2 are now live in the codebase.</h2>
+                <p className="hero__panel-label">Our alumni network</p>
+                <h2>Connected by RUET, strengthened by community.</h2>
                 <p>
-                  Payload now owns the main content model, access groundwork, publishing structure,
-                  and the public shell that later feature phases will extend.
+                  Discover members, chapters, upcoming programs, and stories from RUET alumni across
+                  the United States.
                 </p>
                 <dl className="hero__meta">
                   {statItems.map((item) => (
@@ -85,7 +109,7 @@ export default async function HomePage() {
               <SectionHeading
                 eyebrow="Announcements"
                 title="Latest organization notices"
-                description="Announcements are now driven by Payload and can support both site-wide and chapter-scoped publishing."
+                description="Stay informed about association news, chapter updates, and opportunities across the alumni network."
               />
               <div className="card-grid card-grid--compact">
                 {announcements.map((announcement) => (
@@ -109,10 +133,10 @@ export default async function HomePage() {
           <Container>
             <SectionHeading
               eyebrow="Membership"
-              title={home.membershipSectionTitle || 'Membership foundation'}
+              title={home.membershipSectionTitle || 'One community, year-round connection'}
               description={
                 home.membershipSectionDescription ||
-                'The single annual membership model is already represented in the Payload schema and admin layer.'
+                'Annual membership supports alumni programs, local chapters, learning, and community connections.'
               }
             />
 
@@ -122,7 +146,7 @@ export default async function HomePage() {
                 <h3>{plan?.title || 'Annual Membership'}</h3>
                 <p>
                   {plan?.publicSummary ||
-                    'One annual membership type at launch, configurable in admin, with renewal and lifecycle fields already modeled.'}
+                    'One annual membership connecting RUET alumni across chapters, careers, and communities.'}
                 </p>
                 <strong className="membership-highlight__price">
                   {plan ? formatCurrency(plan.annualPrice ?? 50, plan.currency || 'USD') : '$50.00'}
@@ -140,8 +164,8 @@ export default async function HomePage() {
           <Container>
             <SectionHeading
               eyebrow="Chapters"
-              title="The chapter network has a working content model"
-              description="Chapter records, request workflow, and public listing/detail routes are now in place."
+              title="Find your local alumni community"
+              description="Regional chapters create opportunities to meet, volunteer, learn, and stay connected."
             />
 
             <div className="card-grid">
@@ -158,10 +182,7 @@ export default async function HomePage() {
               ) : (
                 <article className="surface-card surface-card--empty">
                   <h3>No active chapters yet</h3>
-                  <p>
-                    The schema and listing route are ready. Add chapter records from Payload admin to
-                    populate this section.
-                  </p>
+                  <p>New regional chapters will appear here as they become active.</p>
                 </article>
               )}
             </div>
@@ -172,8 +193,8 @@ export default async function HomePage() {
           <Container>
             <SectionHeading
               eyebrow="Events"
-              title="Event structure, timezone support, and waitlist-ready fields exist now"
-              description="Phase 1 added the event, registration, and waitlist schema. This homepage now surfaces upcoming published events."
+              title="Meet, learn, and participate"
+              description="Explore in-person, virtual, and hybrid programs hosted across the alumni network."
             />
 
             <div className="card-grid">
@@ -190,9 +211,7 @@ export default async function HomePage() {
               ) : (
                 <article className="surface-card surface-card--empty">
                   <h3>No published events yet</h3>
-                  <p>
-                    Add events in Payload admin to populate this section and the public events listing.
-                  </p>
+                  <p>Upcoming alumni programs will be shared here when registration opens.</p>
                 </article>
               )}
             </div>
@@ -203,8 +222,8 @@ export default async function HomePage() {
           <Container>
             <SectionHeading
               eyebrow="Learning"
-              title="The publishing system is live"
-              description="Posts, categories, announcements, pages, and history entries can now be managed through Payload."
+              title="Knowledge shared across generations"
+              description="Read alumni perspectives, professional development articles, and practical community resources."
             />
 
             <div className="card-grid">
@@ -221,7 +240,7 @@ export default async function HomePage() {
               ) : (
                 <article className="surface-card surface-card--empty">
                   <h3>No published articles yet</h3>
-                  <p>Create posts in Payload to populate the learning section and article routes.</p>
+                  <p>New articles and community resources will be shared here.</p>
                 </article>
               )}
             </div>

@@ -1,23 +1,96 @@
 export const fallbackSiteSettings = {
   footerNote:
-    'The website content, branding, and legal copy will continue to evolve as later implementation phases are completed.',
+    'Membership, chapters, events, and learning opportunities for the RUET alumni community.',
   id: 0,
   organizationName: 'RUETIAN USA',
   primaryEmail: 'info@ruetianusa.org',
   tagline: 'RUET alumni community in the United States',
-  utilityMessage: 'Association website foundation',
+  utilityMessage: 'Connecting RUET alumni across the United States',
 }
+
+export const defaultMainNavigation = [
+  {
+    children: [
+      { link: { href: '/about', label: 'About RUETIAN USA' } },
+      { link: { href: '/history', label: 'RUET history' } },
+      { link: { href: '/committees/running', label: 'Running committee' } },
+      { link: { href: '/committees/advisory', label: 'Advisory committee' } },
+      { link: { href: '/committees/history', label: 'Committee archive' } },
+    ],
+    featured: {
+      description: 'Learn how the alumni association is organized and how chapters connect.',
+      eyebrow: 'Our organization',
+      href: '/about',
+      label: 'Explore our mission',
+      title: 'Built for alumni continuity',
+    },
+    link: { href: '/about', label: 'About' },
+  },
+  {
+    children: [
+      { link: { href: '/membership', label: 'Membership overview' } },
+      { link: { href: '/membership/join', label: 'Join membership' } },
+      { link: { href: '/membership/renew', label: 'Renew or reactivate' } },
+      { link: { href: '/account/settings', label: 'Account settings' } },
+    ],
+    featured: {
+      description: 'One annual membership connecting RUET alumni across the United States.',
+      eyebrow: 'Membership',
+      href: '/membership',
+      label: 'View membership',
+      title: 'Stay connected year-round',
+    },
+    link: { href: '/membership', label: 'Membership' },
+  },
+  {
+    children: [
+      { link: { href: '/chapters', label: 'Chapter directory' } },
+      { link: { href: '/chapters/request', label: 'Request a chapter' } },
+    ],
+    featured: {
+      description: 'Find alumni activity, leadership, announcements, and events near you.',
+      eyebrow: 'Chapter network',
+      href: '/chapters',
+      label: 'Find a chapter',
+      title: 'Local community, national connection',
+    },
+    link: { href: '/chapters', label: 'Chapters' },
+  },
+  {
+    children: [
+      { link: { href: '/events', label: 'Upcoming events' } },
+      { link: { href: '/events?view=archive', label: 'Event archive' } },
+    ],
+    featured: {
+      description: 'Browse in-person, virtual, and hybrid programs from the alumni network.',
+      eyebrow: 'Events',
+      href: '/events',
+      label: 'Browse events',
+      title: 'Meet, learn, and participate',
+    },
+    link: { href: '/events', label: 'Events' },
+  },
+  {
+    children: [
+      { link: { href: '/learning', label: 'Learning hub' } },
+      { link: { href: '/learning?type=article', label: 'Articles' } },
+      { link: { href: '/learning?type=resource', label: 'Resources' } },
+    ],
+    featured: {
+      description: 'Professional knowledge, alumni perspectives, and practical resources.',
+      eyebrow: 'Learning',
+      href: '/learning',
+      label: 'Visit the learning hub',
+      title: 'Keep developing together',
+    },
+    link: { href: '/learning', label: 'Learning' },
+  },
+  { link: { href: '/contact', label: 'Contact' } },
+]
 
 export const fallbackHeader = {
   id: 0,
-  mainLinks: [
-    { link: { href: '/about', label: 'About' } },
-    { link: { href: '/membership', label: 'Membership' } },
-    { link: { href: '/chapters', label: 'Chapters' } },
-    { link: { href: '/events', label: 'Events' } },
-    { link: { href: '/learning', label: 'Learning' } },
-    { link: { href: '/contact', label: 'Contact' } },
-  ],
+  mainLinks: defaultMainNavigation,
   primaryCtaHref: '/membership',
   primaryCtaLabel: 'Join Membership',
   utilityLinks: [
@@ -46,9 +119,10 @@ export const fallbackFooter = {
       title: 'Events',
     },
   ],
-  legalNotice: 'Final legal copy is still an open item and will be added before launch.',
+  legalNotice:
+    'RUETIAN USA is an alumni-led community serving RUET graduates in the United States.',
   newsletterSummary:
-    'Newsletter sending will be enabled in a later phase once the email provider is configured.',
+    'Receive organization news, chapter updates, event notices, and learning resources.',
   newsletterTitle: 'Stay connected',
 }
 

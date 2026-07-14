@@ -3,6 +3,7 @@ import { slugField } from 'payload'
 
 import { adminsOnly } from '@/access/roles'
 import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import { seoFields } from '@/fields/seo'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -33,6 +34,13 @@ export const Posts: CollectionConfig = {
       required: true,
     },
     {
+      name: 'richBody',
+      type: 'richText',
+      admin: {
+        description: 'Preferred rich article body. The plain body remains as a legacy fallback.',
+      },
+    },
+    {
       name: 'featuredImage',
       type: 'upload',
       relationTo: 'media',
@@ -44,6 +52,30 @@ export const Posts: CollectionConfig = {
       relationTo: 'categories',
     },
     {
+      name: 'authorName',
+      type: 'text',
+    },
+    {
+      name: 'readingTimeMinutes',
+      type: 'number',
+      min: 1,
+    },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      defaultValue: false,
+    },
+    {
+      name: 'contentType',
+      type: 'select',
+      defaultValue: 'article',
+      options: [
+        { label: 'Article', value: 'article' },
+        { label: 'Resource', value: 'resource' },
+        { label: 'News', value: 'news' },
+      ],
+    },
+    {
       name: 'publishedAt',
       type: 'date',
       admin: {
@@ -53,6 +85,7 @@ export const Posts: CollectionConfig = {
     slugField({
       position: undefined,
     }),
+    seoFields(),
   ],
   versions: {
     drafts: {

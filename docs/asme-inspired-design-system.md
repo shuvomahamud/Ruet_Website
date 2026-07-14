@@ -1,6 +1,6 @@
 # RUETIAN USA Website ASME-Inspired Design System
 
-Updated: 2026-03-29
+Updated: 2026-07-13
 
 ## 1. Purpose
 
@@ -15,6 +15,9 @@ The live implementation now applies these design-system ownership rules:
 - the header logo is loaded from [public/brand](/Users/shuvomahamud/Projects/RUET_Website/public/brand) using the standard `ruetian-usa-logo.*` filename pattern
 - public page copy for the core informational and listing pages is now expected to come from Payload CMS rather than hardcoded route text
 - this keeps the design system aligned with the original requirement that content density should be CMS-managed, not baked into code
+- the header now implements structured desktop mega-menus and a keyboard-contained mobile drawer using the same CMS-owned hierarchy
+- the public component library now includes reusable cards, rails, filters, pagination, badges, CTAs, stats, galleries, timelines, and loading/empty/error states
+- institutional, learning, contact, and legal templates share the implemented responsive and focus-visible rules
 
 ## 2. Reference Inputs
 

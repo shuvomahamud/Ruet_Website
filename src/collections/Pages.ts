@@ -3,6 +3,7 @@ import { slugField } from 'payload'
 
 import { adminsOnly } from '@/access/roles'
 import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import { seoFields } from '@/fields/seo'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -40,12 +41,48 @@ export const Pages: CollectionConfig = {
       type: 'textarea',
     },
     {
+      name: 'pageType',
+      type: 'select',
+      defaultValue: 'standard',
+      options: [
+        { label: 'Standard', value: 'standard' },
+        { label: 'Institutional', value: 'institutional' },
+        { label: 'Legal', value: 'legal' },
+      ],
+    },
+    {
+      name: 'legalStatus',
+      type: 'select',
+      admin: {
+        condition: (_, siblingData) => siblingData?.pageType === 'legal',
+      },
+      defaultValue: 'placeholder',
+      options: [
+        { label: 'Placeholder — approval pending', value: 'placeholder' },
+        { label: 'Approved', value: 'approved' },
+      ],
+    },
+    {
+      name: 'lastReviewedAt',
+      type: 'date',
+      admin: {
+        condition: (_, siblingData) => siblingData?.pageType === 'legal',
+      },
+    },
+    {
       name: 'sections',
       type: 'array',
       admin: {
         initCollapsed: true,
       },
       fields: [
+        {
+          name: 'anchor',
+          type: 'text',
+          admin: {
+            description: 'Optional URL-safe anchor used by legal tables of contents.',
+          },
+        },
         {
           name: 'eyebrow',
           type: 'text',
@@ -80,6 +117,7 @@ export const Pages: CollectionConfig = {
     slugField({
       position: undefined,
     }),
+    seoFields(),
   ],
   versions: {
     drafts: {

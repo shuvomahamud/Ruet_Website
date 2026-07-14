@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { CollectionCard } from '@/components/content/CollectionCard'
@@ -7,7 +8,19 @@ import { SiteFooter } from '@/components/site/SiteFooter'
 import { SiteHeader } from '@/components/site/SiteHeader'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
+import { createPageMetadata } from '@/utilities/metadata'
 import { getActiveChapters, getPublishedPageBySlug } from '@/utilities/payload-public'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPublishedPageBySlug('chapters')
+
+  return createPageMetadata({
+    canonicalPath: '/chapters',
+    description: page?.heroDescription,
+    seo: page?.seo,
+    title: page?.title || 'Chapters',
+  })
+}
 
 export default async function ChaptersPage() {
   const [page, chapters] = await Promise.all([
@@ -26,7 +39,11 @@ export default async function ChaptersPage() {
     <>
       <SiteHeader />
       <main>
-        <PageHero description={page.heroDescription} eyebrow={page.heroEyebrow} title={page.heroTitle} />
+        <PageHero
+          description={page.heroDescription}
+          eyebrow={page.heroEyebrow}
+          title={page.heroTitle}
+        />
         <section className="page-section">
           <Container>
             {introSection ? (

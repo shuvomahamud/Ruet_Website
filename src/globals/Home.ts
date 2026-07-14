@@ -25,7 +25,7 @@ export const Home: GlobalConfig = {
       name: 'heroDescription',
       type: 'textarea',
       defaultValue:
-        'This foundation now supports dynamic content, publishing workflows, chapter structure, membership data models, and the public site shell needed for the next implementation phases.',
+        'Connect with RUET alumni across the United States through membership, regional chapters, events, and shared professional learning.',
     },
     {
       name: 'primaryCtaLabel',
@@ -72,13 +72,13 @@ export const Home: GlobalConfig = {
     {
       name: 'membershipSectionTitle',
       type: 'text',
-      defaultValue: 'Membership foundation',
+      defaultValue: 'One community, year-round connection',
     },
     {
       name: 'membershipSectionDescription',
       type: 'textarea',
       defaultValue:
-        'The site is structured for one annual membership plan at launch, with configurable pricing and future-ready schema support.',
+        'Annual membership helps sustain alumni programming, regional chapters, professional development, and community connections.',
     },
   ],
 }

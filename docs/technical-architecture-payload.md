@@ -25,6 +25,10 @@ The current codebase now follows these concrete implementation rules:
 - transaction collections are read-scoped but service-only for create/update/delete; state transitions share the Payload request transaction and lock the target PostgreSQL row
 - payment screenshots/PDFs use the private `paymentProofs` collection rather than publicly readable editorial media
 - immutable transaction snapshots and super-admin-readable `auditLogs` support operational traceability without logging proof contents or secrets
+- Header rows support nested child links and featured content consumed by the accessible desktop mega-menu and mobile drawer
+- Pages and posts carry reusable SEO groups; legal pages add approval state, review date, and stable section anchors
+- posts support rich content, content type, featured ordering, author, and reading-time metadata while retaining the legacy plain-body fallback
+- public contact writes pass through the validated and rate-limited `/api/contact` boundary into the private `contactSubmissions` collection
 
 ## 2. Core Architecture Principles
 
@@ -523,11 +527,16 @@ Key fields:
 
 - title
 - slug
-- category
 - excerpt
 - body
+- richBody
 - featuredImage
-- publishStatus
+- categories
+- authorName
+- readingTimeMinutes
+- featured
+- contentType
+- publishedAt and draft status
 - seoFields
 
 ### 6.15 `announcements`
@@ -542,6 +551,10 @@ Recommended for scheduled newsletter authoring and send history.
 
 Central upload collection for images, PDFs, and payment-proof assets.
 
+### 6.18 `contactSubmissions`
+
+Private public-inquiry records created only after server validation. Public callers cannot read or mutate submissions, and trusted status, time, and internal-note fields are forced on the server.
+
 ## 7. Globals
 
 Use Payload globals for:
@@ -551,9 +564,10 @@ Use Payload globals for:
 - footer
 - homepage settings
 - membership landing settings
-- contact settings
-- legal page placeholders
+- contact settings and response guidance
 - SEO defaults
+
+The `Pages` collection owns legal page type, approval status, review date, anchored sections, and placeholder or approved policy content.
 
 ## 8. Frontend Rendering Strategy
 

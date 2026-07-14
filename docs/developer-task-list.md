@@ -80,29 +80,20 @@ The workstreams can overlap, but tasks inside each stream should still follow de
 
 ## 6. Phase Overview
 
-### Phase 0
+The authoritative gated sequence is maintained in [remaining-implementation-roadmap.md](/Users/shuvomahamud/Projects/RUET_Website/docs/remaining-implementation-roadmap.md):
 
-Project setup, architecture, environment, and base design system.
-
-### Phase 1
-
-Payload collections, auth, roles, access control, and admin groundwork.
-
-### Phase 2
-
-Public site shell, navigation, footer, home page framework, and content templates.
-
-### Phase 3
-
-Membership, Zelle manual payments, promotions, and member lifecycle flows.
-
-### Phase 4
-
-Chapters, events, waitlists, galleries, chapter-admin workflows, and Zelle registration flows.
-
-### Phase 5
-
-Communications, dashboard, reporting, QA, and launch hardening.
+- Phase 0: scope normalization and engineering recovery — completed
+- Phase 1: data integrity, authorization, and workflow primitives — completed
+- Phase 2: authentication and account lifecycle — completed
+- Phase 3: shared public experience and institutional content — completed
+- Phase 4: chapters, history, and governance
+- Phase 5: email and background-job foundation
+- Phase 6: membership, promotions, and Zelle payments
+- Phase 7: events, registration, waitlists, and shared manual review
+- Phase 8: announcements, newsletters, footer completion, and preferences
+- Phase 9: member dashboard, history, and reporting
+- Phase 10: homepage, publishing workflow, seeds, and admin usability
+- Phase 11: full validation, launch hardening, and deployment readiness
 
 ## 6.1 Sequencing decision
 
@@ -127,8 +118,9 @@ Status baseline for this document:
 
 Strict status answer:
 
-- the continuous fully completed block is `A-01` through `C-04`
-- in other words, the project is fully complete through letter `C`, task `04`
+- the continuous fully completed block remains `A-01` through `C-04`
+- roadmap Phase 3 additionally completes `D-01`, `D-03`, `E-02`, `E-05`, and `E-06`
+- `D-02` remains partial, so later completed work is intentionally non-contiguous
 
 Fully completed tasks:
 
@@ -148,16 +140,16 @@ Fully completed tasks:
 - `C-02`
 - `C-03`
 - `C-04`
-
-Partially implemented tasks already started in code:
-
 - `D-01`
-- `D-02`
 - `D-03`
-- `E-01`
 - `E-02`
 - `E-05`
 - `E-06`
+
+Partially implemented tasks already started in code:
+
+- `D-02`
+- `E-01`
 - `F-01`
 - `G-01`
 - `G-02`
@@ -722,6 +714,8 @@ Acceptance criteria:
 - mobile and desktop navigation both function cleanly
 - join-membership CTA remains visible
 
+Verification update (2026-07-13): completed with CMS-driven child navigation and featured panels, desktop click/hover mega-menus, current-section states, a focus-contained mobile drawer, escape/focus restoration, body-scroll locking, keyboard regression coverage, and the visible membership CTA at desktop and mobile breakpoints.
+
 ### Task D-02: Footer system
 
 Objective:
@@ -774,6 +768,8 @@ Acceptance criteria:
 
 - page templates can be assembled without one-off styling each time
 - the visual system is coherent across page types
+
+Verification update (2026-07-13): completed with reusable badges, content cards and rails, CTA bands, stats, filters, pagination, galleries, timelines, loading skeletons, and empty/error states, plus responsive styles and reduced-motion behavior shared across public templates.
 
 ## 7.5 Public Pages And Content Rendering
 
@@ -838,6 +834,8 @@ Acceptance criteria:
 
 - informational pages are editable through admin-managed content
 - contact information is not hard-coded
+
+Verification update (2026-07-13): completed with a CMS-driven institutional About layout, mission/vision/governance sections, global contact details, and a validated, rate-limited contact form whose submissions are private and admin-readable.
 
 ### Task E-03: History timeline page
 
@@ -920,6 +918,8 @@ Acceptance criteria:
 - articles are filterable and searchable
 - article detail pages support rich content and metadata
 
+Verification update (2026-07-13): completed with published-only listing/detail queries, GET-based search, category and content-type filters, pagination, rich-text rendering with legacy fallback, related content, authored/read-time metadata, canonical/Open Graph/Twitter metadata, and browser coverage.
+
 ### Task E-06: Legal page templates
 
 Objective:
@@ -946,6 +946,8 @@ Acceptance criteria:
 
 - legal pages exist in the site structure
 - legal copy can be inserted later without layout changes
+
+Verification update (2026-07-13): completed with CMS-managed legal page types, explicit placeholder/approved status, last-reviewed dates, generated tables of contents, stable section anchors, readable legal layout, and structured seeded templates for privacy, website terms, and membership terms.
 
 ## 7.6 Membership And Checkout
 

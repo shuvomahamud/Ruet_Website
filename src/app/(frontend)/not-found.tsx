@@ -12,9 +12,9 @@ export default function NotFound() {
         <section className="page-hero">
           <Container narrow>
             <p className="section-heading__eyebrow">Not found</p>
-            <h1>The requested page does not exist yet.</h1>
+            <h1>We could not find that page.</h1>
             <p className="page-hero__description">
-              Some routes will be filled with richer content as later feature phases are completed.
+              The address may have changed, or the page may no longer be available.
             </p>
             <Link className="button button--primary" href="/">
               Return to homepage

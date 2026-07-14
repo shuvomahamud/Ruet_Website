@@ -29,6 +29,14 @@ The current implementation now maps these public routes to CMS-owned `Pages` rec
 
 This means the hero and supporting page-copy layers for those routes are now expected to be edited in Payload admin instead of in code.
 
+Roadmap Phase 3 now implements the shared blueprint foundations:
+
+- desktop mega-menus and a keyboard-contained mobile navigation drawer
+- reusable cards, rails, badges, filters, pagination, CTA, stats, gallery, timeline, and state components
+- a dedicated institutional About composition and protected Contact form
+- learning search, filters, rich detail, related content, and page metadata
+- legal status, last-updated display, table of contents, anchors, and readable policy width
+
 ## 2. Global Page Pattern
 
 Most public pages should follow this overall pattern:
@@ -430,6 +438,8 @@ Use a confirmation modal or dedicated confirmation page with clear warnings.
 - chapter support guidance
 - newsletter signup
 
+Implementation note: the form, direct contact info, and chapter-support guidance are complete. Newsletter signup remains with the Phase 8 footer/newsletter work.
+
 ## 20. Legal Pages Blueprint
 
 Legal pages should use a simpler editorial layout:
@@ -438,6 +448,8 @@ Legal pages should use a simpler editorial layout:
 - last updated date
 - section table of contents for long pages
 - readable content width
+
+Implementation note: this layout is complete and CMS-driven. The current policies are explicitly marked as approval-pending placeholders until final stakeholder wording is installed.
 
 ## 21. Responsive Design Rules
 

@@ -22,10 +22,10 @@ const editorialSerif = Source_Serif_4({
 
 export const metadata: Metadata = {
   description:
-    'RUETIAN USA website foundation scaffold built with Next.js, Payload CMS, and PostgreSQL.',
+    'RUETIAN USA connects RUET alumni across the United States through membership, chapters, events, and professional learning.',
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   title: {
-    default: 'RUETIAN USA Foundation',
+    default: 'RUETIAN USA',
     template: '%s | RUETIAN USA',
   },
 }

@@ -11,6 +11,11 @@ export const SeoDefaults: GlobalConfig = {
   },
   fields: [
     {
+      name: 'siteName',
+      type: 'text',
+      defaultValue: 'RUETIAN USA',
+    },
+    {
       name: 'titleSuffix',
       type: 'text',
       defaultValue: ' | RUETIAN USA',
@@ -20,6 +25,18 @@ export const SeoDefaults: GlobalConfig = {
       type: 'textarea',
       defaultValue:
         'RUETIAN USA is a chapter-driven alumni association platform built for community, membership, events, and institutional continuity.',
+    },
+    {
+      name: 'defaultImage',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
+      name: 'socialHandle',
+      type: 'text',
+      admin: {
+        description: 'Optional social handle, including the leading @.',
+      },
     },
   ],
 }

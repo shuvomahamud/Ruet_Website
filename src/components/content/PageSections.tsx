@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 type Section = {
+  anchor?: string | null
   body?: string | null
   ctaHref?: string | null
   ctaLabel?: string | null
@@ -15,7 +16,11 @@ export const PageSections = ({ sections }: { sections: Section[] }) => {
   return (
     <div className="content-sections">
       {sections.map((section, index) => (
-        <section className="content-section" key={section.id ?? `${section.title}-${index}`}>
+        <section
+          className="content-section"
+          id={section.anchor || undefined}
+          key={section.id ?? `${section.title}-${index}`}
+        >
           {section.eyebrow ? <p className="section-heading__eyebrow">{section.eyebrow}</p> : null}
           {section.title ? <h2>{section.title}</h2> : null}
           {section.body ? <p>{section.body}</p> : null}

@@ -15,15 +15,15 @@ C-01,Local auth flows,Completed
 C-02,Google sign-in integration,Completed
 C-03,Profile management,Completed
 C-04,Self-service account deletion,Completed
-D-01,Header navigation and mega-menu system,Partial
+D-01,Header navigation and mega-menu system,Completed
 D-02,Footer system,Partial
-D-03,Shared public components,Partial
+D-03,Shared public components,Completed
 E-01,Home page implementation,Partial
-E-02,About mission and contact pages,Partial
+E-02,About mission and contact pages,Completed
 E-03,History timeline page,Pending
 E-04,Committee pages,Pending
-E-05,Learning and development pages,Partial
-E-06,Legal page templates,Partial
+E-05,Learning and development pages,Completed
+E-06,Legal page templates,Completed
 F-01,Membership overview page,Partial
 F-02,Join membership flow,Pending
 F-03,Stripe membership checkout,Superseded
