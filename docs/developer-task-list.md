@@ -86,9 +86,9 @@ The authoritative gated sequence is maintained in [remaining-implementation-road
 - Phase 1: data integrity, authorization, and workflow primitives — completed
 - Phase 2: authentication and account lifecycle — completed
 - Phase 3: shared public experience and institutional content — completed
-- Phase 4: chapters, history, and governance
-- Phase 5: email and background-job foundation
-- Phase 6: membership, promotions, and Zelle payments
+- Phase 4: chapters, history, and governance — completed
+- Phase 5: email and background-job foundation — completed
+- Phase 6: membership, promotions, and Zelle payments — completed
 - Phase 7: events, registration, waitlists, and shared manual review
 - Phase 8: announcements, newsletters, footer completion, and preferences
 - Phase 9: member dashboard, history, and reporting
@@ -122,6 +122,7 @@ Strict status answer:
 - roadmap Phase 3 additionally completes `D-01`, `D-03`, `E-02`, `E-05`, and `E-06`
 - roadmap Phase 4 additionally completes `E-03`, `E-04`, and `G-01` through `G-04`
 - roadmap Phase 5 additionally completes `J-01`
+- roadmap Phase 6 additionally completes `F-01`, `F-02`, and `F-04` through `F-06`
 - `D-02` remains partial, so later completed work is intentionally non-contiguous
 
 Fully completed tasks:
@@ -154,12 +155,16 @@ Fully completed tasks:
 - `G-03`
 - `G-04`
 - `J-01`
+- `F-01`
+- `F-02`
+- `F-04`
+- `F-05`
+- `F-06`
 
 Partially implemented tasks already started in code:
 
 - `D-02`
 - `E-01`
-- `F-01`
 - `H-01`
 - `H-02`
 - `J-03`
@@ -167,10 +172,6 @@ Partially implemented tasks already started in code:
 
 Pending tasks:
 
-- `F-02`
-- `F-04`
-- `F-05`
-- `F-06`
 - `H-03`
 - `H-05`
 - `H-06`
@@ -983,6 +984,8 @@ Acceptance criteria:
 - plan price and benefits are admin-editable
 - the page clearly presents one annual plan
 
+Verification update (2026-07-13): completed with a single-active-plan invariant, CMS-managed benefits/FAQs/policies, live annual pricing, join/renew/status CTAs, unavailable-plan state, responsive layout, and explicit Zelle-only/manual-renewal language.
+
 ### Task F-02: Join membership flow
 
 Objective:
@@ -1014,6 +1017,8 @@ Acceptance criteria:
 - a public user can successfully proceed from signup to the Zelle payment step
 - one promo code can be applied
 - order totals calculate correctly
+
+Verification update (2026-07-13): completed with authenticated profile gating, active-chapter enforcement, server-authoritative promotion eligibility/totals, one immutable membership/order/payment transaction, live order summary, validation, and browser-tested pending-state navigation.
 
 ### Task F-03: Stripe membership checkout — Superseded
 
@@ -1047,6 +1052,8 @@ Acceptance criteria:
 - a user can submit proof with transaction ID, screenshot, or both
 - membership remains pending until approved
 
+Verification update (2026-07-13): completed with centrally managed Zelle recipient/instructions, transaction-ID-only, proof-only, and combined submissions, private validated uploads, row-locked checkout, immutable resubmission attempts, payer/reviewer notifications, pending status/history, and chapter-scoped review UI/API.
+
 ### Task F-05: Membership renewal and reactivation flows
 
 Objective:
@@ -1074,6 +1081,8 @@ Acceptance criteria:
 
 - expired users are shown a pay-to-reactivate path
 - grace-period users can recover membership without duplicate state corruption
+
+Verification update (2026-07-13): completed with annual renewal and pay-to-reactivate routes, approval-derived term dates, prior-term linking, scheduled pre-expiration and grace reminders, configurable grace transitions, expiration, grace recovery, and prevention of duplicate future-term renewal.
 
 ### Task F-06: Membership admin controls
 
@@ -1104,6 +1113,8 @@ Acceptance criteria:
 
 - super admin can edit plan price and content without code changes
 - admins can inspect pending and failed membership payments
+
+Verification update (2026-07-13): completed with super-admin plan editing, configurable price/reminder/grace fields, database-enforced single-active-plan behavior, promotion management, useful membership/order/payment admin columns and filters, and a role/chapter-scoped pending review screen with preserved failed attempts.
 
 ## 7.7 Chapters And Governance
 

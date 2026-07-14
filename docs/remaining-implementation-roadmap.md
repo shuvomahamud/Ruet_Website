@@ -38,14 +38,14 @@ Historical migration files must not be rewritten after they have been applied. S
 
 ### 2.2 Active backlog
 
-After completion of roadmap Phase 5, the tracked backlog contains:
+After completion of roadmap Phase 6, the tracked backlog contains:
 
-- `28` completed tasks
-- `7` partially implemented tasks
-- `20` pending tasks
+- `33` completed tasks
+- `6` partially implemented tasks
+- `16` pending tasks
 - `2` superseded Stripe tasks
 
-There are `27` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
+There are `22` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
 
 ### 2.3 Work excluded from the approved launch scope
 
@@ -278,6 +278,8 @@ Required external input before production verification:
 - verified sender domain/address
 
 ## Phase 6: Membership, Promotions, And Zelle Payments
+
+Status: `Completed` on 2026-07-13. Evidence: [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md).
 
 Goal: deliver the complete annual membership lifecycle using Zelle only.
 

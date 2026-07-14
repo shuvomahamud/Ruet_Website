@@ -33,6 +33,7 @@ import { Posts } from './collections/Posts'
 import { Promotions } from './collections/Promotions'
 import { WaitlistEntries } from './collections/WaitlistEntries'
 import { deliverEmailTask } from './jobs/deliver-email'
+import { membershipLifecycleTask } from './jobs/membership-lifecycle'
 import { Footer } from './globals/Footer'
 import { Header } from './globals/Header'
 import { Home } from './globals/Home'
@@ -104,7 +105,7 @@ export default buildConfig({
     deleteJobOnComplete: false,
     enableConcurrencyControl: true,
     processingOrder: 'createdAt',
-    tasks: [deliverEmailTask],
+    tasks: [deliverEmailTask, membershipLifecycleTask],
   },
   secret: env.PAYLOAD_SECRET,
   serverURL: env.NEXT_PUBLIC_SITE_URL,

@@ -19,7 +19,7 @@ export const Orders: CollectionConfig = {
     update: denyAll,
   },
   admin: {
-    defaultColumns: ['orderType', 'status', 'total', 'updatedAt'],
+    defaultColumns: ['orderType', 'paymentMethod', 'promotionCodeSnapshot', 'status', 'total'],
     useAsTitle: 'orderType',
   },
   fields: [

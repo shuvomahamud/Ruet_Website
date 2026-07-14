@@ -61,7 +61,22 @@ const updateApprovedTarget = async (
     })) as Membership
 
     assertExpectedStatus(membership.status, 'pending_manual_approval')
-    const expiresAt = addOneYear(approvedAt)
+    let startsAt = approvedAt
+    const previousMembershipID = getRelationshipID(membership.previousMembership)
+    if (membership.membershipKind === 'renewal' && previousMembershipID) {
+      const previousMembership = await req.payload.findByID({
+        collection: 'memberships',
+        depth: 0,
+        id: previousMembershipID,
+        overrideAccess: true,
+        req,
+      })
+      if (previousMembership.expiresAt) {
+        const previousExpiration = new Date(previousMembership.expiresAt)
+        if (previousExpiration > approvedAt) startsAt = previousExpiration
+      }
+    }
+    const expiresAt = addOneYear(startsAt)
 
     await transitionWorkflowRecord({
       collection: 'memberships',
@@ -70,13 +85,37 @@ const updateApprovedTarget = async (
         graceEndsAt: null,
         reactivationEligible: true,
         renewalAt: expiresAt.toISOString(),
-        startedAt: approvedAt.toISOString(),
+        startedAt: startsAt.toISOString(),
       },
       expectedStatus: 'pending_manual_approval',
       id: membershipID,
       nextStatus: 'active',
       req,
     })
+
+    if (previousMembershipID) {
+      const previousMembership = (await req.payload.findByID({
+        collection: 'memberships',
+        depth: 0,
+        id: previousMembershipID,
+        overrideAccess: true,
+        req,
+      })) as Membership
+      const previousTermEnded =
+        previousMembership.expiresAt && new Date(previousMembership.expiresAt) <= approvedAt
+      if (
+        previousMembership.status === 'grace_period' ||
+        (previousMembership.status === 'active' && previousTermEnded)
+      ) {
+        await transitionWorkflowRecord({
+          collection: 'memberships',
+          expectedStatus: previousMembership.status,
+          id: previousMembership.id,
+          nextStatus: 'expired',
+          req,
+        })
+      }
+    }
   }
 
   if (registrationID) {

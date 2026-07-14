@@ -7,6 +7,7 @@ import {
   validateNonNegativeMoney,
   validateUSD,
 } from '@/domain/validation'
+import { validateSingleActiveMembershipPlan } from '@/hooks/validateMembershipPlan'
 
 export const MembershipPlans: CollectionConfig = {
   slug: 'membershipPlans',
@@ -17,7 +18,7 @@ export const MembershipPlans: CollectionConfig = {
     update: superAdminsOnly,
   },
   admin: {
-    defaultColumns: ['title', 'annualPrice', 'active', 'updatedAt'],
+    defaultColumns: ['title', 'annualPrice', 'gracePeriodDays', 'active', 'updatedAt'],
     useAsTitle: 'title',
   },
   fields: [
@@ -43,6 +44,28 @@ export const MembershipPlans: CollectionConfig = {
           required: true,
         },
       ],
+    },
+    {
+      name: 'faqs',
+      type: 'array',
+      fields: [
+        { name: 'question', type: 'text', required: true },
+        { name: 'answer', type: 'textarea', required: true },
+      ],
+    },
+    {
+      name: 'renewalPolicy',
+      type: 'textarea',
+      defaultValue:
+        'Membership is annual and renews only after a new Zelle payment proof is approved. The website never debits members automatically.',
+      required: true,
+    },
+    {
+      name: 'termsSummary',
+      type: 'textarea',
+      defaultValue:
+        'Membership payments are reviewed manually. Final membership and no-refund terms must be approved before launch.',
+      required: true,
     },
     {
       name: 'annualPrice',
@@ -87,4 +110,7 @@ export const MembershipPlans: CollectionConfig = {
       validate: validateNonNegativeInteger,
     },
   ],
+  hooks: {
+    beforeChange: [validateSingleActiveMembershipPlan],
+  },
 }

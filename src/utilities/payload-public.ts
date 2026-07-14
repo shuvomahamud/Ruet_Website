@@ -452,7 +452,7 @@ export const getActiveMembershipPlan = async (): Promise<MembershipPlan | null> 
   const result = await payload.find({
     collection: 'membershipPlans',
     depth: 1,
-    limit: 1,
+    limit: 2,
     overrideAccess: false,
     where: {
       active: {
@@ -461,7 +461,7 @@ export const getActiveMembershipPlan = async (): Promise<MembershipPlan | null> 
     },
   })
 
-  return result.docs[0] ?? null
+  return result.docs.length === 1 ? result.docs[0] : null
 }
 
 export const getActiveHistoryEntries = async (limit = 6): Promise<HistoryEntry[]> => {

@@ -139,6 +139,7 @@ export interface Config {
     footer: Footer;
     home: Home;
     seoDefaults: SeoDefault;
+    'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
     siteSettings: SiteSettingsSelect<false> | SiteSettingsSelect<true>;
@@ -146,6 +147,7 @@ export interface Config {
     footer: FooterSelect<false> | FooterSelect<true>;
     home: HomeSelect<false> | HomeSelect<true>;
     seoDefaults: SeoDefaultsSelect<false> | SeoDefaultsSelect<true>;
+    'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -155,6 +157,7 @@ export interface Config {
   jobs: {
     tasks: {
       deliverEmail: DeliverEmailJobInput;
+      membershipLifecycle: MembershipLifecycleJobInput;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -537,6 +540,15 @@ export interface MembershipPlan {
         id?: string | null;
       }[]
     | null;
+  faqs?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  renewalPolicy: string;
+  termsSummary: string;
   annualPrice: number;
   currency: string;
   active?: boolean | null;
@@ -564,6 +576,8 @@ export interface Membership {
     | 'failed_manual_payment'
     | 'cancelled_by_admin'
     | 'suspended';
+  membershipKind: 'join' | 'renewal' | 'reactivation';
+  previousMembership?: (number | null) | Membership;
   startedAt?: string | null;
   renewalAt?: string | null;
   expiresAt?: string | null;
@@ -575,6 +589,9 @@ export interface Membership {
   planPriceSnapshot: number;
   currencySnapshot: string;
   billingIntervalSnapshot: string;
+  gracePeriodDaysSnapshot: number;
+  renewalReminderEnabledSnapshot: boolean;
+  renewalReminderDaysBeforeSnapshot: number;
   reactivationEligible?: boolean | null;
   updatedAt: string;
   createdAt: string;
@@ -893,7 +910,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'deliverEmail' | 'schedulePublish';
+        taskSlug: 'inline' | 'deliverEmail' | 'membershipLifecycle' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -926,7 +943,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'deliverEmail' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'deliverEmail' | 'membershipLifecycle' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -934,6 +951,15 @@ export interface PayloadJob {
    * Used for concurrency control. Jobs with the same key are subject to exclusive/supersedes rules.
    */
   concurrencyKey?: string | null;
+  meta?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1384,6 +1410,15 @@ export interface MembershipPlansSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  renewalPolicy?: T;
+  termsSummary?: T;
   annualPrice?: T;
   currency?: T;
   active?: T;
@@ -1402,6 +1437,8 @@ export interface MembershipsSelect<T extends boolean = true> {
   user?: T;
   plan?: T;
   status?: T;
+  membershipKind?: T;
+  previousMembership?: T;
   startedAt?: T;
   renewalAt?: T;
   expiresAt?: T;
@@ -1413,6 +1450,9 @@ export interface MembershipsSelect<T extends boolean = true> {
   planPriceSnapshot?: T;
   currencySnapshot?: T;
   billingIntervalSnapshot?: T;
+  gracePeriodDaysSnapshot?: T;
+  renewalReminderEnabledSnapshot?: T;
+  renewalReminderDaysBeforeSnapshot?: T;
   reactivationEligible?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1678,6 +1718,7 @@ export interface PayloadJobsSelect<T extends boolean = true> {
   waitUntil?: T;
   processing?: T;
   concurrencyKey?: T;
+  meta?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1728,6 +1769,14 @@ export interface SiteSetting {
   contactResponseNote?: string | null;
   utilityMessage?: string | null;
   footerNote?: string | null;
+  zelleRecipientName?: string | null;
+  /**
+   * The approved Zelle email address or US phone number.
+   */
+  zelleRecipient?: string | null;
+  zelleInstructions: string;
+  manualPaymentReviewNote: string;
+  noRefundNotice: string;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1854,6 +1903,24 @@ export interface SeoDefault {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats".
+ */
+export interface PayloadJobsStat {
+  id: number;
+  stats?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "siteSettings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -1866,6 +1933,11 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   contactResponseNote?: T;
   utilityMessage?: T;
   footerNote?: T;
+  zelleRecipientName?: T;
+  zelleRecipient?: T;
+  zelleInstructions?: T;
+  manualPaymentReviewNote?: T;
+  noRefundNotice?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1997,6 +2069,16 @@ export interface SeoDefaultsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats_select".
+ */
+export interface PayloadJobsStatsSelect<T extends boolean = true> {
+  stats?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -2018,6 +2100,18 @@ export interface DeliverEmailJobInput {
   output: {
     deliveryID: number;
     status: 'sent' | 'deduplicated' | 'suppressed';
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MembershipLifecycleJobInput".
+ */
+export interface MembershipLifecycleJobInput {
+  input?: unknown;
+  output: {
+    expired: number;
+    graceStarted: number;
+    remindersQueued: number;
   };
 }
 /**

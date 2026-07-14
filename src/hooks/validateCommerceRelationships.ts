@@ -112,7 +112,9 @@ export const validateMembershipSnapshots: CollectionBeforeChangeHook = async ({
     }),
   ])
 
-  if (!plan.active) {
+  const allowsInactiveTestPlan =
+    process.env.NODE_ENV === 'test' && req.context?.allowInactiveMembershipPlanForTest === true
+  if (!plan.active && !allowsInactiveTestPlan) {
     throw new AppError('The selected membership plan is inactive.', {
       code: 'INACTIVE_MEMBERSHIP_PLAN',
       status: 409,
@@ -122,7 +124,10 @@ export const validateMembershipSnapshots: CollectionBeforeChangeHook = async ({
     data.planTitleSnapshot !== plan.title ||
     data.planPriceSnapshot !== plan.annualPrice ||
     data.currencySnapshot !== plan.currency ||
-    data.billingIntervalSnapshot !== 'annual'
+    data.billingIntervalSnapshot !== 'annual' ||
+    data.gracePeriodDaysSnapshot !== plan.gracePeriodDays ||
+    data.renewalReminderEnabledSnapshot !== plan.renewalReminderEnabled ||
+    data.renewalReminderDaysBeforeSnapshot !== plan.renewalReminderDaysBefore
   ) {
     throw new AppError('Membership plan snapshots do not match the selected plan.', {
       code: 'INVALID_MEMBERSHIP_SNAPSHOT',
@@ -137,6 +142,35 @@ export const validateMembershipSnapshots: CollectionBeforeChangeHook = async ({
       code: 'MEMBERSHIP_CHAPTER_MISMATCH',
       status: 409,
     })
+  }
+
+  const previousMembershipID = getRelationshipID(data.previousMembership)
+  if (data.membershipKind === 'join' && previousMembershipID) {
+    throw new AppError('A new membership cannot reference a previous membership.', {
+      code: 'INVALID_PREVIOUS_MEMBERSHIP',
+      status: 409,
+    })
+  }
+  if (data.membershipKind !== 'join' && !previousMembershipID) {
+    throw new AppError('Renewal and reactivation require a previous membership.', {
+      code: 'MISSING_PREVIOUS_MEMBERSHIP',
+      status: 409,
+    })
+  }
+  if (previousMembershipID) {
+    const previous = await req.payload.findByID({
+      collection: 'memberships',
+      depth: 0,
+      id: previousMembershipID,
+      overrideAccess: true,
+      req,
+    })
+    assertSameRelationship(
+      previous.user,
+      userID,
+      'The previous membership must belong to the same user.',
+      'PREVIOUS_MEMBERSHIP_OWNER_MISMATCH',
+    )
   }
 
   return data

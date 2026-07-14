@@ -23,6 +23,7 @@ This guide covers the implemented work from:
 - Remaining-roadmap Phase 3: accessible desktop/mobile navigation, shared public components, institutional/contact pages, learning search/detail, legal templates, and metadata
 - Remaining-roadmap Phase 4: searchable chapters, complete chapter detail modules, chapter requests and super-admin review, history archives, committee pages, and chapter isolation
 - Remaining-roadmap Phase 5: captured/Resend email adapter, responsive templates, private delivery audits, preference rules, and queued/scheduled job infrastructure
+- Remaining-roadmap Phase 6: annual membership overview, profile-gated join, Zelle proof/transaction submission, chapter-scoped approval, immutable resubmission, renewal, grace, expiration, reactivation, and membership notifications
 
 ## 2. UAT Scope
 
@@ -53,22 +54,21 @@ This guide covers the implemented work from:
 - chapter directory search/region filtering, localized chapter modules, authenticated requests, and super-admin approval/rejection
 - published history timelines with decade archives and committee current/history views with recaps
 - automated email transport, template, deduplication, retry, audit, preference, and queue verification
+- single-plan membership configuration, promotions, member join/status/renew/reactivate routes, Zelle proof submission, chapter-first review, failed-attempt resubmission, and scheduled lifecycle behavior
 
 ## 2.2 Explicitly out of scope for this UAT
 
 Do not mark these as failures in this round because they are not implemented yet:
 
 - Stripe checkout, which has been superseded by the Zelle-only payment decision
-- Zelle/manual payment workflow execution
 - member dashboard
 - event registration flow
 - waitlist promotion logic execution
-- membership purchase, renewal, or reactivation flow execution
 - newsletters sending
-- phase-specific membership/event status emails and newsletter campaigns, which use this foundation in later phases
+- event-specific status emails and newsletter campaigns, which use this foundation in later phases
 - live Resend delivery until provider credentials and a verified sender are installed
 
-The transaction primitives behind Zelle review are implemented and automated, but they do not make the public membership/event flows or the manual-review queue part of this manual UAT round. Their evidence is in [phase-1-security-workflow-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-1-security-workflow-verification.md).
+Membership Zelle execution and its dedicated review queue are now in scope. Event Zelle registration and the later shared organization-wide queue remain assigned to Phase 7. Membership evidence is in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md).
 
 ## 3. Tester Prerequisites
 
@@ -103,7 +103,7 @@ pnpm verify
 pnpm test:e2e
 ```
 
-The expected automated result after the remaining-roadmap Phase 5 gate is `36` integration tests and `20` browser tests passing.
+The expected automated result after the remaining-roadmap Phase 6 gate is `43` integration tests and `24` browser tests passing.
 
 For manual verification/reset delivery, configure the production-like email adapter when it becomes available in Phase 5 or use a test-only database token locally. Live Google UAT requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and an approved callback URL. Missing external credentials should be recorded as `Blocked`, not as missing application logic.
 
@@ -130,6 +130,9 @@ Create the following records first. This will make the public-site tests easier.
   - organization name: `RUETIAN USA`
   - primary email: `info@ruetianusa.org`
   - utility message: `Professional alumni association platform`
+  - Zelle recipient name: an obvious UAT-only name
+  - Zelle recipient: a stakeholder-approved UAT email or phone (never use a fake address for real payment)
+  - Zelle instructions, review note, and no-refund notice: recognizable approved test wording
 - `Header`
   - confirm top-level links for `About`, `Membership`, `Chapters`, `Events`, `Learning`, `Contact`
   - confirm child links and a featured panel for at least one mega-menu
@@ -145,6 +148,10 @@ Create the following records first. This will make the public-site tests easier.
 - currency: `USD`
 - active: `true`
 - add 2 to 4 benefits
+- add at least 2 FAQs
+- enter the annual renewal policy and terms summary
+- renewal reminders: enabled, `30` days before expiration
+- grace period: `7` days
 
 ## 5.3 Chapter
 
@@ -362,20 +369,21 @@ Expected result:
 - keyboard focus remains within the open mobile drawer
 - the membership CTA is visible in both layouts
 
-## 6.4 Membership Plan
+## 6.4 Membership And Zelle
 
-### UAT-MEM-01: Membership plan record can be created
+### UAT-MEM-01: One active membership plan is editable
 
 Steps:
 
 1. Open `Membership Plans`.
-2. Create the sample plan.
-3. Save it as active.
+2. Edit the existing active sample plan, or create it if none exists.
+3. Save it as active and try to activate a second plan.
 
 Expected result:
 
 - record saves successfully
-- fields for price, currency, active flag, and benefits are present
+- fields for price, currency, active flag, benefits, FAQs, reminder timing, grace days, renewal policy, and terms are present
+- a second active plan is rejected; inactive historical/configuration records remain allowed
 
 ### UAT-MEM-02: Membership page reads the active plan
 
@@ -389,7 +397,115 @@ Expected result:
 - membership title appears
 - price appears
 - benefits list appears if entered
+- FAQs and policy/terms content appear if entered
+- join, renew/reactivate, and status calls to action appear
 - homepage membership section also reflects the active plan
+
+### UAT-MEM-03: Join requires authentication and a complete profile
+
+Steps:
+
+1. Open `/membership/join` while signed out.
+2. Sign in with an account whose profile is incomplete and return to the join route.
+3. Complete all required alumni fields, accept the required terms/privacy fields, choose an active primary chapter, and return.
+
+Expected result:
+
+- signed-out access redirects to login with a safe return path
+- incomplete profiles see a clear account-settings action and no checkout form
+- a complete profile with an active primary chapter can reach the Zelle step
+
+### UAT-MEM-04: Promotion and total are server authoritative
+
+Steps:
+
+1. Create one active membership-scoped promotion in Payload.
+2. On `/membership/join`, apply the code in lowercase or mixed case.
+3. Compare subtotal, discount, and total with the configured plan and promotion.
+4. Try an expired, inactive, wrong-scope, member-only-ineligible, or exhausted code.
+
+Expected result:
+
+- one valid code is normalized and applied
+- the displayed and stored totals match the server calculation
+- an ineligible code is rejected without creating membership, order, or payment data
+
+### UAT-MEM-05: Submit each permitted Zelle evidence combination
+
+Steps:
+
+1. Configure the UAT Zelle recipient in Site Settings.
+2. Complete three isolated checkouts: transaction ID only, screenshot/PDF only, and both.
+3. Try once with neither field and once with an unsupported/oversized file.
+
+Expected result:
+
+- all three permitted combinations create a pending membership, immutable order, and pending payment attempt
+- missing or invalid evidence is rejected
+- the member does not become active before approval
+- payer and assigned chapter reviewer receive one queued required notice per submission
+
+### UAT-MEM-06: Assigned chapter reviewer approves payment
+
+Steps:
+
+1. Assign a chapter admin to the payer's primary chapter.
+2. Sign in as that chapter admin and open `/membership/payments/review`.
+3. Confirm the exact amount and evidence, then approve.
+4. Sign back in as the member and open `/membership/status`.
+
+Expected result:
+
+- the assigned reviewer sees the attempt; a chapter admin for another chapter does not
+- approval records reviewer metadata, pays the order, and activates the membership once
+- start/expiration dates are recorded from authorized approval rules
+- the member receives one approval notice and sees the immutable history
+
+### UAT-MEM-07: Rejection preserves history and permits resubmission
+
+Steps:
+
+1. Reject a pending payment with a reason.
+2. Sign in as the payer and review `/membership/status`.
+3. Open `/membership/renew`, submit a new transaction ID or proof, and review status again.
+
+Expected result:
+
+- the first attempt remains failed with its reason and reviewer metadata
+- the membership is not active after rejection
+- resubmission creates a new pending payment attempt against the existing order
+- the member receives one rejection/action-needed notice
+
+### UAT-MEM-08: Renewal, grace, expiration, and reactivation use manual Zelle
+
+Steps:
+
+1. Use controlled test dates or the automated lifecycle test to place a membership near expiration, then in grace and expired states.
+2. Renew an active or grace-period membership through `/membership/renew` and approve it.
+3. Reactivate an expired membership through the same route and approve it.
+
+Expected result:
+
+- reminder jobs are deduplicated before expiration and during grace
+- configured grace days determine the transition to expired
+- grace renewal closes the old term and creates one active linked annual term
+- expired membership offers pay-to-reactivate and preserves the old history
+- every term requires a new Zelle proof; there is no automatic debit
+
+### UAT-MEM-09: Admin records and configuration remain usable
+
+Steps:
+
+1. Filter Memberships by pending, active, grace, expired, and failed states.
+2. Filter Payments by pending/failed and membership order type.
+3. Inspect Orders, Promotions, reviewer metadata, snapshots, and attempts.
+4. Change plan price and grace days, then create a later checkout without editing code.
+
+Expected result:
+
+- authorized admins can inspect all required records and chapter admins remain scoped
+- earlier membership/order/payment snapshots do not change
+- the next checkout uses the newly configured price and grace value
 
 ## 6.5 Chapters
 
@@ -834,7 +950,7 @@ Recommended order:
 3. Desktop and mobile navigation
 4. Institutional, contact, and legal pages
 5. Learning search, filters, detail, and metadata
-6. Membership plan
+6. Membership plan, join, Zelle review, renewal, and lifecycle
 7. Chapters and chapter requests
 8. History and committees
 9. Events
@@ -881,4 +997,5 @@ This UAT round should confirm that:
 - Phase 3 navigation, shared components, contact, learning, legal, metadata, responsive, and keyboard behavior meet their acceptance criteria
 - Phase 4 chapters, chapter requests/review, chapter isolation, history, and committees meet their acceptance criteria
 - Phase 5 email transport, templates, capture, preference enforcement, delivery audit, deduplication, retry, and job queues meet their acceptance criteria
-- the repo is ready to continue into remaining-roadmap Phase 6
+- Phase 6 membership plan, profile gating, promotion, Zelle evidence, chapter review, status history, resubmission, renewal, grace, expiration, reactivation, and notifications meet their acceptance criteria
+- the repo is ready to continue into remaining-roadmap Phase 7

@@ -13,7 +13,7 @@ export const WORKFLOW_TRANSITIONS = {
     pending: ['approved', 'failed'],
   },
   membership: {
-    active: ['cancelled_by_admin', 'grace_period', 'suspended'],
+    active: ['cancelled_by_admin', 'expired', 'grace_period', 'suspended'],
     cancelled_by_admin: [],
     expired: ['pending_manual_approval', 'suspended'],
     failed_manual_payment: ['pending_manual_approval', 'suspended'],

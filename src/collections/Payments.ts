@@ -15,7 +15,13 @@ export const Payments: CollectionConfig = {
     update: denyAll,
   },
   admin: {
-    defaultColumns: ['paymentSource', 'status', 'submittedAt', 'updatedAt'],
+    defaultColumns: [
+      'orderTypeSnapshot',
+      'paymentSource',
+      'amountSnapshot',
+      'status',
+      'submittedAt',
+    ],
     useAsTitle: 'status',
   },
   fields: [

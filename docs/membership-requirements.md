@@ -14,7 +14,9 @@ Current implementation behavior for membership content ownership:
 - plan title, price, benefits, active state, renewal-reminder settings, and grace-period configuration remain owned by the `membershipPlans` collection
 - this keeps editorial page copy and business-plan data separated cleanly inside the CMS
 - membership, order, payment, chapter, plan-price, currency, promotion, proof, and reviewer relationships/snapshots are now validated and protected as audit data
-- Zelle approval/rejection is implemented as an idempotent, row-locked transaction primitive; the public join/renew UI and admin review queue remain assigned to their later roadmap phases
+- the annual membership experience is implemented end to end: single active plan, profile-gated join, server-authoritative promotions, Zelle transaction/proof submission, immutable pending attempts, chapter-scoped review, approval/rejection notices, renewal, grace, expiration, and pay-to-reactivate
+- daily scheduled lifecycle work sends deduplicated pre-expiration and grace reminders while preserving the rule that the website never automatically debits a member
+- implementation and verification evidence is recorded in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md)
 - public account signup, verification, password reset, Google sign-in/linking, protected profile settings, chapter changes, preferences, and audited account anonymization are implemented; production Google and email-provider credentials remain explicit environment/launch inputs
 
 ## 2. Final Membership Baseline

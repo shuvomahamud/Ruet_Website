@@ -24,12 +24,12 @@ E-03,History timeline page,Completed
 E-04,Committee pages,Completed
 E-05,Learning and development pages,Completed
 E-06,Legal page templates,Completed
-F-01,Membership overview page,Partial
-F-02,Join membership flow,Pending
+F-01,Membership overview page,Completed
+F-02,Join membership flow,Completed
 F-03,Stripe membership checkout,Superseded
-F-04,Zelle membership payment flow,Pending
-F-05,Membership renewal and reactivation flows,Pending
-F-06,Membership admin controls,Pending
+F-04,Zelle membership payment flow,Completed
+F-05,Membership renewal and reactivation flows,Completed
+F-06,Membership admin controls,Completed
 G-01,Chapters directory page,Completed
 G-02,Chapter detail pages,Completed
 G-03,Chapter request workflow,Completed

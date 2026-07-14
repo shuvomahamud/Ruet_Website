@@ -55,6 +55,39 @@ export const SiteSettings: GlobalConfig = {
       defaultValue:
         'Membership, chapters, events, and learning opportunities for the RUET alumni community.',
     },
+    {
+      name: 'zelleRecipientName',
+      type: 'text',
+      defaultValue: 'RUETIAN USA',
+    },
+    {
+      name: 'zelleRecipient',
+      type: 'text',
+      admin: {
+        description: 'The approved Zelle email address or US phone number.',
+      },
+    },
+    {
+      name: 'zelleInstructions',
+      type: 'textarea',
+      defaultValue:
+        'Send the exact order total through Zelle, include your name in the memo, then submit the transaction ID, a screenshot, or both. Membership remains pending until an authorized reviewer approves the proof.',
+      required: true,
+    },
+    {
+      name: 'manualPaymentReviewNote',
+      type: 'textarea',
+      defaultValue:
+        'Payment proof is reviewed by authorized volunteers. No turnaround time is promised until the organization approves a review SLA.',
+      required: true,
+    },
+    {
+      name: 'noRefundNotice',
+      type: 'textarea',
+      defaultValue:
+        'No-refund wording is awaiting final stakeholder and legal approval before launch.',
+      required: true,
+    },
   ],
   label: 'Site Settings',
 }

@@ -5,8 +5,11 @@ type LockableTable =
   | 'chapter_requests'
   | 'event_registrations'
   | 'memberships'
+  | 'membership_plans'
   | 'orders'
   | 'payments'
+  | 'promotions'
+  | 'users'
   | 'waitlist_entries'
 
 const lockQueries: Record<LockableTable, (id: number | string) => ReturnType<typeof sql>> = {
@@ -14,8 +17,11 @@ const lockQueries: Record<LockableTable, (id: number | string) => ReturnType<typ
   event_registrations: (id) =>
     sql`SELECT id FROM "event_registrations" WHERE id = ${id} FOR UPDATE`,
   memberships: (id) => sql`SELECT id FROM "memberships" WHERE id = ${id} FOR UPDATE`,
+  membership_plans: (id) => sql`SELECT id FROM "membership_plans" WHERE id = ${id} FOR UPDATE`,
   orders: (id) => sql`SELECT id FROM "orders" WHERE id = ${id} FOR UPDATE`,
   payments: (id) => sql`SELECT id FROM "payments" WHERE id = ${id} FOR UPDATE`,
+  promotions: (id) => sql`SELECT id FROM "promotions" WHERE id = ${id} FOR UPDATE`,
+  users: (id) => sql`SELECT id FROM "users" WHERE id = ${id} FOR UPDATE`,
   waitlist_entries: (id) => sql`SELECT id FROM "waitlist_entries" WHERE id = ${id} FOR UPDATE`,
 }
 

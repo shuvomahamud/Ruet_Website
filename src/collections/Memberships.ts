@@ -15,7 +15,7 @@ export const Memberships: CollectionConfig = {
     update: denyAll,
   },
   admin: {
-    defaultColumns: ['user', 'status', 'renewalAt', 'updatedAt'],
+    defaultColumns: ['user', 'plan', 'membershipKind', 'status', 'renewalAt', 'updatedAt'],
     useAsTitle: 'status',
   },
   fields: [
@@ -45,6 +45,22 @@ export const Memberships: CollectionConfig = {
         { label: 'Cancelled By Admin', value: 'cancelled_by_admin' },
         { label: 'Suspended', value: 'suspended' },
       ],
+    },
+    {
+      name: 'membershipKind',
+      type: 'select',
+      defaultValue: 'join',
+      options: [
+        { label: 'New membership', value: 'join' },
+        { label: 'Annual renewal', value: 'renewal' },
+        { label: 'Expired membership reactivation', value: 'reactivation' },
+      ],
+      required: true,
+    },
+    {
+      name: 'previousMembership',
+      type: 'relationship',
+      relationTo: 'memberships',
     },
     {
       name: 'startedAt',
@@ -102,6 +118,24 @@ export const Memberships: CollectionConfig = {
       required: true,
     },
     {
+      name: 'gracePeriodDaysSnapshot',
+      type: 'number',
+      defaultValue: 7,
+      required: true,
+    },
+    {
+      name: 'renewalReminderEnabledSnapshot',
+      type: 'checkbox',
+      defaultValue: true,
+      required: true,
+    },
+    {
+      name: 'renewalReminderDaysBeforeSnapshot',
+      type: 'number',
+      defaultValue: 30,
+      required: true,
+    },
+    {
       name: 'reactivationEligible',
       type: 'checkbox',
       defaultValue: true,
@@ -114,12 +148,17 @@ export const Memberships: CollectionConfig = {
         'user',
         'plan',
         'paymentMethod',
+        'membershipKind',
+        'previousMembership',
         'chapterAttribution',
         'chapterNameSnapshot',
         'planTitleSnapshot',
         'planPriceSnapshot',
         'currencySnapshot',
         'billingIntervalSnapshot',
+        'gracePeriodDaysSnapshot',
+        'renewalReminderEnabledSnapshot',
+        'renewalReminderDaysBeforeSnapshot',
       ]),
       validateWorkflowTransition('membership'),
       ({ data, originalDoc }) => {

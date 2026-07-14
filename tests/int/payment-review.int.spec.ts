@@ -25,15 +25,20 @@ describe.sequential('transaction-safe Zelle payment review', () => {
   ): Promise<{ membership: Membership; order: Order; payment: Payment }> => {
     const membership = await payload.create({
       collection: 'memberships',
+      context: { allowInactiveMembershipPlanForTest: true },
       data: {
         billingIntervalSnapshot: 'annual',
         chapterAttribution: chapter.id,
         chapterNameSnapshot: chapter.name,
         currencySnapshot: 'USD',
+        gracePeriodDaysSnapshot: 7,
+        membershipKind: 'join',
         paymentMethod: 'zelle',
         plan: plan.id,
         planPriceSnapshot: 50,
         planTitleSnapshot: plan.title,
+        renewalReminderDaysBeforeSnapshot: 30,
+        renewalReminderEnabledSnapshot: true,
         status: membershipStatus,
         user: owner.id,
         ...(membershipStatus === 'active'
@@ -172,13 +177,15 @@ describe.sequential('transaction-safe Zelle payment review', () => {
     plan = await payload.create({
       collection: 'membershipPlans',
       data: {
-        active: true,
+        active: false,
         annualPrice: 50,
         currency: 'USD',
         gracePeriodDays: 7,
         renewalReminderDaysBefore: 30,
         renewalReminderEnabled: true,
+        renewalPolicy: 'Annual manual renewal test policy.',
         slug: `annual-${nonce}`,
+        termsSummary: 'Test membership terms.',
         title: `Annual ${nonce}`,
       },
       overrideAccess: true,

@@ -1,11 +1,12 @@
-import * as migration_20260322_233123_initial from './20260322_233123_initial'
-import * as migration_20260329_184329_phase1_phase2 from './20260329_184329_phase1_phase2'
-import * as migration_20260714_032237_phase1_security_zelle from './20260714_032237_phase1_security_zelle'
-import * as migration_20260714_033351_phase1_required_snapshots from './20260714_033351_phase1_required_snapshots'
-import * as migration_20260714_035618 from './20260714_035618'
-import * as migration_20260714_043004 from './20260714_043004'
-import * as migration_20260714_045129 from './20260714_045129'
-import * as migration_20260714_051235 from './20260714_051235'
+import * as migration_20260322_233123_initial from './20260322_233123_initial';
+import * as migration_20260329_184329_phase1_phase2 from './20260329_184329_phase1_phase2';
+import * as migration_20260714_032237_phase1_security_zelle from './20260714_032237_phase1_security_zelle';
+import * as migration_20260714_033351_phase1_required_snapshots from './20260714_033351_phase1_required_snapshots';
+import * as migration_20260714_035618 from './20260714_035618';
+import * as migration_20260714_043004 from './20260714_043004';
+import * as migration_20260714_045129 from './20260714_045129';
+import * as migration_20260714_051235 from './20260714_051235';
+import * as migration_20260714_054208 from './20260714_054208';
 
 export const migrations = [
   {
@@ -48,4 +49,9 @@ export const migrations = [
     down: migration_20260714_051235.down,
     name: '20260714_051235',
   },
-]
+  {
+    up: migration_20260714_054208.up,
+    down: migration_20260714_054208.down,
+    name: '20260714_054208'
+  },
+];

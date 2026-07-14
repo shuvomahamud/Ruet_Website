@@ -18,6 +18,8 @@ import {
   getUpcomingEvents,
 } from '@/utilities/payload-public'
 
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata(): Promise<Metadata> {
   const home = await getHomeGlobal()
 

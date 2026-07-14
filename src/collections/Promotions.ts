@@ -12,7 +12,7 @@ export const Promotions: CollectionConfig = {
     update: adminsOnly,
   },
   admin: {
-    defaultColumns: ['code', 'scope', 'discountType', 'active'],
+    defaultColumns: ['code', 'scope', 'discountType', 'discountValue', 'usageLimit', 'active'],
     useAsTitle: 'code',
   },
   fields: [
@@ -75,6 +75,7 @@ export const Promotions: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ data, originalDoc }) => {
+        if (typeof data.code === 'string') data.code = data.code.trim().toUpperCase()
         const discountType = data.discountType ?? originalDoc?.discountType
         const discountValue = data.discountValue ?? originalDoc?.discountValue
         const startsAt = data.startsAt ?? originalDoc?.startsAt

@@ -6,6 +6,11 @@ export const fallbackSiteSettings = {
   primaryEmail: 'info@ruetianusa.org',
   tagline: 'RUET alumni community in the United States',
   utilityMessage: 'Connecting RUET alumni across the United States',
+  zelleInstructions:
+    'Send the exact order total through Zelle, include your name in the memo, then submit the transaction ID, a screenshot, or both. Membership remains pending until an authorized reviewer approves the proof.',
+  manualPaymentReviewNote:
+    'Payment proof is reviewed by authorized volunteers. No turnaround time is promised until the organization approves a review SLA.',
+  noRefundNotice: 'No-refund wording is awaiting final stakeholder and legal approval before launch.',
 }
 
 export const defaultMainNavigation = [

@@ -540,12 +540,86 @@ await payload.updateGlobal({
     footerNote:
       'Membership, chapters, events, and learning opportunities for the RUET alumni community.',
     organizationName: 'RUETIAN USA',
+    manualPaymentReviewNote:
+      'Payment proof is reviewed by authorized volunteers. No turnaround time is promised until the organization approves a review SLA.',
+    noRefundNotice: 'No-refund wording is awaiting final stakeholder and legal approval before launch.',
     primaryEmail: 'info@ruetianusa.org',
     tagline: 'RUET alumni community in the United States',
     utilityMessage: 'Connecting RUET alumni across the United States',
+    zelleInstructions:
+      'Send the exact order total through Zelle, include your name in the memo, then submit the transaction ID, a screenshot, or both. Membership remains pending until an authorized reviewer approves the proof.',
+    zelleRecipientName: 'RUETIAN USA',
   },
   overrideAccess: true,
 })
+
+const activePlans = await payload.find({
+  collection: 'membershipPlans',
+  depth: 0,
+  limit: 2,
+  overrideAccess: true,
+  pagination: false,
+  where: { active: { equals: true } },
+})
+if (activePlans.docs.length > 1) {
+  throw new Error('More than one active membership plan exists. Resolve the data before seeding.')
+}
+const membershipPlanData = {
+  active: true,
+  annualPrice: 50,
+  benefits: [
+    { label: 'Participate in national and chapter alumni programs' },
+    { label: 'Access member opportunities and professional learning' },
+    { label: 'Support long-term alumni operations and community continuity' },
+    { label: 'Receive renewal reminders when optional system email is enabled' },
+  ],
+  currency: 'USD',
+  faqs: [
+    {
+      answer:
+        'Send the exact server-confirmed total through Zelle and submit the transaction ID, a screenshot or PDF, or both. Membership remains pending until manual approval.',
+      question: 'How is membership payment verified?',
+    },
+    {
+      answer:
+        'No. The website does not store bank details, debit an account, or automatically renew membership. Every annual term requires a new Zelle submission.',
+      question: 'Will membership renew automatically?',
+    },
+    {
+      answer:
+        'Update your complete member profile and primary chapter, then use the renewal page to submit a new annual payment. Expired memberships use the same page to reactivate.',
+      question: 'How do I renew or reactivate?',
+    },
+  ],
+  gracePeriodDays: 7,
+  publicSummary:
+    'One annual membership connects RUET alumni across chapters, events, learning, service, and professional community.',
+  renewalPolicy:
+    'Membership is annual and renews only after a new Zelle payment proof is approved. The website never debits members automatically. A configurable grace period follows expiration before reactivation is required.',
+  renewalReminderDaysBefore: 30,
+  renewalReminderEnabled: true,
+  slug: 'annual-membership',
+  sortOrder: 0,
+  termsSummary:
+    'Zelle payments are reviewed manually. Final membership and no-refund language must be approved before public launch.',
+  title: 'Annual RUETIAN USA Membership',
+}
+if (activePlans.docs[0]) {
+  await payload.update({
+    collection: 'membershipPlans',
+    data: membershipPlanData,
+    id: activePlans.docs[0].id,
+    overrideAccess: true,
+  })
+  console.log('Updated active annual membership plan.')
+} else {
+  await payload.create({
+    collection: 'membershipPlans',
+    data: membershipPlanData,
+    overrideAccess: true,
+  })
+  console.log('Created active annual membership plan.')
+}
 
 await payload.updateGlobal({
   slug: 'seoDefaults',
@@ -558,6 +632,6 @@ await payload.updateGlobal({
   overrideAccess: true,
 })
 
-console.log('CMS pages, navigation, footer, home, contact, and SEO defaults are seeded.')
+console.log('CMS pages, navigation, membership, footer, home, contact, and SEO defaults are seeded.')
 await payload.destroy()
 process.exit(0)
