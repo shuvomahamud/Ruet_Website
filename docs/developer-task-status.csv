@@ -1,0 +1,58 @@
+task_number,title,status
+A-01,Repository and application bootstrap,Completed
+A-02,Environment and secret management,Completed
+A-03,Core project architecture and utility layer,Completed
+A-04,Base styling and design token setup,Completed
+B-01,Define Payload globals,Completed
+B-02,Implement the users collection,Completed
+B-03,Implement the chapters and chapterRequests collections,Completed
+B-04,Implement membership collections,Completed
+B-05,Implement event and registration collections,Completed
+B-06,Implement commerce collections,Completed
+B-07,Implement content collections,Completed
+B-08,Role-based access control,Completed
+C-01,Local auth flows,Pending
+C-02,Google sign-in integration,Pending
+C-03,Profile management,Pending
+C-04,Self-service account deletion,Pending
+D-01,Header navigation and mega-menu system,Partial
+D-02,Footer system,Partial
+D-03,Shared public components,Partial
+E-01,Home page implementation,Partial
+E-02,About mission and contact pages,Partial
+E-03,History timeline page,Pending
+E-04,Committee pages,Pending
+E-05,Learning and development pages,Partial
+E-06,Legal page templates,Partial
+F-01,Membership overview page,Partial
+F-02,Join membership flow,Pending
+F-03,Stripe membership checkout,Superseded
+F-04,Zelle membership payment flow,Pending
+F-05,Membership renewal and reactivation flows,Pending
+F-06,Membership admin controls,Pending
+G-01,Chapters directory page,Partial
+G-02,Chapter detail pages,Partial
+G-03,Chapter request workflow,Pending
+G-04,Chapter-admin content workflow,Partial
+H-01,Events listing page,Partial
+H-02,Event detail page,Partial
+H-03,Event registration flow,Pending
+H-04,Event Stripe checkout,Superseded
+H-05,Event Zelle payment flow,Pending
+H-06,Waitlist logic,Pending
+H-07,Post-event galleries and archive behavior,Pending
+I-01,Manual payment review queue,Pending
+I-02,Approve / reject manual payment actions,Pending
+J-01,Transactional email foundation,Pending
+J-02,System-triggered emails,Pending
+J-03,Admin announcements,Partial
+J-04,Scheduled newsletters,Pending
+K-01,Member dashboard,Pending
+K-02,Payment and registration history views,Pending
+K-03,Admin reporting views,Pending
+L-01,Draft review and publish workflow,Partial
+L-02,Seed content and admin usability pass,Pending
+M-01,End-to-end flow validation,Pending
+M-02,Access control and security validation,Pending
+M-03,Performance and responsive QA,Pending
+M-04,Launch configuration and operational checklist,Pending

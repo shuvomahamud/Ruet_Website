@@ -1,0 +1,71 @@
+{
+  "name": "ruet-alumni-website",
+  "version": "1.0.0",
+  "description": "RUETIAN USA website foundation built with Next.js, Payload CMS, and PostgreSQL.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.29.2",
+  "scripts": {
+    "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "bootstrap": "pnpm db:ensure && pnpm db:migrate && pnpm generate:types",
+    "db:ensure": "node --env-file=.env ./scripts/ensure-database.mjs",
+    "db:migrate": "cross-env NODE_OPTIONS=--no-deprecation node --env-file=.env ./node_modules/payload/bin.js migrate",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev --no-server-fast-refresh",
+    "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation node --env-file=.env ./node_modules/payload/bin.js generate:importmap",
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation node --env-file=.env ./node_modules/payload/bin.js generate:types",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation node --env-file=.env ./node_modules/payload/bin.js",
+    "seed:cms-pages": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env ./scripts/seed-cms-pages.ts",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "test": "pnpm run test:int && pnpm run test:e2e",
+    "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "typecheck": "tsc --noEmit",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test:int && pnpm build",
+    "ci": "pnpm db:migrate && pnpm verify && pnpm test:e2e"
+  },
+  "dependencies": {
+    "@payloadcms/next": "3.80.0",
+    "@payloadcms/richtext-lexical": "3.80.0",
+    "@payloadcms/ui": "3.80.0",
+    "cross-env": "^7.0.3",
+    "graphql": "^16.8.1",
+    "next": "16.2.1",
+    "payload": "3.80.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "sharp": "0.34.2",
+    "@payloadcms/db-postgres": "3.80.0",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@playwright/test": "1.58.2",
+    "@testing-library/react": "16.3.0",
+    "@types/node": "22.19.9",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "4.5.2",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "16.2.1",
+    "jsdom": "28.0.0",
+    "prettier": "^3.4.2",
+    "tsx": "4.21.0",
+    "typescript": "5.7.3",
+    "vite-tsconfig-paths": "6.0.5",
+    "vitest": "4.0.18"
+  },
+  "engines": {
+    "node": "22.x",
+    "pnpm": "10.x"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "esbuild",
+      "unrs-resolver"
+    ]
+  }
+}

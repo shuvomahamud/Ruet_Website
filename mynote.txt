@@ -1,0 +1,30 @@
+Historical discovery notes only. When these notes conflict with the normalized requirements or roadmap, the normalized documents take precedence. Stripe references were superseded by the Zelle-only decision on 2026-07-13.
+
+my notes:
+Website should looks like this website  -- mordern https://www.asme.org/
+
+1. Cart -- Event payment. Promotional discount.
+2. Sign/create. 
+3. About RUET -- Commitee, History --- Story step by step changes. That means committee change history -- options to change 
+4. Chapter based -- total usa based. So the chapter based thing is RUETIAN  in different state can have their own chapter. Arrange events, take money through stripe. 
+
+6. Copy right options -- for duplimacy
+7. Learning & developments, Field -- Blog, search, category
+8. Conference --- zoom, Events--- upcoming events --  archived events. 
+9. Footer should contain to go to any link.
+10. Membership
+	Membership Overview. ASME
+	-- ASME
+	Professional and early career membership
+11. Admin panel -- regular admin,  super admin, members  
+12. Email communications. Admin, notifying about events. about payment . 
+13. Promotional add/delete new promotions. These promotion when applied price will be decreased. 
+
+Running commitee, Advisree commitee these informations will also be shown. 
+
+Paid member vs unpaid inactive.
+For payments stripe is needed and zelle payment should be also supported. 
+Admin should be able to have all the control that is needed. Now help me with this requirements.
+Write me proper requirements
+
+We will implement with react js next js and Supabase.
