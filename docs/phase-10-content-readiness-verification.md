@@ -31,6 +31,8 @@ Phase 11 has not started because the roadmap requires the Phase 10 exit gate to 
 - Payload navigation is grouped by Accounts & access, Content, Communications, Operations, Commerce, Community, Membership, Events, and Website globals.
 - Public collections expose useful search fields, default columns, editorial state, descriptions, validation, help text, and preview actions.
 - The baseline CMS seed is repeatable and creates the complete public route structure without overwriting unrelated content.
+- `pnpm seed:sample` installs a content-only editable dataset across organization globals/pages, four chapters, current and historical committees, chapter leadership, history, learning, events, announcements, categories, membership, and promotions without creating private users or transaction records.
+- `pnpm audit:sample` verifies minimum public-content coverage and required organization/home fields without mutating the database. Editing and reset guidance is in [sample-content-guide.md](/Users/shuvomahamud/Projects/RUET_Website/docs/sample-content-guide.md).
 - `pnpm seed:uat` creates realistic non-production plans, chapters, committees, history, posts, announcements, promotions, upcoming/archived events, role-specific test users, membership/payment history, a confirmed registration, and a waitlist record.
 - The UAT seed requires an explicit password, refuses production by default, and has been run twice against the same database to verify idempotency.
 
@@ -59,7 +61,7 @@ Phase 11 has not started because the roadmap requires the Phase 10 exit gate to 
 
 ## Phase Exit Items Requiring Stakeholder Input
 
-The stakeholder-authorized standard legal policies and payment language were supplied as a creation request and installed on July 14, 2026. The following organization-specific launch content must still be supplied in approved form; it is intentionally not invented by engineering:
+The stakeholder-authorized standard legal policies and payment language were supplied as a creation request and installed on July 14, 2026. A comprehensive, clearly identified sample dataset is also installed so every content surface can be edited and evaluated now. The following organization-specific launch content must still replace the samples in approved form:
 
 1. Approved organization/about/mission/history copy and launch announcements.
 2. Approved chapter names, descriptions, contacts, leadership details, and chapter media.

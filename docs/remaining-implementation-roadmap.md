@@ -436,6 +436,7 @@ Work:
 - organize Payload admin navigation, field groups, help text, validation, filters, and default columns
 - replace development/foundation language with approved production-oriented copy
 - create realistic seed fixtures for plans, chapters, committees, history, events, posts, announcements, promotions, and test users
+- provide a separate content-only sample seed and read-only audit so editors can populate every public module without creating accounts or transaction history
 - wire page-level SEO titles, descriptions, canonical URLs, social metadata, sitemap, and robots behavior
 - install final legal text when supplied
 
@@ -451,7 +452,7 @@ Required external input before phase completion for launch content:
 - final privacy policy — completed with stakeholder-authorized standard version `2026-07-14`
 - final terms of use — completed with stakeholder-authorized standard version `2026-07-14`
 - final membership terms and payment/no-refund language — completed with stakeholder-authorized standard version `2026-07-14`
-- approved organization, chapter, committee, and launch content/assets
+- approved organization, chapter, committee, and launch content/assets — comprehensive editable samples are installed, but must be replaced before production sign-off
 
 ## Phase 11: Full QA, Security, Performance, And Launch
 

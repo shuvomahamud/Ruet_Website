@@ -405,6 +405,10 @@ await payload.updateGlobal({
     newsletterSummary:
       'Receive organization news, chapter updates, event notices, and learning resources.',
     newsletterTitle: 'Stay connected',
+    socialLinks: [
+      { href: 'https://example.com/ruetian-usa-facebook', label: 'Facebook (sample)' },
+      { href: 'https://example.com/ruetian-usa-linkedin', label: 'LinkedIn (sample)' },
+    ],
   },
   draft: false,
   overrideAccess: true,
@@ -456,6 +460,7 @@ await payload.updateGlobal({
 await payload.updateGlobal({
   slug: 'siteSettings',
   data: {
+    chapterSupportEmail: 'chapters@example.test',
     contactResponseNote:
       'Send us a message and the appropriate RUETIAN USA volunteer will follow up when available.',
     footerNote:
@@ -463,11 +468,14 @@ await payload.updateGlobal({
     organizationName: 'RUETIAN USA',
     eventPaymentTerms: STANDARD_EVENT_PAYMENT_TERMS,
     manualPaymentReviewNote: STANDARD_MANUAL_REVIEW_NOTE,
+    mailingAddress: '123 Sample Alumni Way\nNew York, NY 10001\nUnited States',
     noRefundNotice: STANDARD_NO_REFUND_NOTICE,
     primaryEmail: 'info@ruetianusa.org',
+    primaryPhone: '+1 (212) 555-0126',
     tagline: 'RUET alumni community in the United States',
     utilityMessage: 'Connecting RUET alumni across the United States',
     zelleInstructions: STANDARD_ZELLE_INSTRUCTIONS,
+    zelleRecipient: 'payments@example.test',
     zelleRecipientName: 'RUETIAN USA',
   },
   draft: false,

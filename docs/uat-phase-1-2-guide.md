@@ -116,6 +116,15 @@ SEED_UAT_PASSWORD='use-a-unique-12-character-or-longer-test-password' pnpm seed:
 
 Never reuse that password outside UAT or commit a real test password. The UAT seed refuses to run in production unless a separate explicit override is provided.
 
+To populate only editable public CMS content without creating test accounts or transaction history, use:
+
+```bash
+pnpm seed:sample
+pnpm audit:sample
+```
+
+This content-only dataset is already installed in the working database. See [sample-content-guide.md](/Users/shuvomahamud/Projects/RUET_Website/docs/sample-content-guide.md) for the Payload Admin locations and reset warning.
+
 Before manual UAT, the automated baseline should pass:
 
 ```bash

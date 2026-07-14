@@ -2,14 +2,21 @@ import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 
-if (process.env.NODE_ENV === 'production' && process.env.ALLOW_PRODUCTION_UAT_SEED !== 'true') {
+const contentOnly = process.env.SEED_CONTENT_ONLY === 'true'
+const productionOverride = contentOnly
+  ? process.env.ALLOW_PRODUCTION_SAMPLE_SEED === 'true'
+  : process.env.ALLOW_PRODUCTION_UAT_SEED === 'true'
+
+if (process.env.NODE_ENV === 'production' && !productionOverride) {
   throw new Error(
-    'UAT fixtures are disabled in production. Use a dedicated non-production database.',
+    contentOnly
+      ? 'Sample content is disabled in production unless ALLOW_PRODUCTION_SAMPLE_SEED=true.'
+      : 'UAT fixtures are disabled in production. Use a dedicated non-production database.',
   )
 }
 
 const password = process.env.SEED_UAT_PASSWORD
-if (!password || password.length < 12) {
+if (!contentOnly && (!password || password.length < 12)) {
   throw new Error('Set SEED_UAT_PASSWORD to a unique password of at least 12 characters.')
 }
 
@@ -74,6 +81,24 @@ const chapterFixtures = [
     slug: 'dmv',
     summary: 'RUET alumni community across the Washington metropolitan region.',
   },
+  {
+    contactEmail: 'texas@example.test',
+    description:
+      'The Texas chapter is sample content for alumni programs, professional exchange, family gatherings, and volunteer service across the state.',
+    name: 'Texas Chapter',
+    regionOrState: 'Texas',
+    slug: 'texas',
+    summary: 'Sample RUET alumni community serving Texas and nearby areas.',
+  },
+  {
+    contactEmail: 'california@example.test',
+    description:
+      'The California chapter is sample content for alumni connections, learning programs, mentoring, and community activities across the state.',
+    name: 'California Chapter',
+    regionOrState: 'California',
+    slug: 'california',
+    summary: 'Sample RUET alumni community serving California and nearby areas.',
+  },
 ] satisfies Array<{
   contactEmail: string
   description: string
@@ -93,28 +118,40 @@ for (const fixture of chapterFixtures) {
     pagination: false,
     where: { slug: { equals: fixture.slug } },
   })
-  const chapter =
-    existing.docs[0] ??
-    (await payload.create({
-      collection: 'chapters',
-      context: editorialContext,
-      data: {
-        ...fixture,
-        _status: 'published',
-        chapterStatus: 'active',
-        editorialStatus: 'approved',
-        seo: {
-          description: fixture.summary,
-          title: fixture.name,
-        },
-      },
-      draft: false,
-      overrideAccess: true,
-    }))
+  const chapterData = {
+    ...fixture,
+    _status: 'published' as const,
+    chapterStatus: 'active' as const,
+    editorialStatus: 'approved' as const,
+    seo: {
+      description: fixture.summary,
+      title: fixture.name,
+    },
+  }
+  const chapter = existing.docs[0]
+    ? contentOnly
+      ? await payload.update({
+          collection: 'chapters',
+          context: editorialContext,
+          data: chapterData,
+          draft: false,
+          id: existing.docs[0].id,
+          overrideAccess: true,
+        })
+      : existing.docs[0]
+    : await payload.create({
+        collection: 'chapters',
+        context: editorialContext,
+        data: chapterData,
+        draft: false,
+        overrideAccess: true,
+      })
   chapters.push(chapter)
 }
-const [newYorkChapter, dmvChapter] = chapters
-if (!newYorkChapter || !dmvChapter) throw new Error('Unable to seed UAT chapters.')
+const [newYorkChapter, dmvChapter, texasChapter, californiaChapter] = chapters
+if (!newYorkChapter || !dmvChapter || !texasChapter || !californiaChapter) {
+  throw new Error('Unable to seed sample chapters.')
+}
 
 const postFixtures = [
   {
@@ -151,6 +188,17 @@ const postFixtures = [
     slug: 'prepare-for-an-alumni-networking-conversation',
     title: 'Prepare for an Alumni Networking Conversation',
   },
+  {
+    authorName: 'RUETIAN USA Sample Editorial Team',
+    body: 'This sample news article demonstrates how organization updates appear in the learning hub. Replace it in Payload Admin with an approved announcement, program recap, or alumni story before launch.',
+    categories: [communityCategory.id],
+    contentType: 'news' as const,
+    excerpt: 'Sample organization news content that editors can replace from Payload Admin.',
+    featured: false,
+    readingTimeMinutes: 2,
+    slug: 'sample-organization-news-update',
+    title: 'Sample Organization News Update',
+  },
 ] satisfies Array<{
   authorName: string
   body: string
@@ -172,17 +220,29 @@ for (const fixture of postFixtures) {
     pagination: false,
     where: { slug: { equals: fixture.slug } },
   })
-  if (!existing.docs[0]) {
+  const data = {
+    ...fixture,
+    _status: 'published' as const,
+    editorialStatus: 'approved' as const,
+    publishedAt: existing.docs[0]?.publishedAt || now.toISOString(),
+    seo: { description: fixture.excerpt, title: fixture.title },
+  }
+  if (existing.docs[0]) {
+    if (contentOnly) {
+      await payload.update({
+        collection: 'posts',
+        context: editorialContext,
+        data,
+        draft: false,
+        id: existing.docs[0].id,
+        overrideAccess: true,
+      })
+    }
+  } else {
     await payload.create({
       collection: 'posts',
       context: editorialContext,
-      data: {
-        ...fixture,
-        _status: 'published',
-        editorialStatus: 'approved',
-        publishedAt: now.toISOString(),
-        seo: { description: fixture.excerpt, title: fixture.title },
-      },
+      data,
       draft: false,
       overrideAccess: true,
     })
@@ -230,11 +290,23 @@ for (const fixture of historyFixtures) {
     pagination: false,
     where: { title: { equals: fixture.title } },
   })
-  if (!existing.docs[0]) {
+  const data = { ...fixture, _status: 'published' as const, editorialStatus: 'approved' as const }
+  if (existing.docs[0]) {
+    if (contentOnly) {
+      await payload.update({
+        collection: 'historyEntries',
+        context: editorialContext,
+        data,
+        draft: false,
+        id: existing.docs[0].id,
+        overrideAccess: true,
+      })
+    }
+  } else {
     await payload.create({
       collection: 'historyEntries',
       context: editorialContext,
-      data: { ...fixture, _status: 'published', editorialStatus: 'approved' },
+      data,
       draft: false,
       overrideAccess: true,
     })
@@ -244,46 +316,109 @@ for (const fixture of historyFixtures) {
 const committeeFixtures = [
   {
     committeeType: 'running' as const,
+    endDate: isoDaysFromNow(730),
+    eventRecaps: [
+      {
+        eventDate: isoDaysFromNow(-90),
+        summary:
+          'Sample recap showing how committee programs appear in the public leadership archive.',
+        title: 'Sample Alumni Program Recap',
+      },
+    ],
+    isCurrent: true,
     members: [
       {
-        bio: 'UAT editorial fixture for national leadership presentation.',
-        name: 'Amina Rahman',
+        bio: 'Sample leadership profile. Replace this name, biography, and photo in Payload Admin.',
+        name: 'Sample Member One',
         role: 'President',
       },
       {
-        bio: 'UAT editorial fixture for national leadership presentation.',
-        name: 'Farhan Karim',
+        bio: 'Sample leadership profile. Replace this name, biography, and photo in Payload Admin.',
+        name: 'Sample Member Two',
         role: 'General Secretary',
       },
       {
-        bio: 'UAT editorial fixture for national leadership presentation.',
-        name: 'Nadia Ahmed',
+        bio: 'Sample leadership profile. Replace this name, biography, and photo in Payload Admin.',
+        name: 'Sample Member Three',
         role: 'Treasurer',
       },
     ],
+    startDate: isoDaysFromNow(-30),
     summary: 'Volunteer leaders coordinating national programs, chapters, and member services.',
     title: `${now.getUTCFullYear()}–${now.getUTCFullYear() + 2} Running Committee`,
   },
   {
     committeeType: 'advisory' as const,
+    endDate: isoDaysFromNow(730),
+    eventRecaps: [],
+    isCurrent: true,
     members: [
       {
-        bio: 'UAT editorial fixture for advisory leadership presentation.',
-        name: 'Rezaul Hasan',
+        bio: 'Sample advisory profile. Replace this name, biography, and photo in Payload Admin.',
+        name: 'Sample Advisor One',
         role: 'Advisory Chair',
       },
       {
-        bio: 'UAT editorial fixture for advisory leadership presentation.',
-        name: 'Samira Chowdhury',
+        bio: 'Sample advisory profile. Replace this name, biography, and photo in Payload Admin.',
+        name: 'Sample Advisor Two',
         role: 'Advisor',
       },
     ],
+    startDate: isoDaysFromNow(-30),
     summary: 'Experienced alumni contributing guidance and institutional perspective.',
     title: `${now.getUTCFullYear()}–${now.getUTCFullYear() + 2} Advisory Committee`,
   },
+  {
+    committeeType: 'running' as const,
+    endDate: isoDaysFromNow(-60),
+    eventRecaps: [
+      {
+        eventDate: isoDaysFromNow(-180),
+        summary:
+          'Sample historical recap demonstrating the committee archive. Replace it with an approved program record.',
+        title: 'Sample Community Program',
+      },
+    ],
+    isCurrent: false,
+    members: [
+      {
+        bio: 'Sample historical profile for demonstrating past leadership records.',
+        name: 'Sample Past Member One',
+        role: 'President',
+      },
+      {
+        bio: 'Sample historical profile for demonstrating past leadership records.',
+        name: 'Sample Past Member Two',
+        role: 'General Secretary',
+      },
+    ],
+    startDate: isoDaysFromNow(-790),
+    summary: 'Sample prior running committee retained to demonstrate the leadership archive.',
+    title: `${now.getUTCFullYear() - 2}–${now.getUTCFullYear()} Running Committee`,
+  },
+  {
+    committeeType: 'advisory' as const,
+    endDate: isoDaysFromNow(-60),
+    eventRecaps: [],
+    isCurrent: false,
+    members: [
+      {
+        bio: 'Sample historical profile for demonstrating past advisory records.',
+        name: 'Sample Past Advisor',
+        role: 'Advisory Chair',
+      },
+    ],
+    startDate: isoDaysFromNow(-790),
+    summary: 'Sample prior advisory committee retained to demonstrate the leadership archive.',
+    title: `${now.getUTCFullYear() - 2}–${now.getUTCFullYear()} Advisory Committee`,
+  },
 ] satisfies Array<{
   committeeType: 'running' | 'advisory'
+  endDate: string
+  eventRecaps: Array<{ eventDate: string; summary: string; title: string }>
+  isCurrent: boolean
   members: Array<{ bio: string; name: string; role: string }>
+  startDate: string
   summary: string
   title: string
 }>
@@ -297,18 +432,27 @@ for (const fixture of committeeFixtures) {
     pagination: false,
     where: { title: { equals: fixture.title } },
   })
-  if (!existing.docs[0]) {
+  const data = {
+    ...fixture,
+    _status: 'published' as const,
+    editorialStatus: 'approved' as const,
+  }
+  if (existing.docs[0]) {
+    if (contentOnly) {
+      await payload.update({
+        collection: 'committeeTerms',
+        context: editorialContext,
+        data,
+        draft: false,
+        id: existing.docs[0].id,
+        overrideAccess: true,
+      })
+    }
+  } else {
     await payload.create({
       collection: 'committeeTerms',
       context: editorialContext,
-      data: {
-        ...fixture,
-        _status: 'published',
-        editorialStatus: 'approved',
-        endDate: isoDaysFromNow(730),
-        isCurrent: true,
-        startDate: isoDaysFromNow(-1),
-      },
+      data,
       draft: false,
       overrideAccess: true,
     })
@@ -323,25 +467,52 @@ const chapterCommittee = await payload.find({
   pagination: false,
   where: { title: { equals: 'New York Chapter Leadership Team' } },
 })
-if (!chapterCommittee.docs[0]) {
+const chapterCommitteeData = {
+  _status: 'published' as const,
+  chapter: newYorkChapter.id,
+  committeeType: 'running' as const,
+  editorialStatus: 'approved' as const,
+  endDate: isoDaysFromNow(730),
+  eventRecaps: [
+    {
+      eventDate: isoDaysFromNow(-45),
+      summary: 'Sample chapter activity recap. Replace this text from the committee record.',
+      title: 'Sample Chapter Volunteer Gathering',
+    },
+  ],
+  isCurrent: true,
+  members: [
+    {
+      bio: 'Sample chapter leader profile.',
+      name: 'Sample Chapter Leader One',
+      role: 'Chapter Coordinator',
+    },
+    {
+      bio: 'Sample chapter leader profile.',
+      name: 'Sample Chapter Leader Two',
+      role: 'Programs Lead',
+    },
+  ],
+  startDate: isoDaysFromNow(-30),
+  summary: 'Local volunteers coordinating New York chapter programs and outreach.',
+  title: 'New York Chapter Leadership Team',
+}
+if (chapterCommittee.docs[0]) {
+  if (contentOnly) {
+    await payload.update({
+      collection: 'committeeTerms',
+      context: editorialContext,
+      data: chapterCommitteeData,
+      draft: false,
+      id: chapterCommittee.docs[0].id,
+      overrideAccess: true,
+    })
+  }
+} else {
   await payload.create({
     collection: 'committeeTerms',
     context: editorialContext,
-    data: {
-      _status: 'published',
-      chapter: newYorkChapter.id,
-      committeeType: 'running',
-      editorialStatus: 'approved',
-      endDate: isoDaysFromNow(730),
-      isCurrent: true,
-      members: [
-        { name: 'Tasnim Islam', role: 'Chapter Coordinator' },
-        { name: 'Mahmud Hossain', role: 'Programs Lead' },
-      ],
-      startDate: isoDaysFromNow(-1),
-      summary: 'Local volunteers coordinating New York chapter programs and outreach.',
-      title: 'New York Chapter Leadership Team',
-    },
+    data: chapterCommitteeData,
     draft: false,
     overrideAccess: true,
   })
@@ -400,6 +571,23 @@ const eventFixtures = [
     title: 'Community Family Gathering',
     venue: 'Queens, NY',
   },
+  {
+    basePrice: 0,
+    capacity: 100,
+    chapter: californiaChapter.id,
+    details:
+      'A sample virtual alumni session demonstrating online event discovery and registration. Replace the program details before launch.',
+    endAt: isoDaysFromNow(60, 21),
+    eventMode: 'virtual' as const,
+    isPaid: false,
+    maxRegistrationQuantity: 1,
+    slug: 'sample-virtual-career-conversation',
+    startAt: isoDaysFromNow(60, 19),
+    summary: 'Sample virtual program for alumni career conversations and peer learning.',
+    timezone: 'America/Los_Angeles' as const,
+    title: 'Sample Virtual Career Conversation',
+    venue: 'Online',
+  },
 ] satisfies Array<{
   basePrice: number
   capacity: number
@@ -414,6 +602,7 @@ const eventFixtures = [
   startAt: string
   status?: 'archived'
   summary: string
+  timezone?: 'America/New_York' | 'America/Los_Angeles'
   title: string
   venue: string
 }>
@@ -428,26 +617,36 @@ for (const fixture of eventFixtures) {
     pagination: false,
     where: { slug: { equals: fixture.slug } },
   })
-  const event =
-    existing.docs[0] ??
-    (await payload.create({
-      collection: 'events',
-      context: editorialContext,
-      data: {
-        ...fixture,
-        _status: 'published',
-        currency: 'USD',
-        editorialStatus: 'approved',
-        publishedAt: now.toISOString(),
-        seo: { description: fixture.summary, title: fixture.title },
-        status: fixture.status || 'published',
-        timezone: 'America/New_York',
-        waitlistEnabled: true,
-        waitlistOfferHours: 48,
-      },
-      draft: false,
-      overrideAccess: true,
-    }))
+  const eventData = {
+    ...fixture,
+    _status: 'published' as const,
+    currency: 'USD',
+    editorialStatus: 'approved' as const,
+    publishedAt: existing.docs[0]?.publishedAt || now.toISOString(),
+    seo: { description: fixture.summary, title: fixture.title },
+    status: fixture.status || ('published' as const),
+    timezone: fixture.timezone || ('America/New_York' as const),
+    waitlistEnabled: true,
+    waitlistOfferHours: 48,
+  }
+  const event = existing.docs[0]
+    ? contentOnly
+      ? await payload.update({
+          collection: 'events',
+          context: editorialContext,
+          data: eventData,
+          draft: false,
+          id: existing.docs[0].id,
+          overrideAccess: true,
+        })
+      : existing.docs[0]
+    : await payload.create({
+        collection: 'events',
+        context: editorialContext,
+        data: eventData,
+        draft: false,
+        overrideAccess: true,
+      })
   events.push(event)
 }
 const [freeEvent, paidEvent] = events
@@ -472,6 +671,17 @@ const announcementFixtures = [
     title: 'New York Chapter Member Update',
     tone: 'success' as const,
   },
+  {
+    audience: 'public' as const,
+    chapter: texasChapter.id,
+    ctaHref: '/chapters/texas',
+    ctaLabel: 'View sample chapter',
+    details:
+      'This sample chapter announcement demonstrates regional targeting and can be replaced or unpublished from Payload Admin.',
+    summary: 'Sample public update from the Texas chapter.',
+    title: 'Sample Texas Chapter Announcement',
+    tone: 'info' as const,
+  },
 ] as const
 
 for (const fixture of announcementFixtures) {
@@ -483,18 +693,30 @@ for (const fixture of announcementFixtures) {
     pagination: false,
     where: { title: { equals: fixture.title } },
   })
-  if (!existing.docs[0]) {
+  const data = {
+    ...fixture,
+    _status: 'published' as const,
+    activeFrom: isoDaysFromNow(-1),
+    activeTo: isoDaysFromNow(120),
+    editorialStatus: 'approved' as const,
+    publishedAt: existing.docs[0]?.publishedAt || now.toISOString(),
+  }
+  if (existing.docs[0]) {
+    if (contentOnly) {
+      await payload.update({
+        collection: 'announcements',
+        context: editorialContext,
+        data,
+        draft: false,
+        id: existing.docs[0].id,
+        overrideAccess: true,
+      })
+    }
+  } else {
     await payload.create({
       collection: 'announcements',
       context: editorialContext,
-      data: {
-        ...fixture,
-        _status: 'published',
-        activeFrom: isoDaysFromNow(-1),
-        activeTo: isoDaysFromNow(120),
-        editorialStatus: 'approved',
-        publishedAt: now.toISOString(),
-      },
+      data,
       draft: false,
       overrideAccess: true,
     })
@@ -509,23 +731,46 @@ const promotionResult = await payload.find({
   pagination: false,
   where: { code: { equals: 'UATWELCOME10' } },
 })
-if (!promotionResult.docs[0]) {
+const promotionData = {
+  active: true,
+  code: 'UATWELCOME10',
+  discountType: 'percent' as const,
+  discountValue: 10,
+  endsAt: isoDaysFromNow(120),
+  memberOnly: false,
+  scope: 'both' as const,
+  startsAt: isoDaysFromNow(-1),
+  usageLimit: 100,
+}
+if (promotionResult.docs[0]) {
+  if (contentOnly) {
+    await payload.update({
+      collection: 'promotions',
+      data: promotionData,
+      id: promotionResult.docs[0].id,
+      overrideAccess: true,
+    })
+  }
+} else {
   await payload.create({
     collection: 'promotions',
-    data: {
-      active: true,
-      code: 'UATWELCOME10',
-      discountType: 'percent',
-      discountValue: 10,
-      endsAt: isoDaysFromNow(120),
-      memberOnly: false,
-      scope: 'both',
-      startsAt: isoDaysFromNow(-1),
-      usageLimit: 100,
-    },
+    data: promotionData,
     overrideAccess: true,
   })
 }
+
+if (contentOnly) {
+  console.log(
+    'Seeded editable sample chapters, committees, history, learning posts, events, announcements, categories, and promotion data.',
+  )
+  console.log(
+    'No users, memberships, orders, payments, registrations, or waitlist entries were created.',
+  )
+  await payload.destroy()
+  process.exit(0)
+}
+
+if (!password) throw new Error('SEED_UAT_PASSWORD is required for UAT accounts.')
 
 const userFixtures = [
   {

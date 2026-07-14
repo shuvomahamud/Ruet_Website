@@ -92,7 +92,7 @@ The authoritative gated sequence is maintained in [remaining-implementation-road
 - Phase 7: events, registration, waitlists, and shared manual review — completed
 - Phase 8: announcements, newsletters, footer completion, and preferences — completed
 - Phase 9: member dashboard, history, and reporting — completed
-- Phase 10: homepage, publishing workflow, seeds, and admin usability — technical implementation complete; final approved content remains required
+- Phase 10: homepage, publishing workflow, seeds, and admin usability — technical implementation and comprehensive editable sample content complete; final approved content remains required
 - Phase 11: full validation, launch hardening, and deployment readiness
 
 ## 6.1 Sequencing decision
@@ -126,7 +126,7 @@ Strict status answer:
 - roadmap Phase 7 additionally completes `H-01` through `H-03`, `H-05` through `H-07`, `I-01`, `I-02`, and `J-02`
 - roadmap Phase 8 additionally completes `D-02`, `J-03`, and `J-04`
 - roadmap Phase 9 additionally completes `K-01`, `K-02`, and `K-03`
-- roadmap Phase 10 technically completes `L-01` and `L-02`; the legal policies are installed, and `E-01` remains partial until final approved organization, chapter, committee, and launch content/assets are installed
+- roadmap Phase 10 technically completes `L-01` and `L-02`; the legal policies and comprehensive content-only sample dataset are installed, and `E-01` remains partial until final approved organization, chapter, committee, and launch content/assets replace the samples
 
 Fully completed tasks:
 
@@ -813,7 +813,7 @@ Acceptance criteria:
 - homepage sections render dynamic content correctly
 - the page feels structurally aligned with the ASME-inspired design direction
 
-Verification update (2026-07-14): the technical homepage is complete with CMS-managed hero/network content, credibility metrics, active announcements, membership, featured events, chapter spotlight, history, current committee, and learning modules plus page-level SEO. The final standard legal policies are installed; `E-01` remains `Partial` only until stakeholder-approved organization, chapter, committee, and other launch content/assets replace the realistic UAT fixtures. See [phase-10-content-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-10-content-readiness-verification.md).
+Verification update (2026-07-14): the technical homepage is complete with CMS-managed hero/network content, credibility metrics, active announcements, membership, featured events, chapter spotlight, history, current committee, and learning modules plus page-level SEO. The final standard legal policies and a safe content-only sample dataset are installed; `E-01` remains `Partial` only until stakeholder-approved organization, chapter, committee, and other launch content/assets replace those samples. See [phase-10-content-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-10-content-readiness-verification.md) and [sample-content-guide.md](/Users/shuvomahamud/Projects/RUET_Website/docs/sample-content-guide.md).
 
 ### Task E-02: About, mission, and contact pages
 

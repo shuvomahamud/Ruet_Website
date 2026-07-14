@@ -6,6 +6,7 @@
   "type": "module",
   "packageManager": "pnpm@10.29.2",
   "scripts": {
+    "audit:sample": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env ./scripts/audit-sample-content.ts",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "bootstrap": "pnpm db:ensure && pnpm db:migrate && pnpm generate:types",
     "db:ensure": "node --env-file=.env ./scripts/ensure-database.mjs",
@@ -18,6 +19,7 @@
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation node --env-file=.env ./node_modules/payload/bin.js",
     "seed:cms-pages": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env ./scripts/seed-cms-pages.ts",
+    "seed:sample": "pnpm seed:cms-pages && cross-env NODE_OPTIONS=--no-deprecation SEED_CONTENT_ONLY=true tsx --env-file=.env ./scripts/seed-uat-content.ts",
     "seed:uat": "pnpm seed:cms-pages && cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env ./scripts/seed-uat-content.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
