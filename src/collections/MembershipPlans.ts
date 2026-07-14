@@ -1,16 +1,20 @@
 import type { CollectionConfig } from 'payload'
 import { slugField } from 'payload'
 
-import { adminsOnly } from '@/access/roles'
-import { anyone } from '@/access/anyone'
+import { activeOrAdmins, superAdminsOnly } from '@/access/roles'
+import {
+  validateNonNegativeInteger,
+  validateNonNegativeMoney,
+  validateUSD,
+} from '@/domain/validation'
 
 export const MembershipPlans: CollectionConfig = {
   slug: 'membershipPlans',
   access: {
-    create: adminsOnly,
-    delete: adminsOnly,
-    read: anyone,
-    update: adminsOnly,
+    create: superAdminsOnly,
+    delete: superAdminsOnly,
+    read: activeOrAdmins,
+    update: superAdminsOnly,
   },
   admin: {
     defaultColumns: ['title', 'annualPrice', 'active', 'updatedAt'],
@@ -45,12 +49,14 @@ export const MembershipPlans: CollectionConfig = {
       type: 'number',
       defaultValue: 50,
       required: true,
+      validate: validateNonNegativeMoney,
     },
     {
       name: 'currency',
       type: 'text',
       defaultValue: 'USD',
       required: true,
+      validate: validateUSD,
     },
     {
       name: 'active',
@@ -58,14 +64,27 @@ export const MembershipPlans: CollectionConfig = {
       defaultValue: true,
     },
     {
-      name: 'autoRenewEnabled',
+      name: 'renewalReminderEnabled',
       type: 'checkbox',
       defaultValue: true,
+    },
+    {
+      name: 'renewalReminderDaysBefore',
+      type: 'number',
+      defaultValue: 30,
+      validate: validateNonNegativeInteger,
     },
     {
       name: 'gracePeriodDays',
       type: 'number',
       defaultValue: 7,
+      validate: validateNonNegativeInteger,
+    },
+    {
+      name: 'sortOrder',
+      type: 'number',
+      defaultValue: 0,
+      validate: validateNonNegativeInteger,
     },
   ],
 }

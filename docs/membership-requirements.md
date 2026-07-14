@@ -13,6 +13,8 @@ Current implementation behavior for membership content ownership:
 - public membership page copy is now expected to come from the Payload `Pages` collection using the `membership` slug
 - plan title, price, benefits, active state, renewal-reminder settings, and grace-period configuration remain owned by the `membershipPlans` collection
 - this keeps editorial page copy and business-plan data separated cleanly inside the CMS
+- membership, order, payment, chapter, plan-price, currency, promotion, proof, and reviewer relationships/snapshots are now validated and protected as audit data
+- Zelle approval/rejection is implemented as an idempotent, row-locked transaction primitive; the public join/renew UI and admin review queue remain assigned to their later roadmap phases
 
 ## 2. Final Membership Baseline
 

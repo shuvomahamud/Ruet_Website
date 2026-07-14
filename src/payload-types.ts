@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    paymentProofs: PaymentProof;
     categories: Category;
     pages: Page;
     posts: Post;
@@ -82,6 +83,7 @@ export interface Config {
     waitlistEntries: WaitlistEntry;
     orders: Order;
     payments: Payment;
+    auditLogs: AuditLog;
     promotions: Promotion;
     committeeTerms: CommitteeTerm;
     historyEntries: HistoryEntry;
@@ -96,6 +98,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    paymentProofs: PaymentProofsSelect<false> | PaymentProofsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -109,6 +112,7 @@ export interface Config {
     waitlistEntries: WaitlistEntriesSelect<false> | WaitlistEntriesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     payments: PaymentsSelect<false> | PaymentsSelect<true>;
+    auditLogs: AuditLogsSelect<false> | AuditLogsSelect<true>;
     promotions: PromotionsSelect<false> | PromotionsSelect<true>;
     committeeTerms: CommitteeTermsSelect<false> | CommitteeTermsSelect<true>;
     historyEntries: HistoryEntriesSelect<false> | HistoryEntriesSelect<true>;
@@ -245,9 +249,33 @@ export interface Chapter {
  */
 export interface Media {
   id: number;
+  owner?: (number | null) | User;
+  chapter?: (number | null) | Chapter;
+  visibility: 'public' | 'private';
   alt: string;
   caption?: string | null;
   credit?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "paymentProofs".
+ */
+export interface PaymentProof {
+  id: number;
+  owner: number | User;
+  chapter?: (number | null) | Chapter;
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -385,8 +413,10 @@ export interface MembershipPlan {
   annualPrice: number;
   currency: string;
   active?: boolean | null;
-  autoRenewEnabled?: boolean | null;
+  renewalReminderEnabled?: boolean | null;
+  renewalReminderDaysBefore?: number | null;
   gracePeriodDays?: number | null;
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -411,13 +441,13 @@ export interface Membership {
   renewalAt?: string | null;
   expiresAt?: string | null;
   graceEndsAt?: string | null;
-  autoRenewEnabled?: boolean | null;
-  paymentMethod?: ('stripe' | 'zelle') | null;
-  chapterSnapshot?: string | null;
-  planTitleSnapshot?: string | null;
-  planPriceSnapshot?: number | null;
-  currencySnapshot?: string | null;
-  billingIntervalSnapshot?: string | null;
+  paymentMethod: 'zelle';
+  chapterAttribution?: (number | null) | Chapter;
+  chapterNameSnapshot?: string | null;
+  planTitleSnapshot: string;
+  planPriceSnapshot: number;
+  currencySnapshot: string;
+  billingIntervalSnapshot: string;
   reactivationEligible?: boolean | null;
   updatedAt: string;
   createdAt: string;
@@ -470,8 +500,8 @@ export interface EventRegistration {
   status: 'pending' | 'confirmed' | 'waitlisted' | 'cancelled';
   order?: (number | null) | Order;
   paymentStatus?: ('pending' | 'paid' | 'failed') | null;
-  registrationPriceSnapshot?: number | null;
-  discountSnapshot?: number | null;
+  registrationPriceSnapshot: number;
+  discountSnapshot: number;
   waitlistPosition?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -490,8 +520,32 @@ export interface Order {
   discountTotal?: number | null;
   total: number;
   currency: string;
-  paymentMethod?: ('stripe' | 'zelle') | null;
-  stripeSessionId?: string | null;
+  paymentMethod: 'zelle';
+  membership?: (number | null) | Membership;
+  eventRegistration?: (number | null) | EventRegistration;
+  promotion?: (number | null) | Promotion;
+  promotionCodeSnapshot?: string | null;
+  promotionDiscountTypeSnapshot?: ('fixed' | 'percent') | null;
+  promotionDiscountValueSnapshot?: number | null;
+  chapterNameSnapshot?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promotions".
+ */
+export interface Promotion {
+  id: number;
+  code: string;
+  scope: 'membership' | 'event' | 'both';
+  discountType: 'fixed' | 'percent';
+  discountValue: number;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  usageLimit?: number | null;
+  active?: boolean | null;
+  memberOnly?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -519,36 +573,49 @@ export interface Payment {
   id: number;
   user: number | User;
   order: number | Order;
-  paymentSource: 'stripe' | 'zelle';
+  paymentSource: 'zelle';
   status: 'pending' | 'approved' | 'failed';
-  externalReference?: string | null;
-  proofImage?: (number | null) | Media;
+  proofImage?: (number | null) | PaymentProof;
   proofTransactionId?: string | null;
-  submittedAt?: string | null;
+  submittedAt: string;
+  amountSnapshot: number;
+  currencySnapshot: string;
+  orderTypeSnapshot: 'membership' | 'event';
+  chapterNameSnapshot?: string | null;
   firstReviewerChapter?: (number | null) | Chapter;
   approvedBy?: (number | null) | User;
   approvedAt?: string | null;
+  approvedByRoleSnapshot?: string | null;
   rejectedBy?: (number | null) | User;
   rejectedAt?: string | null;
+  rejectedByRoleSnapshot?: string | null;
   rejectionReason?: string | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "promotions".
+ * via the `definition` "auditLogs".
  */
-export interface Promotion {
+export interface AuditLog {
   id: number;
-  code: string;
-  scope: 'membership' | 'event' | 'both';
-  discountType: 'fixed' | 'percent';
-  discountValue: number;
-  startsAt?: string | null;
-  endsAt?: string | null;
-  usageLimit?: number | null;
-  active?: boolean | null;
-  memberOnly?: boolean | null;
+  actor?: (number | null) | User;
+  actorRoleSnapshot?: string | null;
+  action: string;
+  entityType: string;
+  entityID: string;
+  outcome: 'succeeded' | 'rejected' | 'no_change';
+  beforeStatus?: string | null;
+  afterStatus?: string | null;
+  metadata?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -751,6 +818,10 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'paymentProofs';
+        value: number | PaymentProof;
+      } | null)
+    | ({
         relationTo: 'categories';
         value: number | Category;
       } | null)
@@ -801,6 +872,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'payments';
         value: number | Payment;
+      } | null)
+    | ({
+        relationTo: 'auditLogs';
+        value: number | AuditLog;
       } | null)
     | ({
         relationTo: 'promotions';
@@ -909,9 +984,32 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  owner?: T;
+  chapter?: T;
+  visibility?: T;
   alt?: T;
   caption?: T;
   credit?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "paymentProofs_select".
+ */
+export interface PaymentProofsSelect<T extends boolean = true> {
+  owner?: T;
+  chapter?: T;
+  description?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1050,8 +1148,10 @@ export interface MembershipPlansSelect<T extends boolean = true> {
   annualPrice?: T;
   currency?: T;
   active?: T;
-  autoRenewEnabled?: T;
+  renewalReminderEnabled?: T;
+  renewalReminderDaysBefore?: T;
   gracePeriodDays?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1067,9 +1167,9 @@ export interface MembershipsSelect<T extends boolean = true> {
   renewalAt?: T;
   expiresAt?: T;
   graceEndsAt?: T;
-  autoRenewEnabled?: T;
   paymentMethod?: T;
-  chapterSnapshot?: T;
+  chapterAttribution?: T;
+  chapterNameSnapshot?: T;
   planTitleSnapshot?: T;
   planPriceSnapshot?: T;
   currencySnapshot?: T;
@@ -1156,7 +1256,13 @@ export interface OrdersSelect<T extends boolean = true> {
   total?: T;
   currency?: T;
   paymentMethod?: T;
-  stripeSessionId?: T;
+  membership?: T;
+  eventRegistration?: T;
+  promotion?: T;
+  promotionCodeSnapshot?: T;
+  promotionDiscountTypeSnapshot?: T;
+  promotionDiscountValueSnapshot?: T;
+  chapterNameSnapshot?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1169,16 +1275,38 @@ export interface PaymentsSelect<T extends boolean = true> {
   order?: T;
   paymentSource?: T;
   status?: T;
-  externalReference?: T;
   proofImage?: T;
   proofTransactionId?: T;
   submittedAt?: T;
+  amountSnapshot?: T;
+  currencySnapshot?: T;
+  orderTypeSnapshot?: T;
+  chapterNameSnapshot?: T;
   firstReviewerChapter?: T;
   approvedBy?: T;
   approvedAt?: T;
+  approvedByRoleSnapshot?: T;
   rejectedBy?: T;
   rejectedAt?: T;
+  rejectedByRoleSnapshot?: T;
   rejectionReason?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "auditLogs_select".
+ */
+export interface AuditLogsSelect<T extends boolean = true> {
+  actor?: T;
+  actorRoleSnapshot?: T;
+  action?: T;
+  entityType?: T;
+  entityID?: T;
+  outcome?: T;
+  beforeStatus?: T;
+  afterStatus?: T;
+  metadata?: T;
   updatedAt?: T;
   createdAt?: T;
 }

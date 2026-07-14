@@ -1,14 +1,18 @@
 import type { CollectionConfig } from 'payload'
 
-import { adminsOnly, userScopedAccess } from '@/access/roles'
+import { denyAll, userOrChapterScopedAccess } from '@/access/roles'
+import { validateNonNegativeMoney, validateUSD } from '@/domain/validation'
+import { protectImmutableFields } from '@/hooks/protectImmutableFields'
+import { validatePaymentSnapshots } from '@/hooks/validateCommerceRelationships'
+import { validateWorkflowTransition } from '@/hooks/validateWorkflowTransition'
 
 export const Payments: CollectionConfig = {
   slug: 'payments',
   access: {
-    create: adminsOnly,
-    delete: adminsOnly,
-    read: userScopedAccess('user'),
-    update: adminsOnly,
+    create: denyAll,
+    delete: denyAll,
+    read: userOrChapterScopedAccess('user', 'firstReviewerChapter'),
+    update: denyAll,
   },
   admin: {
     defaultColumns: ['paymentSource', 'status', 'submittedAt', 'updatedAt'],
@@ -30,15 +34,14 @@ export const Payments: CollectionConfig = {
     {
       name: 'paymentSource',
       type: 'select',
-      options: [
-        { label: 'Stripe', value: 'stripe' },
-        { label: 'Zelle', value: 'zelle' },
-      ],
+      defaultValue: 'zelle',
+      options: [{ label: 'Zelle', value: 'zelle' }],
       required: true,
     },
     {
       name: 'status',
       type: 'select',
+      defaultValue: 'pending',
       options: [
         { label: 'Pending', value: 'pending' },
         { label: 'Approved', value: 'approved' },
@@ -47,13 +50,9 @@ export const Payments: CollectionConfig = {
       required: true,
     },
     {
-      name: 'externalReference',
-      type: 'text',
-    },
-    {
       name: 'proofImage',
       type: 'upload',
-      relationTo: 'media',
+      relationTo: 'paymentProofs',
     },
     {
       name: 'proofTransactionId',
@@ -62,6 +61,33 @@ export const Payments: CollectionConfig = {
     {
       name: 'submittedAt',
       type: 'date',
+      required: true,
+    },
+    {
+      name: 'amountSnapshot',
+      type: 'number',
+      required: true,
+      validate: validateNonNegativeMoney,
+    },
+    {
+      name: 'currencySnapshot',
+      type: 'text',
+      defaultValue: 'USD',
+      required: true,
+      validate: validateUSD,
+    },
+    {
+      name: 'orderTypeSnapshot',
+      type: 'select',
+      options: [
+        { label: 'Membership', value: 'membership' },
+        { label: 'Event', value: 'event' },
+      ],
+      required: true,
+    },
+    {
+      name: 'chapterNameSnapshot',
+      type: 'text',
     },
     {
       name: 'firstReviewerChapter',
@@ -78,6 +104,10 @@ export const Payments: CollectionConfig = {
       type: 'date',
     },
     {
+      name: 'approvedByRoleSnapshot',
+      type: 'text',
+    },
+    {
       name: 'rejectedBy',
       type: 'relationship',
       relationTo: 'users',
@@ -87,8 +117,43 @@ export const Payments: CollectionConfig = {
       type: 'date',
     },
     {
+      name: 'rejectedByRoleSnapshot',
+      type: 'text',
+    },
+    {
       name: 'rejectionReason',
       type: 'textarea',
     },
   ],
+  hooks: {
+    beforeChange: [
+      validatePaymentSnapshots,
+      protectImmutableFields([
+        'user',
+        'order',
+        'paymentSource',
+        'proofImage',
+        'proofTransactionId',
+        'submittedAt',
+        'amountSnapshot',
+        'currencySnapshot',
+        'orderTypeSnapshot',
+        'firstReviewerChapter',
+        'chapterNameSnapshot',
+      ]),
+      validateWorkflowTransition('payment'),
+      ({ data, operation, originalDoc }) => {
+        if (operation !== 'create') return data
+
+        const proofImage = data.proofImage ?? originalDoc?.proofImage
+        const proofTransactionID = data.proofTransactionId ?? originalDoc?.proofTransactionId
+
+        if (!proofImage && !proofTransactionID) {
+          throw new Error('Provide a Zelle transaction ID, payment proof, or both.')
+        }
+
+        return data
+      },
+    ],
+  },
 }

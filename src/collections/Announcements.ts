@@ -1,7 +1,14 @@
 import type { CollectionConfig } from 'payload'
 
-import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
-import { chapterScopedAccess, elevatedOnly } from '@/access/roles'
+import type { Where } from 'payload'
+
+import {
+  chapterScopedAccess,
+  elevatedOnly,
+  getManagedChapterIDs,
+  getRole,
+  isAdmin,
+} from '@/access/roles'
 import { enforceManagedChapter } from '@/hooks/enforceManagedChapter'
 
 export const Announcements: CollectionConfig = {
@@ -9,7 +16,26 @@ export const Announcements: CollectionConfig = {
   access: {
     create: elevatedOnly,
     delete: chapterScopedAccess('chapter'),
-    read: authenticatedOrPublished,
+    read: ({ req: { user } }) => {
+      if (isAdmin(user)) return true
+
+      const publishedAudience: Where = {
+        and: [
+          { _status: { equals: 'published' } },
+          ...(user ? [] : [{ audience: { equals: 'public' } }]),
+        ],
+      }
+
+      if (getRole(user) !== 'chapterAdmin') return publishedAudience
+
+      const managedChapterIDs = getManagedChapterIDs(user)
+      return {
+        or: [
+          publishedAudience,
+          ...(managedChapterIDs.length ? [{ chapter: { in: managedChapterIDs } }] : []),
+        ],
+      } as Where
+    },
     update: chapterScopedAccess('chapter'),
   },
   admin: {

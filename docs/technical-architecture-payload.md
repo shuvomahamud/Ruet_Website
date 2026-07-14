@@ -22,6 +22,9 @@ The current codebase now follows these concrete implementation rules:
 - the seeded CMS slugs currently include `about`, `membership`, `chapters`, `events`, `learning`, `contact`, `privacy-policy`, `terms-of-use`, and `membership-terms`
 - `membershipPlans`, `chapters`, `events`, and `posts` still own the dynamic record-level content rendered inside those route templates
 - the header logo asset is loaded from [public/brand](/Users/shuvomahamud/Projects/RUET_Website/public/brand)
+- transaction collections are read-scoped but service-only for create/update/delete; state transitions share the Payload request transaction and lock the target PostgreSQL row
+- payment screenshots/PDFs use the private `paymentProofs` collection rather than publicly readable editorial media
+- immutable transaction snapshots and super-admin-readable `auditLogs` support operational traceability without logging proof contents or secrets
 
 ## 2. Core Architecture Principles
 

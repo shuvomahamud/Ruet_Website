@@ -1,15 +1,20 @@
 import type { CollectionConfig } from 'payload'
 
-import { adminsOnly, userScopedAccess } from '@/access/roles'
+import { denyAll, userOrChapterScopedAccess } from '@/access/roles'
 import { authenticated } from '@/access/authenticated'
+import { validateNonNegativeMoney, validatePositiveInteger } from '@/domain/validation'
+import { forceAuthenticatedUser } from '@/hooks/forceAuthenticatedUser'
+import { prepareEventRegistration } from '@/hooks/prepareRegistration'
+import { protectImmutableFields } from '@/hooks/protectImmutableFields'
+import { validateWorkflowTransition } from '@/hooks/validateWorkflowTransition'
 
 export const EventRegistrations: CollectionConfig = {
   slug: 'eventRegistrations',
   access: {
     create: authenticated,
-    delete: adminsOnly,
-    read: userScopedAccess('user'),
-    update: adminsOnly,
+    delete: denyAll,
+    read: userOrChapterScopedAccess('user', 'event.chapter'),
+    update: denyAll,
   },
   admin: {
     defaultColumns: ['event', 'user', 'status', 'paymentStatus'],
@@ -33,6 +38,7 @@ export const EventRegistrations: CollectionConfig = {
       type: 'number',
       defaultValue: 1,
       required: true,
+      validate: validatePositiveInteger,
     },
     {
       name: 'status',
@@ -62,14 +68,34 @@ export const EventRegistrations: CollectionConfig = {
     {
       name: 'registrationPriceSnapshot',
       type: 'number',
+      required: true,
+      validate: validateNonNegativeMoney,
     },
     {
       name: 'discountSnapshot',
       type: 'number',
+      defaultValue: 0,
+      required: true,
+      validate: validateNonNegativeMoney,
     },
     {
       name: 'waitlistPosition',
       type: 'number',
     },
   ],
+  hooks: {
+    beforeChange: [
+      forceAuthenticatedUser('user'),
+      prepareEventRegistration,
+      protectImmutableFields([
+        'event',
+        'user',
+        'quantity',
+        'order',
+        'registrationPriceSnapshot',
+        'discountSnapshot',
+      ]),
+      validateWorkflowTransition('registration'),
+    ],
+  },
 }

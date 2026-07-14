@@ -1,8 +1,8 @@
 import type { CollectionConfig } from 'payload'
 import { slugField } from 'payload'
 
-import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
-import { chapterScopedAccess, elevatedOnly } from '@/access/roles'
+import { chapterScopedAccess, elevatedOnly, publishedOrManagedChapterAccess } from '@/access/roles'
+import { validateNonNegativeMoney, validatePositiveInteger, validateUSD } from '@/domain/validation'
 import { enforceManagedChapter } from '@/hooks/enforceManagedChapter'
 
 export const Events: CollectionConfig = {
@@ -10,7 +10,7 @@ export const Events: CollectionConfig = {
   access: {
     create: elevatedOnly,
     delete: chapterScopedAccess('chapter'),
-    read: authenticatedOrPublished,
+    read: publishedOrManagedChapterAccess('chapter'),
     update: chapterScopedAccess('chapter'),
   },
   admin: {
@@ -115,15 +115,19 @@ export const Events: CollectionConfig = {
       name: 'basePrice',
       type: 'number',
       defaultValue: 0,
+      validate: validateNonNegativeMoney,
     },
     {
       name: 'currency',
       type: 'text',
       defaultValue: 'USD',
+      validate: validateUSD,
     },
     {
       name: 'capacity',
       type: 'number',
+      validate: (value: unknown) =>
+        value === null || value === undefined ? true : validatePositiveInteger(value),
     },
     {
       name: 'waitlistEnabled',
@@ -134,6 +138,7 @@ export const Events: CollectionConfig = {
       name: 'maxRegistrationQuantity',
       type: 'number',
       defaultValue: 1,
+      validate: validatePositiveInteger,
     },
     {
       name: 'galleryAfterCompletion',
@@ -150,7 +155,32 @@ export const Events: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeChange: [enforceManagedChapter('chapter')],
+    beforeChange: [
+      enforceManagedChapter('chapter'),
+      ({ data, originalDoc }) => {
+        const startAt = data.startAt ?? originalDoc?.startAt
+        const endAt = data.endAt ?? originalDoc?.endAt
+
+        if (startAt && endAt && new Date(String(endAt)) <= new Date(String(startAt))) {
+          throw new Error('Event end time must be after its start time.')
+        }
+
+        const capacity = data.capacity ?? originalDoc?.capacity
+        const maximumQuantity =
+          data.maxRegistrationQuantity ?? originalDoc?.maxRegistrationQuantity ?? 1
+        if (typeof capacity === 'number' && maximumQuantity > capacity) {
+          throw new Error('Maximum registration quantity cannot exceed event capacity.')
+        }
+
+        const isPaid = data.isPaid ?? originalDoc?.isPaid ?? false
+        const basePrice = data.basePrice ?? originalDoc?.basePrice ?? 0
+        if ((isPaid && basePrice <= 0) || (!isPaid && basePrice !== 0)) {
+          throw new Error('Paid events need a positive price; free events must have a zero price.')
+        }
+
+        return data
+      },
+    ],
   },
   versions: {
     drafts: {

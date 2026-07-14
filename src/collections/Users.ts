@@ -8,6 +8,8 @@ import {
   isElevated,
 } from '@/access/roles'
 import { assignFirstUserRole } from '@/hooks/assignFirstUserRole'
+import { enforceUserRoleHierarchy } from '@/hooks/enforceUserRoleHierarchy'
+import { validateUserChapter } from '@/hooks/validateUserChapter'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -139,6 +141,6 @@ export const Users: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeChange: [assignFirstUserRole],
+    beforeChange: [assignFirstUserRole, enforceUserRoleHierarchy, validateUserChapter],
   },
 }

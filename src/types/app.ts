@@ -23,6 +23,6 @@ export const EVENT_MODES = ['inPerson', 'virtual', 'hybrid'] as const
 
 export type EventMode = (typeof EVENT_MODES)[number]
 
-export const PAYMENT_METHODS = ['stripe', 'zelle'] as const
+export const PAYMENT_METHODS = ['zelle'] as const
 
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number]

@@ -1,20 +1,40 @@
 import type { CollectionConfig } from 'payload'
 
-import { anyone } from '@/access/anyone'
-import { elevatedOnly } from '@/access/roles'
+import { elevatedOnly, mediaMutationAccess, mediaReadAccess } from '@/access/roles'
+import { prepareOwnedMedia } from '@/hooks/prepareOwnedMedia'
 
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
     create: elevatedOnly,
-    delete: elevatedOnly,
-    read: anyone,
-    update: elevatedOnly,
+    delete: mediaMutationAccess,
+    read: mediaReadAccess,
+    update: mediaMutationAccess,
   },
   admin: {
     defaultColumns: ['filename', 'alt', 'mimeType', 'updatedAt'],
   },
   fields: [
+    {
+      name: 'owner',
+      type: 'relationship',
+      relationTo: 'users',
+    },
+    {
+      name: 'chapter',
+      type: 'relationship',
+      relationTo: 'chapters',
+    },
+    {
+      name: 'visibility',
+      type: 'select',
+      defaultValue: 'public',
+      options: [
+        { label: 'Public', value: 'public' },
+        { label: 'Private', value: 'private' },
+      ],
+      required: true,
+    },
     {
       name: 'alt',
       type: 'text',
@@ -31,5 +51,8 @@ export const Media: CollectionConfig = {
   ],
   upload: {
     mimeTypes: ['image/*', 'application/pdf'],
+  },
+  hooks: {
+    beforeChange: [prepareOwnedMedia],
   },
 }

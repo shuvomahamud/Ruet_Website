@@ -16,6 +16,7 @@ The current implementation now adds these resolved delivery details:
 - current task completion status is tracked in:
   - [developer-task-list.md](/Users/shuvomahamud/Projects/RUET_Website/docs/developer-task-list.md)
   - [developer-task-status.csv](/Users/shuvomahamud/Projects/RUET_Website/docs/developer-task-status.csv)
+- the authorization and transaction foundation now enforces authenticated ownership, assigned-chapter isolation, private Zelle proofs, service-only commerce mutation, row-locked legal state transitions, immutable snapshots, and append-only audit records; verification is recorded in [phase-1-security-workflow-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-1-security-workflow-verification.md)
 
 ## Reviewed Inputs
 

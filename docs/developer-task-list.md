@@ -568,6 +568,8 @@ Acceptance criteria:
 - members can only view or edit their own allowed records
 - super admin retains full system control
 
+Verification update (2026-07-13): the remaining-roadmap Phase 1 security gate re-audited every collection, added direct-API role/ownership regression coverage, private payment proofs, service-only commerce mutation, row-locked workflow transitions, idempotent Zelle review, immutable snapshots, and forward migrations. See [phase-1-security-workflow-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-1-security-workflow-verification.md).
+
 ## 7.3 Authentication And Account Management
 
 ### Task C-01: Local auth flows

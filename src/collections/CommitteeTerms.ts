@@ -1,7 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
-import { chapterScopedAccess, elevatedOnly } from '@/access/roles'
+import { chapterScopedAccess, elevatedOnly, publishedOrManagedChapterAccess } from '@/access/roles'
 import { enforceManagedChapter } from '@/hooks/enforceManagedChapter'
 
 export const CommitteeTerms: CollectionConfig = {
@@ -9,7 +8,7 @@ export const CommitteeTerms: CollectionConfig = {
   access: {
     create: elevatedOnly,
     delete: chapterScopedAccess('chapter'),
-    read: authenticatedOrPublished,
+    read: publishedOrManagedChapterAccess('chapter'),
     update: chapterScopedAccess('chapter'),
   },
   admin: {

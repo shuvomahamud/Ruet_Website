@@ -13,8 +13,11 @@ type AuthUserLike = {
 }
 
 const normalizeID = (value: number | string | { id?: number | string } | null | undefined) => {
-  if (typeof value === 'number') return value
-  if (typeof value === 'string') return Number(value)
+  if (typeof value === 'number') return Number.isFinite(value) ? value : undefined
+  if (typeof value === 'string') {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : undefined
+  }
   if (value && typeof value === 'object' && value.id !== undefined) return normalizeID(value.id)
   return undefined
 }
@@ -46,10 +49,19 @@ export const superAdminsOnly: Access = ({ req: { user } }) => getRole(user) === 
 
 export const elevatedOnly: Access = ({ req: { user } }) => isElevated(user)
 
+export const denyAll: Access = () => false
+
 export const adminFieldOnly: FieldAccess = ({ req: { user } }) => isAdmin(user)
 
 export const adminsOrSelf: Access = ({ req: { user } }) => {
-  if (isAdmin(user)) return true
+  if (getRole(user) === 'superAdmin') return true
+  if (getRole(user) === 'admin') {
+    return {
+      role: {
+        not_equals: 'superAdmin',
+      },
+    } as Where
+  }
   if (user?.id) {
     return {
       id: {
@@ -121,6 +133,148 @@ export const chapterScopedAccess =
 
     return false
   }
+
+export const userOrChapterScopedAccess =
+  (userField = 'user', chapterField = 'chapter'): Access =>
+  ({ req: { user } }) => {
+    if (isAdmin(user)) return true
+
+    if (!user?.id) return false
+
+    const clauses: Where[] = [
+      {
+        [userField]: {
+          equals: Number(user.id),
+        },
+      } as Where,
+    ]
+
+    if (getRole(user) === 'chapterAdmin') {
+      const managedChapterIDs = getManagedChapterIDs(user)
+
+      if (managedChapterIDs.length) {
+        clauses.push({
+          [chapterField]: {
+            in: managedChapterIDs,
+          },
+        } as Where)
+      }
+    }
+
+    return {
+      or: clauses,
+    } as Where
+  }
+
+export const publishedOrManagedChapterAccess =
+  (chapterField = 'chapter'): Access =>
+  ({ req: { user } }) => {
+    if (isAdmin(user)) return true
+
+    const clauses: Where[] = [
+      {
+        _status: {
+          equals: 'published',
+        },
+      } as Where,
+    ]
+
+    if (getRole(user) === 'chapterAdmin') {
+      const managedChapterIDs = getManagedChapterIDs(user)
+
+      if (managedChapterIDs.length) {
+        clauses.push({
+          [chapterField]: {
+            in: managedChapterIDs,
+          },
+        } as Where)
+      }
+    }
+
+    return {
+      or: clauses,
+    } as Where
+  }
+
+export const publishedOrManagedChapterDocumentAccess: Access = ({ req: { user } }) => {
+  if (isAdmin(user)) return true
+
+  const clauses: Where[] = [
+    {
+      _status: {
+        equals: 'published',
+      },
+    } as Where,
+  ]
+
+  if (getRole(user) === 'chapterAdmin') {
+    const managedChapterIDs = getManagedChapterIDs(user)
+
+    if (managedChapterIDs.length) {
+      clauses.push({
+        id: {
+          in: managedChapterIDs,
+        },
+      } as Where)
+    }
+  }
+
+  return {
+    or: clauses,
+  } as Where
+}
+
+export const activeOrAdmins: Access = ({ req: { user } }) => {
+  if (isAdmin(user)) return true
+
+  return {
+    active: {
+      equals: true,
+    },
+  } as Where
+}
+
+export const mediaReadAccess: Access = ({ req: { user } }) => {
+  if (isAdmin(user)) return true
+
+  const clauses: Where[] = [
+    {
+      visibility: {
+        equals: 'public',
+      },
+    } as Where,
+  ]
+
+  if (getRole(user) === 'chapterAdmin') {
+    const managedChapterIDs = getManagedChapterIDs(user)
+
+    if (managedChapterIDs.length) {
+      clauses.push({
+        chapter: {
+          in: managedChapterIDs,
+        },
+      } as Where)
+    }
+  }
+
+  return {
+    or: clauses,
+  } as Where
+}
+
+export const mediaMutationAccess: Access = ({ req: { user } }) => {
+  if (isAdmin(user)) return true
+  if (getRole(user) !== 'chapterAdmin') return false
+
+  const managedChapterIDs = getManagedChapterIDs(user)
+  if (!managedChapterIDs.length) return false
+
+  return {
+    chapter: {
+      in: managedChapterIDs,
+    },
+  } as Where
+}
 
 export const managedChapterAccessByDocumentID: Access = ({ req: { user } }) => {
   if (isAdmin(user)) return true

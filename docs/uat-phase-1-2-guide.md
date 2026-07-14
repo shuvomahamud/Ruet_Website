@@ -18,6 +18,7 @@ This guide covers the implemented work from:
 - Phase 0 recovery: pinned runtime, reproducible dependency installation, and automated smoke gates
 - Phase 1: Payload schema, roles, access groundwork, and admin structure
 - Phase 2: public site shell, homepage foundation, public content routes, and ASME-inspired shared UI
+- Remaining-roadmap Phase 1: direct-API ownership/chapter isolation, private payment proofs, legal workflow primitives, and idempotent Zelle review (automated security verification only; public transaction UI remains later scope)
 
 ## 2. UAT Scope
 
@@ -59,6 +60,8 @@ Do not mark these as failures in this round because they are not implemented yet
 - committee/history public pages beyond admin data entry
 - SEO metadata behavior beyond saving the admin records
 
+The transaction primitives behind Zelle review are implemented and automated, but they do not make the public membership/event flows or the manual-review queue part of this manual UAT round. Their evidence is in [phase-1-security-workflow-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-1-security-workflow-verification.md).
+
 ## 3. Tester Prerequisites
 
 Before running UAT:
@@ -91,6 +94,8 @@ Before manual UAT, the automated baseline should pass:
 pnpm verify
 pnpm test:e2e
 ```
+
+The expected automated result after the remaining-roadmap Phase 1 gate is `15` integration tests and `6` browser tests passing.
 
 ## 4. Important Visibility Rules
 

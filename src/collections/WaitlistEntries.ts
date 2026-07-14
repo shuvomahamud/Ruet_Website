@@ -1,15 +1,20 @@
 import type { CollectionConfig } from 'payload'
 
-import { adminsOnly, userScopedAccess } from '@/access/roles'
+import { denyAll, userOrChapterScopedAccess } from '@/access/roles'
 import { authenticated } from '@/access/authenticated'
+import { validatePositiveInteger } from '@/domain/validation'
+import { forceAuthenticatedUser } from '@/hooks/forceAuthenticatedUser'
+import { prepareWaitlistEntry } from '@/hooks/prepareRegistration'
+import { protectImmutableFields } from '@/hooks/protectImmutableFields'
+import { validateWorkflowTransition } from '@/hooks/validateWorkflowTransition'
 
 export const WaitlistEntries: CollectionConfig = {
   slug: 'waitlistEntries',
   access: {
     create: authenticated,
-    delete: adminsOnly,
-    read: userScopedAccess('user'),
-    update: adminsOnly,
+    delete: denyAll,
+    read: userOrChapterScopedAccess('user', 'event.chapter'),
+    update: denyAll,
   },
   admin: {
     defaultColumns: ['event', 'user', 'status', 'joinedAt'],
@@ -33,6 +38,7 @@ export const WaitlistEntries: CollectionConfig = {
       type: 'number',
       defaultValue: 1,
       required: true,
+      validate: validatePositiveInteger,
     },
     {
       name: 'joinedAt',
@@ -58,4 +64,12 @@ export const WaitlistEntries: CollectionConfig = {
       type: 'date',
     },
   ],
+  hooks: {
+    beforeChange: [
+      forceAuthenticatedUser('user'),
+      prepareWaitlistEntry,
+      protectImmutableFields(['event', 'user', 'quantity', 'joinedAt']),
+      validateWorkflowTransition('waitlist'),
+    ],
+  },
 }

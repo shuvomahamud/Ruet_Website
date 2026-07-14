@@ -1,14 +1,22 @@
 import type { CollectionConfig } from 'payload'
 
-import { adminsOnly, userScopedAccess } from '@/access/roles'
+import { denyAll, userOrChapterScopedAccess } from '@/access/roles'
+import {
+  validateNonNegativeMoney,
+  validateOptionalNonNegativeMoney,
+  validateUSD,
+} from '@/domain/validation'
+import { protectImmutableFields } from '@/hooks/protectImmutableFields'
+import { validateOrderRelationships } from '@/hooks/validateCommerceRelationships'
+import { validateWorkflowTransition } from '@/hooks/validateWorkflowTransition'
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
   access: {
-    create: adminsOnly,
-    delete: adminsOnly,
-    read: userScopedAccess('user'),
-    update: adminsOnly,
+    create: denyAll,
+    delete: denyAll,
+    read: userOrChapterScopedAccess('user', 'chapterAttribution'),
+    update: denyAll,
   },
   admin: {
     defaultColumns: ['orderType', 'status', 'total', 'updatedAt'],
@@ -38,6 +46,7 @@ export const Orders: CollectionConfig = {
     {
       name: 'status',
       type: 'select',
+      defaultValue: 'pending',
       options: [
         { label: 'Pending', value: 'pending' },
         { label: 'Paid', value: 'paid' },
@@ -50,34 +59,111 @@ export const Orders: CollectionConfig = {
       name: 'subtotal',
       type: 'number',
       required: true,
+      validate: validateNonNegativeMoney,
     },
     {
       name: 'discountTotal',
       type: 'number',
       defaultValue: 0,
+      validate: validateNonNegativeMoney,
     },
     {
       name: 'total',
       type: 'number',
       required: true,
+      validate: validateNonNegativeMoney,
     },
     {
       name: 'currency',
       type: 'text',
       defaultValue: 'USD',
       required: true,
+      validate: validateUSD,
     },
     {
       name: 'paymentMethod',
       type: 'select',
+      defaultValue: 'zelle',
+      options: [{ label: 'Zelle', value: 'zelle' }],
+      required: true,
+    },
+    {
+      name: 'membership',
+      type: 'relationship',
+      relationTo: 'memberships',
+    },
+    {
+      name: 'eventRegistration',
+      type: 'relationship',
+      relationTo: 'eventRegistrations',
+    },
+    {
+      name: 'promotion',
+      type: 'relationship',
+      relationTo: 'promotions',
+    },
+    {
+      name: 'promotionCodeSnapshot',
+      type: 'text',
+    },
+    {
+      name: 'promotionDiscountTypeSnapshot',
+      type: 'select',
       options: [
-        { label: 'Stripe', value: 'stripe' },
-        { label: 'Zelle', value: 'zelle' },
+        { label: 'Fixed Amount', value: 'fixed' },
+        { label: 'Percentage', value: 'percent' },
       ],
     },
     {
-      name: 'stripeSessionId',
+      name: 'promotionDiscountValueSnapshot',
+      type: 'number',
+      validate: validateOptionalNonNegativeMoney,
+    },
+    {
+      name: 'chapterNameSnapshot',
       type: 'text',
     },
   ],
+  hooks: {
+    beforeChange: [
+      validateOrderRelationships,
+      protectImmutableFields([
+        'user',
+        'orderType',
+        'chapterAttribution',
+        'subtotal',
+        'discountTotal',
+        'total',
+        'currency',
+        'paymentMethod',
+        'membership',
+        'eventRegistration',
+        'promotion',
+        'promotionCodeSnapshot',
+        'promotionDiscountTypeSnapshot',
+        'promotionDiscountValueSnapshot',
+        'chapterNameSnapshot',
+      ]),
+      validateWorkflowTransition('order'),
+      ({ data, originalDoc }) => {
+        const subtotal = data.subtotal ?? originalDoc?.subtotal
+        const discount = data.discountTotal ?? originalDoc?.discountTotal ?? 0
+        const total = data.total ?? originalDoc?.total
+
+        if (
+          typeof subtotal === 'number' &&
+          typeof discount === 'number' &&
+          typeof total === 'number' &&
+          Math.abs(subtotal - discount - total) > 0.001
+        ) {
+          throw new Error('Order total must equal subtotal minus discount.')
+        }
+        if (typeof subtotal === 'number' && typeof discount === 'number' && discount > subtotal) {
+          throw new Error('Order discount cannot exceed its subtotal.')
+        }
+
+        return data
+      },
+    ],
+  },
 }

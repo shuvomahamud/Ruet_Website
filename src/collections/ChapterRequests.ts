@@ -1,15 +1,16 @@
 import type { CollectionConfig } from 'payload'
 
-import { adminsOnly } from '@/access/roles'
+import { superAdminsOnly, userScopedAccess } from '@/access/roles'
 import { authenticated } from '@/access/authenticated'
+import { forceAuthenticatedUser } from '@/hooks/forceAuthenticatedUser'
 
 export const ChapterRequests: CollectionConfig = {
   slug: 'chapterRequests',
   access: {
     create: authenticated,
-    delete: adminsOnly,
-    read: adminsOnly,
-    update: adminsOnly,
+    delete: superAdminsOnly,
+    read: userScopedAccess('requester'),
+    update: superAdminsOnly,
   },
   admin: {
     defaultColumns: ['requestedName', 'status', 'reviewedAt', 'updatedAt'],
@@ -52,4 +53,18 @@ export const ChapterRequests: CollectionConfig = {
       type: 'date',
     },
   ],
+  hooks: {
+    beforeChange: [
+      forceAuthenticatedUser('requester'),
+      ({ data, operation }) =>
+        operation === 'create'
+          ? {
+              ...data,
+              reviewedAt: undefined,
+              reviewedBy: undefined,
+              status: 'pending',
+            }
+          : data,
+    ],
+  },
 }

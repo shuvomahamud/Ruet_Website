@@ -1,9 +1,9 @@
 import type { Access } from 'payload'
 
-import { isElevated } from './roles'
+import { isAdmin } from './roles'
 
 export const authenticatedOrPublished: Access = ({ req: { user } }) => {
-  if (user && isElevated(user)) {
+  if (user && isAdmin(user)) {
     return true
   }
 

@@ -1,16 +1,20 @@
 import type { CollectionConfig } from 'payload'
 import { slugField } from 'payload'
 
-import { adminsOnly, superAdminsOnly } from '@/access/roles'
-import { anyone } from '@/access/anyone'
+import {
+  adminFieldOnly,
+  managedChapterAccessByDocumentID,
+  publishedOrManagedChapterDocumentAccess,
+  superAdminsOnly,
+} from '@/access/roles'
 
 export const Chapters: CollectionConfig = {
   slug: 'chapters',
   access: {
     create: superAdminsOnly,
     delete: superAdminsOnly,
-    read: anyone,
-    update: adminsOnly,
+    read: publishedOrManagedChapterDocumentAccess,
+    update: managedChapterAccessByDocumentID,
   },
   admin: {
     defaultColumns: ['name', 'chapterStatus', 'updatedAt'],
@@ -20,6 +24,9 @@ export const Chapters: CollectionConfig = {
     {
       name: 'name',
       type: 'text',
+      access: {
+        update: adminFieldOnly,
+      },
       required: true,
     },
     slugField({
@@ -28,6 +35,9 @@ export const Chapters: CollectionConfig = {
     {
       name: 'chapterStatus',
       type: 'select',
+      access: {
+        update: adminFieldOnly,
+      },
       defaultValue: 'active',
       options: [
         { label: 'Active', value: 'active' },
@@ -52,6 +62,10 @@ export const Chapters: CollectionConfig = {
     {
       name: 'chapterAdmins',
       type: 'relationship',
+      access: {
+        create: adminFieldOnly,
+        update: adminFieldOnly,
+      },
       hasMany: true,
       relationTo: 'users',
     },

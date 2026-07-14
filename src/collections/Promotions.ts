@@ -1,14 +1,14 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminsOnly } from '@/access/roles'
-import { anyone } from '@/access/anyone'
+import { validateNonNegativeInteger, validateNonNegativeMoney } from '@/domain/validation'
 
 export const Promotions: CollectionConfig = {
   slug: 'promotions',
   access: {
     create: adminsOnly,
     delete: adminsOnly,
-    read: anyone,
+    read: adminsOnly,
     update: adminsOnly,
   },
   admin: {
@@ -45,6 +45,7 @@ export const Promotions: CollectionConfig = {
       name: 'discountValue',
       type: 'number',
       required: true,
+      validate: validateNonNegativeMoney,
     },
     {
       name: 'startsAt',
@@ -57,6 +58,8 @@ export const Promotions: CollectionConfig = {
     {
       name: 'usageLimit',
       type: 'number',
+      validate: (value: unknown) =>
+        value === null || value === undefined ? true : validateNonNegativeInteger(value),
     },
     {
       name: 'active',
@@ -69,4 +72,27 @@ export const Promotions: CollectionConfig = {
       defaultValue: false,
     },
   ],
+  hooks: {
+    beforeChange: [
+      ({ data, originalDoc }) => {
+        const discountType = data.discountType ?? originalDoc?.discountType
+        const discountValue = data.discountValue ?? originalDoc?.discountValue
+        const startsAt = data.startsAt ?? originalDoc?.startsAt
+        const endsAt = data.endsAt ?? originalDoc?.endsAt
+
+        if (
+          discountType === 'percent' &&
+          typeof discountValue === 'number' &&
+          discountValue > 100
+        ) {
+          throw new Error('Percentage discounts cannot exceed 100%.')
+        }
+        if (startsAt && endsAt && new Date(String(endsAt)) <= new Date(String(startsAt))) {
+          throw new Error('Promotion end time must be after its start time.')
+        }
+
+        return data
+      },
+    ],
+  },
 }

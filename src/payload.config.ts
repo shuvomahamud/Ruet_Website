@@ -7,6 +7,7 @@ import sharp from 'sharp'
 
 import { env } from '@/utilities/env'
 import { Announcements } from './collections/Announcements'
+import { AuditLogs } from './collections/AuditLogs'
 import { Categories } from './collections/Categories'
 import { ChapterRequests } from './collections/ChapterRequests'
 import { Chapters } from './collections/Chapters'
@@ -22,6 +23,7 @@ import { NewsletterCampaigns } from './collections/NewsletterCampaigns'
 import { Orders } from './collections/Orders'
 import { Pages } from './collections/Pages'
 import { Payments } from './collections/Payments'
+import { PaymentProofs } from './collections/PaymentProofs'
 import { Posts } from './collections/Posts'
 import { Promotions } from './collections/Promotions'
 import { WaitlistEntries } from './collections/WaitlistEntries'
@@ -48,6 +50,7 @@ export default buildConfig({
   collections: [
     Users,
     Media,
+    PaymentProofs,
     Categories,
     Pages,
     Posts,
@@ -61,6 +64,7 @@ export default buildConfig({
     WaitlistEntries,
     Orders,
     Payments,
+    AuditLogs,
     Promotions,
     CommitteeTerms,
     HistoryEntries,

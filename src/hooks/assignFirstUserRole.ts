@@ -1,6 +1,6 @@
 import type { CollectionBeforeChangeHook } from 'payload'
 
-import { getRole, isAdmin } from '@/access/roles'
+import { isAdmin } from '@/access/roles'
 
 export const assignFirstUserRole: CollectionBeforeChangeHook = async ({ data, operation, req }) => {
   if (operation !== 'create') return data
@@ -9,7 +9,11 @@ export const assignFirstUserRole: CollectionBeforeChangeHook = async ({ data, op
     collection: 'users',
   })
 
-  if (usersCount.totalDocs === 0) {
+  const isFirstUserRegistration = new URL(req.url ?? '/', 'http://payload.local').pathname.endsWith(
+    '/first-register',
+  )
+
+  if (usersCount.totalDocs === 0 && isFirstUserRegistration) {
     return {
       ...data,
       accountStatus: 'active',
@@ -29,6 +33,6 @@ export const assignFirstUserRole: CollectionBeforeChangeHook = async ({ data, op
   return {
     ...data,
     accountStatus: data?.accountStatus ?? 'active',
-    role: data?.role ?? getRole(req.user) ?? 'member',
+    role: data?.role ?? 'member',
   }
 }
