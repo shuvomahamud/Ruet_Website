@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { headers } from 'next/headers'
 
 import { authenticateRequest } from '@/auth/current-user'
+import { AccountNavigation } from '@/components/account/AccountNavigation'
 import { CommunicationPreferencesForm } from '@/components/communications/CommunicationPreferencesForm'
 import { SiteFooter } from '@/components/site/SiteFooter'
 import { SiteHeader } from '@/components/site/SiteHeader'
@@ -28,6 +29,13 @@ export default async function CommunicationPreferencesPage() {
             </p>
           </Container>
         </section>
+        {user ? (
+          <section className="account-navigation-band">
+            <Container>
+              <AccountNavigation user={user} />
+            </Container>
+          </section>
+        ) : null}
         <section className="page-section">
           <Container>
             {user ? (
@@ -69,4 +77,3 @@ export default async function CommunicationPreferencesPage() {
     </>
   )
 }
-

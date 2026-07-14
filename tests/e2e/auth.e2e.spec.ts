@@ -79,7 +79,9 @@ test.describe.serial('Member authentication', () => {
     await page.getByLabel('Email address').fill(email)
     await page.getByLabel('Password').fill(password)
     await page.getByRole('button', { name: 'Sign in' }).click()
-    await expect(page).toHaveURL(/\/account\/settings/)
+    await expect(page).toHaveURL(/\/dashboard/)
+    await expect(page.getByRole('heading', { name: /^Welcome/ })).toBeVisible()
+    await page.getByRole('link', { name: 'Profile & security' }).click()
     await expect(page.getByRole('heading', { name: 'Account settings' })).toBeVisible()
 
     await page.getByLabel('City').fill('Boston')

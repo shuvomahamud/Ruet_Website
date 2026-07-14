@@ -38,6 +38,7 @@ export const defaultMainNavigation = [
       { link: { href: '/membership', label: 'Membership overview' } },
       { link: { href: '/membership/join', label: 'Join membership' } },
       { link: { href: '/membership/renew', label: 'Renew or reactivate' } },
+      { link: { href: '/dashboard', label: 'Member dashboard' } },
       { link: { href: '/account/settings', label: 'Account settings' } },
     ],
     featured: {

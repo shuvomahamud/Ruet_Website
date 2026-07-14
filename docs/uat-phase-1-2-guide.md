@@ -26,6 +26,7 @@ This guide covers the implemented work from:
 - Remaining-roadmap Phase 6: annual membership overview, profile-gated join, Zelle proof/transaction submission, chapter-scoped approval, immutable resubmission, renewal, grace, expiration, reactivation, and membership notifications
 - Remaining-roadmap Phase 7: event discovery and recaps, free/Zelle registration, transaction-safe capacity, waitlists, shared payment review, protected virtual access, and event notifications
 - Remaining-roadmap Phase 8: public/member/chapter announcements, newsletter authoring/preview/schedule/cancel/send/retry/history, communication preferences, and the complete institutional footer
+- Remaining-roadmap Phase 9: post-login member dashboard, filtered private payment/registration histories, and role/chapter-scoped operational reporting with summary CSV export
 
 ## 2. UAT Scope
 
@@ -61,13 +62,15 @@ This guide covers the implemented work from:
 - active-window and audience-aware organization/chapter announcements on home, chapter, and dedicated announcement surfaces
 - newsletter preview, scheduling, cancellation, sending, preference suppression, delivery history, and failure visibility
 - responsive footer navigation, contact, newsletter preference, social, and legal destinations
+- member dashboard membership/chapter/action state, upcoming registrations, waitlist, announcements, and recent Zelle attempts
+- private payment-attempt and event-registration filters, pagination, statuses, and ownership isolation
+- admin/super-admin organization reports and chapter-admin managed-chapter reports for membership, renewal/reactivation, approved revenue, payments, events, waitlists, and promotions
 
 ## 2.2 Explicitly out of scope for this UAT
 
 Do not mark these as failures in this round because they are not implemented yet:
 
 - Stripe checkout, which has been superseded by the Zelle-only payment decision
-- member dashboard
 - live Resend delivery until provider credentials and a verified sender are installed
 
 Membership and event Zelle execution now share one role-scoped review queue and are in scope. Evidence is in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md) and [phase-7-events-manual-review-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-7-events-manual-review-verification.md).
@@ -105,9 +108,9 @@ pnpm verify
 pnpm test:e2e
 ```
 
-The expected automated result after the remaining-roadmap Phase 6 gate is `43` integration tests and `24` browser tests passing.
+The expected automated result after the remaining-roadmap Phase 9 gate is `57` integration tests and `34` browser tests passing.
 
-For manual verification/reset delivery, configure the production-like email adapter when it becomes available in Phase 5 or use a test-only database token locally. Live Google UAT requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and an approved callback URL. Missing external credentials should be recorded as `Blocked`, not as missing application logic.
+For live verification/reset delivery, configure the production Resend adapter and verified sender; local/test capture remains available for safe non-production checks. Live Google UAT requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and an approved callback URL. Missing external credentials should be recorded as `Blocked`, not as missing application logic.
 
 ## 4. Important Visibility Rules
 
@@ -1091,6 +1094,70 @@ Expected result:
 - normal create, update, and delete operations are denied
 - standard members cannot read delivery audits
 
+## 6.15 Member Dashboard, Histories, And Reports
+
+### UAT-ACC-01: Login opens the complete member dashboard
+
+Steps:
+
+1. Sign in as a standard member with a primary chapter, membership record, registration, and Zelle attempt.
+2. Confirm the destination is `/dashboard`.
+3. Inspect membership, chapter, upcoming events, waitlist, payments, and announcements.
+4. Follow the membership action and each account-navigation destination.
+
+Expected result:
+
+- the dashboard shows only the signed-in member's records
+- the membership action matches join, renew, reactivate, resubmit, or pending state
+- chapter, event, payment, announcement, and account links work
+
+### UAT-ACC-02: Payment and registration histories filter and paginate
+
+Steps:
+
+1. Open `/account/payments` and filter by purpose, Zelle status, and submitted date.
+2. Create enough UAT attempts to verify a second page, then use Previous/Next.
+3. Open `/events/registrations` and filter by status and upcoming/past timing.
+4. Inspect a rejected attempt and its replacement submission.
+
+Expected result:
+
+- filters narrow the correct immutable attempts/registrations and reset cleanly
+- pagination retains active filters
+- human-readable pending, approved/confirmed, and failed states and rejection reasons are clear
+- no record owned by a different test member is shown
+
+### UAT-RPT-01: Organization report reconciles selected source records
+
+Steps:
+
+1. Sign in as an admin or super admin and open `/reports`.
+2. Select a UAT chapter and a date range containing the sample records.
+3. Compare membership statuses and term outcomes to Memberships.
+4. Compare approved revenue to approved Payments only; compare events, capacity, waitlist, and promotions to their source records.
+5. Export the summary CSV.
+
+Expected result:
+
+- membership, failed-renewal, approval, registration, waitlist, promotion, and revenue totals reconcile
+- pending or failed payments are not counted as approved revenue
+- the CSV contains summary metrics without member names, emails, transaction IDs, or proof links
+
+### UAT-RPT-02: Chapter scope cannot be broadened
+
+Steps:
+
+1. Sign in as a chapter administrator assigned to exactly one UAT chapter.
+2. Open `/reports` and confirm only the managed chapter is selectable and represented.
+3. Directly request `/api/reports?chapter=<unmanaged-id>` and `/api/reports/export?chapter=<unmanaged-id>`.
+4. Sign in as a standard member and request `/api/reports`.
+
+Expected result:
+
+- managed-chapter totals are visible
+- unmanaged chapter requests return `403`
+- standard-member report requests return `403`
+
 ## 7. Suggested UAT Execution Order
 
 Recommended order:
@@ -1110,6 +1177,8 @@ Recommended order:
 13. Users and role fields
 14. Authentication and account lifecycle
 15. Delivery audits
+16. Member dashboard and account histories
+17. Admin and chapter-admin reporting reconciliation/export
 
 ## 8. Defect Logging Template
 
@@ -1152,4 +1221,5 @@ This UAT round should confirm that:
 - Phase 6 membership plan, profile gating, promotion, Zelle evidence, chapter review, status history, resubmission, renewal, grace, expiration, reactivation, and notifications meet their acceptance criteria
 - Phase 7 event discovery, registration, capacity, Zelle review, rejection/resubmission, waitlist, protected access, recap/archive, and notification behavior meet their acceptance criteria
 - Phase 8 announcement targeting/windows, newsletter workflow/preferences/history, and complete responsive footer meet their acceptance criteria
-- the repo is ready to continue into remaining-roadmap Phase 9
+- Phase 9 member dashboard, private histories, reconciled operational reports, and role/chapter scope meet their acceptance criteria
+- the repo is ready to continue into remaining-roadmap Phase 10

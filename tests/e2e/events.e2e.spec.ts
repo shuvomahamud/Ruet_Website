@@ -24,7 +24,7 @@ test.describe.serial('Events, waitlists, and Zelle experience', () => {
     await page.getByLabel('Email address').fill(email)
     await page.getByLabel('Password').fill(credential)
     await page.getByRole('button', { name: 'Sign in' }).click()
-    await expect(page).toHaveURL(/\/account\/settings/)
+    await expect(page).toHaveURL(/\/dashboard/)
   }
 
   const signOut = async (page: Page) => {
@@ -286,7 +286,7 @@ test.describe.serial('Events, waitlists, and Zelle experience', () => {
     await expect(page.getByText('Your event registration is confirmed.')).toBeVisible()
     await page.goto('/events/registrations')
     await expect(page.getByRole('heading', { name: freeEvent.title })).toBeVisible()
-    await expect(page.getByText('confirmed', { exact: true }).first()).toBeVisible()
+    await expect(page.locator('.badge').filter({ hasText: 'Confirmed' }).first()).toBeVisible()
     await page.setViewportSize({ height: 844, width: 390 })
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
@@ -349,7 +349,7 @@ test.describe.serial('Events, waitlists, and Zelle experience', () => {
     await expect(page.getByText('Your new event payment details are pending review.')).toBeVisible()
     await page.goto('/events/registrations')
     await expect(page.getByText('E2E event transaction was not verifiable.')).toBeVisible()
-    await expect(page.getByText('failed', { exact: true })).toBeVisible()
-    await expect(page.getByText('pending', { exact: true }).first()).toBeVisible()
+    await expect(page.locator('.badge').filter({ hasText: 'Failed' }).first()).toBeVisible()
+    await expect(page.locator('.badge').filter({ hasText: 'Pending' }).first()).toBeVisible()
   })
 })

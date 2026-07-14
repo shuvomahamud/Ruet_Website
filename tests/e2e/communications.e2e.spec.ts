@@ -30,7 +30,7 @@ test.describe.serial('Announcements, newsletters, and footer experience', () => 
     await page.getByLabel('Email address').fill(email)
     await page.getByLabel('Password').fill(password)
     await page.getByRole('button', { name: 'Sign in' }).click()
-    await expect(page).toHaveURL(/\/account\/settings/)
+    await expect(page).toHaveURL(/\/dashboard/)
   }
 
   const createAnnouncement = async (
@@ -265,9 +265,9 @@ test.describe.serial('Announcements, newsletters, and footer experience', () => 
       'href',
       '/announcements',
     )
-    await expect(footer.getByRole('link', { name: 'Account settings' })).toHaveAttribute(
+    await expect(footer.getByRole('link', { name: 'Member dashboard' })).toHaveAttribute(
       'href',
-      '/account/settings',
+      '/dashboard',
     )
     await expect(footer.locator('a[href^="mailto:"]')).toBeVisible()
     expect(

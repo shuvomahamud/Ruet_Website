@@ -2,6 +2,7 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { authenticateRequest } from '@/auth/current-user'
+import { AccountNavigation } from '@/components/account/AccountNavigation'
 import { DeleteAccountForm } from '@/components/auth/DeleteAccountForm'
 import { GoogleAuthLink } from '@/components/auth/GoogleAuthLink'
 import { LogoutButton } from '@/components/auth/LogoutButton'
@@ -33,6 +34,7 @@ export default async function AccountSettingsPage() {
             </div>
             <LogoutButton />
           </div>
+          <AccountNavigation user={user} />
           <section className="account-panel">
             <h2>Profile</h2>
             <ProfileForm chapters={chapters} user={user} />

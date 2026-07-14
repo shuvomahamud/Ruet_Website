@@ -1634,6 +1634,8 @@ Acceptance criteria:
 
 - dashboard surfaces the most important member information in one place
 
+Verification update (2026-07-14): completed with `/dashboard` as the post-login member home, actionable current membership state, renew/reactivate/resubmit routing, primary-chapter context, upcoming registrations, active waitlist entries, recent immutable Zelle attempts, and authenticated organization/chapter announcements. All member queries include an explicit owner constraint even when the caller also has a chapter-admin role.
+
 ### Task K-02: Payment and registration history views
 
 Objective:
@@ -1662,6 +1664,8 @@ Acceptance criteria:
 - users can view their own records only
 - statuses are clear and consistent
 
+Verification update (2026-07-14): completed with a filtered, paginated `/account/payments` attempt ledger and an enhanced filtered, paginated `/events/registrations` history. Both pages show human-readable Zelle/payment decisions, rejection reasons, immutable attempt dates and amounts, registration snapshots, and waitlist history; direct queries constrain `user` to the authenticated account to prevent elevated-role access rules from widening a personal view.
+
 ### Task K-03: Admin reporting views
 
 Objective:
@@ -1689,6 +1693,8 @@ Dependencies:
 Acceptance criteria:
 
 - admins can retrieve the core operational reports listed in the requirements
+
+Verification update (2026-07-14): completed with `/reports`, private JSON and CSV endpoints, organization/admin and managed-chapter scopes, date/chapter filters, membership status and join/renewal/reactivation outcomes (including failed renewals), approved membership/event revenue by chapter, manual-payment outcomes, event registration/capacity/waitlist totals, and promotion usage. Fixture reconciliation and browser tests prove exact totals, member denial, and unmanaged-chapter denial. See [phase-9-dashboard-reporting-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-9-dashboard-reporting-verification.md).
 
 ## 7.12 Publishing Workflow And Content QA
 

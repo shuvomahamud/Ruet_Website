@@ -1,9 +1,14 @@
 import Link from 'next/link'
 
-const pageHref = (basePath: string, params: URLSearchParams, page: number) => {
+const pageHref = (
+  basePath: string,
+  params: URLSearchParams,
+  page: number,
+  pageParam: string,
+) => {
   const next = new URLSearchParams(params)
-  if (page <= 1) next.delete('page')
-  else next.set('page', String(page))
+  if (page <= 1) next.delete(pageParam)
+  else next.set(pageParam, String(page))
   const query = next.toString()
   return `${basePath}${query ? `?${query}` : ''}`
 }
@@ -11,11 +16,13 @@ const pageHref = (basePath: string, params: URLSearchParams, page: number) => {
 export const Pagination = ({
   basePath,
   page,
+  pageParam = 'page',
   query,
   totalPages,
 }: {
   basePath: string
   page: number
+  pageParam?: string
   query: URLSearchParams
   totalPages: number
 }) => {
@@ -27,7 +34,7 @@ export const Pagination = ({
   return (
     <nav aria-label="Pagination" className="pagination">
       {page > 1 ? (
-        <Link href={pageHref(basePath, query, page - 1)} rel="prev">
+        <Link href={pageHref(basePath, query, page - 1, pageParam)} rel="prev">
           Previous
         </Link>
       ) : (
@@ -36,14 +43,14 @@ export const Pagination = ({
       {pages.map((value) => (
         <Link
           aria-current={value === page ? 'page' : undefined}
-          href={pageHref(basePath, query, value)}
+          href={pageHref(basePath, query, value, pageParam)}
           key={value}
         >
           {value}
         </Link>
       ))}
       {page < totalPages ? (
-        <Link href={pageHref(basePath, query, page + 1)} rel="next">
+        <Link href={pageHref(basePath, query, page + 1, pageParam)} rel="next">
           Next
         </Link>
       ) : (

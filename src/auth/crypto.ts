@@ -58,7 +58,7 @@ export const verifyOAuthState = (value: string | undefined): OAuthState | null =
 }
 
 export const sanitizeReturnTo = (value: string | null | undefined): string => {
-  if (!value || !value.startsWith('/') || value.startsWith('//')) return '/account/settings'
+  if (!value || !value.startsWith('/') || value.startsWith('//')) return '/dashboard'
   return value
 }
 

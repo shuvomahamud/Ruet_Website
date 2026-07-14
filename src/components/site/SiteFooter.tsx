@@ -71,7 +71,7 @@ export const SiteFooter = async () => {
                   <Link href="/announcements">Announcements</Link>
                 </li>
                 <li>
-                  <Link href="/account/settings">Account settings</Link>
+                  <Link href="/dashboard">Member dashboard</Link>
                 </li>
               </ul>
             </div>

@@ -38,14 +38,14 @@ Historical migration files must not be rewritten after they have been applied. S
 
 ### 2.2 Active backlog
 
-After completion of roadmap Phase 8, the tracked backlog contains:
+After completion of roadmap Phase 9, the tracked backlog contains:
 
-- `45` completed tasks
+- `48` completed tasks
 - `2` partially implemented tasks
-- `8` pending tasks
+- `5` pending tasks
 - `2` superseded Stripe tasks
 
-There are `10` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
+There are `7` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
 
 ### 2.3 Work excluded from the approved launch scope
 
@@ -389,6 +389,8 @@ Exit gate:
 - footer links, preferences, contact data, and legal destinations are fully functional on mobile and desktop
 
 ## Phase 9: Member Dashboard, History, And Admin Reporting
+
+Status: `Completed` on 2026-07-14. Evidence: [phase-9-dashboard-reporting-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-9-dashboard-reporting-verification.md).
 
 Goal: expose complete self-service history and operational reporting.
 

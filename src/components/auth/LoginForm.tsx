@@ -36,7 +36,7 @@ export const LoginForm = () => {
     if (response.ok) {
       const requested = searchParams.get('returnTo')
       const returnTo =
-        requested?.startsWith('/') && !requested.startsWith('//') ? requested : '/account/settings'
+        requested?.startsWith('/') && !requested.startsWith('//') ? requested : '/dashboard'
       router.push(returnTo)
       router.refresh()
       return

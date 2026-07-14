@@ -6,6 +6,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 
 import { authenticateRequest } from '@/auth/current-user'
+import { AccountNavigation } from '@/components/account/AccountNavigation'
 import { PageHero } from '@/components/content/PageHero'
 import { SiteFooter } from '@/components/site/SiteFooter'
 import { SiteHeader } from '@/components/site/SiteHeader'
@@ -54,6 +55,7 @@ export default async function MembershipStatusPage() {
       overrideAccess: false,
       sort: '-createdAt',
       user,
+      where: { user: { equals: user.id } },
     }),
     payload.find({
       collection: 'orders',
@@ -62,7 +64,12 @@ export default async function MembershipStatusPage() {
       overrideAccess: false,
       sort: '-createdAt',
       user,
-      where: { orderType: { equals: 'membership' } },
+      where: {
+        and: [
+          { user: { equals: user.id } },
+          { orderType: { equals: 'membership' } },
+        ],
+      },
     }),
     payload.find({
       collection: 'payments',
@@ -71,7 +78,12 @@ export default async function MembershipStatusPage() {
       overrideAccess: false,
       sort: '-submittedAt',
       user,
-      where: { orderTypeSnapshot: { equals: 'membership' } },
+      where: {
+        and: [
+          { user: { equals: user.id } },
+          { orderTypeSnapshot: { equals: 'membership' } },
+        ],
+      },
     }),
   ])
 
@@ -84,6 +96,11 @@ export default async function MembershipStatusPage() {
           eyebrow="Private account view"
           title="Membership status"
         />
+        <section className="account-navigation-band">
+          <Container>
+            <AccountNavigation user={user} />
+          </Container>
+        </section>
         <section className="page-section">
           <Container>
             <div className="membership-status-heading">
