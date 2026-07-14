@@ -11,6 +11,8 @@ import * as migration_20260714_061936_phase_7_events_registration_waitlists from
 import * as migration_20260714_065657_phase_8_communications_footer from './20260714_065657_phase_8_communications_footer'
 import * as migration_20260714_070100_phase_8_footer_content_backfill from './20260714_070100_phase_8_footer_content_backfill'
 import * as migration_20260714_080505_phase_10_content_readiness from './20260714_080505_phase_10_content_readiness'
+import * as migration_20260714_115909_phase_10_legal_policies from './20260714_115909_phase_10_legal_policies'
+import * as migration_20260714_120435_phase_10_signup_policy_versions from './20260714_120435_phase_10_signup_policy_versions'
 
 export const migrations = [
   {
@@ -77,5 +79,15 @@ export const migrations = [
     up: migration_20260714_080505_phase_10_content_readiness.up,
     down: migration_20260714_080505_phase_10_content_readiness.down,
     name: '20260714_080505_phase_10_content_readiness',
+  },
+  {
+    up: migration_20260714_115909_phase_10_legal_policies.up,
+    down: migration_20260714_115909_phase_10_legal_policies.down,
+    name: '20260714_115909_phase_10_legal_policies',
+  },
+  {
+    up: migration_20260714_120435_phase_10_signup_policy_versions.up,
+    down: migration_20260714_120435_phase_10_signup_policy_versions.down,
+    name: '20260714_120435_phase_10_signup_policy_versions',
   },
 ]

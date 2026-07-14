@@ -35,7 +35,7 @@ Suggested execution model:
 1. finish the foundation and schema tasks first
 2. repair the development/test baseline before expanding transactional work
 3. implement the remaining tasks in the gated phases defined in [remaining-implementation-roadmap.md](/Users/shuvomahamud/Projects/RUET_Website/docs/remaining-implementation-roadmap.md)
-4. delay final legal-copy integration until legal text is provided
+4. preserve the approved `2026-07-14` legal-policy version and use a new dated version for future revisions
 5. use `Zelle` as the only payment method for memberships and paid events
 
 ## 3. Delivery Principles
@@ -126,7 +126,7 @@ Strict status answer:
 - roadmap Phase 7 additionally completes `H-01` through `H-03`, `H-05` through `H-07`, `I-01`, `I-02`, and `J-02`
 - roadmap Phase 8 additionally completes `D-02`, `J-03`, and `J-04`
 - roadmap Phase 9 additionally completes `K-01`, `K-02`, and `K-03`
-- roadmap Phase 10 technically completes `L-01` and `L-02`; `E-01` remains partial until final approved legal, organization, chapter, committee, and launch content/assets are installed
+- roadmap Phase 10 technically completes `L-01` and `L-02`; the legal policies are installed, and `E-01` remains partial until final approved organization, chapter, committee, and launch content/assets are installed
 
 Fully completed tasks:
 
@@ -339,7 +339,7 @@ Create singleton-managed site settings and shared public content controls.
 
 Detailed scope:
 
-- create globals for site settings, navigation, footer, homepage settings, SEO defaults, and legal placeholders
+- create globals for site settings, navigation, footer, homepage settings, SEO defaults, and legal publishing controls
 - define admin fields for repeated CTA labels and contact data
 
 Deliverables:
@@ -813,7 +813,7 @@ Acceptance criteria:
 - homepage sections render dynamic content correctly
 - the page feels structurally aligned with the ASME-inspired design direction
 
-Verification update (2026-07-14): the technical homepage is complete with CMS-managed hero/network content, credibility metrics, active announcements, membership, featured events, chapter spotlight, history, current committee, and learning modules plus page-level SEO. `E-01` remains `Partial` only until stakeholder-approved organization, chapter, committee, launch, and legal content/assets replace the realistic UAT fixtures. See [phase-10-content-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-10-content-readiness-verification.md).
+Verification update (2026-07-14): the technical homepage is complete with CMS-managed hero/network content, credibility metrics, active announcements, membership, featured events, chapter spotlight, history, current committee, and learning modules plus page-level SEO. The final standard legal policies are installed; `E-01` remains `Partial` only until stakeholder-approved organization, chapter, committee, and other launch content/assets replace the realistic UAT fixtures. See [phase-10-content-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-10-content-readiness-verification.md).
 
 ### Task E-02: About, mission, and contact pages
 
@@ -959,9 +959,11 @@ Dependencies:
 Acceptance criteria:
 
 - legal pages exist in the site structure
-- legal copy can be inserted later without layout changes
+- approved legal copy can be published and revised without layout changes
 
 Verification update (2026-07-13): completed with CMS-managed legal page types, explicit placeholder/approved status, last-reviewed dates, generated tables of contents, stable section anchors, readable legal layout, and structured seeded templates for privacy, website terms, and membership terms.
+
+Legal-content update (2026-07-14): stakeholder-authorized standard Privacy Policy, Terms of Use, Membership Agreement, Zelle disclosures, and no-refund language are published as version `2026-07-14`. New paid membership and event attempts require explicit agreement and retain the accepted version and timestamp. See [legal-policy-review-record.md](/Users/shuvomahamud/Projects/RUET_Website/docs/legal-policy-review-record.md).
 
 ## 7.6 Membership And Checkout
 
@@ -1914,7 +1916,6 @@ These tasks should wait until data model and access rules are stable:
 
 These items are still open and may require small follow-up changes later:
 
-- final legal page copy
 - expected SLA language for manual payment approval
 - final production media/storage policy
 

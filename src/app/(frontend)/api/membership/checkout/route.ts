@@ -26,12 +26,20 @@ export async function POST(request: Request) {
       windowMs: 60 * 60 * 1000,
     })
     const form = await request.formData()
+    const paymentTermsAccepted = form.get('paymentTermsAccepted') === 'on'
+    if (!paymentTermsAccepted) {
+      return Response.json(
+        { message: 'Accept the Membership Agreement, Zelle payment terms, and no-refund policy.' },
+        { status: 400 },
+      )
+    }
     const value = (name: string) => {
       const item = form.get(name)
       return typeof item === 'string' && item.trim() ? item : undefined
     }
     const input = membershipCheckoutSchema.safeParse({
       intent: value('intent'),
+      paymentTermsAccepted,
       promotionCode: value('promotionCode'),
       transactionId: value('transactionId'),
     })
@@ -55,7 +63,8 @@ export async function POST(request: Request) {
 
     const payload = await getPayload({ config })
     const req = await createLocalReq({ user }, payload)
-    const result = await submitMembershipCheckout({ ...input.data, proofFile, req })
+    const { paymentTermsAccepted: _paymentTermsAccepted, ...checkoutInput } = input.data
+    const result = await submitMembershipCheckout({ ...checkoutInput, proofFile, req })
     try {
       await queueMembershipSubmissionNotice(payload, result)
     } catch (error) {

@@ -192,7 +192,7 @@ describe.sequential('public content and contact workflows', () => {
       expect.arrayContaining(['mission', 'vision', 'governance']),
     )
     expect(contact.docs[0]?.sections?.length).toBeGreaterThan(0)
-    expect(privacy.docs[0]).toMatchObject({ legalStatus: 'placeholder', pageType: 'legal' })
+    expect(privacy.docs[0]).toMatchObject({ legalStatus: 'approved', pageType: 'legal' })
     expect(privacy.docs[0]?.sections?.length).toBeGreaterThan(1)
     expect(header.mainLinks?.some((item) => (item.children?.length ?? 0) > 0)).toBe(true)
     expect(seo.siteName).toBe('RUETIAN USA')

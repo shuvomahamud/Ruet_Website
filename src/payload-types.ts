@@ -220,7 +220,15 @@ export interface User {
     allowSystemEmails?: boolean | null;
   };
   termsAcceptedAt?: string | null;
+  /**
+   * Terms of Use version acknowledged when this account was created.
+   */
+  termsVersionAccepted?: string | null;
   privacyAcceptedAt?: string | null;
+  /**
+   * Privacy Policy version acknowledged when this account was created.
+   */
+  privacyVersionAccepted?: string | null;
   deletedAt?: string | null;
   anonymizedReference?: string | null;
   updatedAt: string;
@@ -855,6 +863,14 @@ export interface Payment {
   proofImage?: (number | null) | PaymentProof;
   proofTransactionId?: string | null;
   submittedAt: string;
+  /**
+   * Server-recorded time when the payer explicitly accepted the applicable Zelle and no-refund terms.
+   */
+  paymentTermsAcceptedAt?: string | null;
+  /**
+   * Immutable policy version accepted for this payment attempt.
+   */
+  paymentTermsVersionSnapshot?: string | null;
   amountSnapshot: number;
   currencySnapshot: string;
   orderTypeSnapshot: 'membership' | 'event';
@@ -1287,7 +1303,9 @@ export interface UsersSelect<T extends boolean = true> {
         allowSystemEmails?: T;
       };
   termsAcceptedAt?: T;
+  termsVersionAccepted?: T;
   privacyAcceptedAt?: T;
+  privacyVersionAccepted?: T;
   deletedAt?: T;
   anonymizedReference?: T;
   updatedAt?: T;
@@ -1753,6 +1771,8 @@ export interface PaymentsSelect<T extends boolean = true> {
   proofImage?: T;
   proofTransactionId?: T;
   submittedAt?: T;
+  paymentTermsAcceptedAt?: T;
+  paymentTermsVersionSnapshot?: T;
   amountSnapshot?: T;
   currencySnapshot?: T;
   orderTypeSnapshot?: T;

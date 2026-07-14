@@ -32,6 +32,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     }
     const input = eventRegistrationSchema.safeParse({
       intent: value('intent'),
+      paymentTermsAccepted: form.get('paymentTermsAccepted') === 'on',
       promotionCode: value('promotionCode'),
       quantity: value('quantity') ?? '1',
       transactionId: value('transactionId'),
@@ -71,12 +72,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     })
     const event = eventResult.docs[0]
     if (!event) return Response.json({ message: 'Event not found.' }, { status: 404 })
+    if (event.isPaid && input.data.intent !== 'waitlist' && !input.data.paymentTermsAccepted) {
+      return Response.json(
+        { message: 'Accept the Zelle payment and no-refund terms to continue.' },
+        { status: 400 },
+      )
+    }
     const req = await createLocalReq({ user }, payload)
+    const { paymentTermsAccepted: _paymentTermsAccepted, ...registrationInput } = input.data
     const result = await submitEventRegistration({
       eventID: event.id,
       proofFile,
       req,
-      ...input.data,
+      ...registrationInput,
     })
     try {
       await Promise.all([

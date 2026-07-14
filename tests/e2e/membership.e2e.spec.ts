@@ -235,7 +235,20 @@ test.describe.serial('Membership and Zelle experience', () => {
     await signIn(page, member.email, memberPassword)
     await page.goto('/membership/join')
     await expect(page.getByText('payments-e2e@example.test')).toBeVisible()
-    await page.getByLabel(/Zelle transaction ID/).fill(`E2E-ZELLE-APPROVE-${nonce}`)
+    const transactionID = `E2E-ZELLE-APPROVE-${nonce}`
+    await page.getByLabel(/Zelle transaction ID/).fill(transactionID)
+    const missingAcceptance = await page.evaluate(async (transactionId) => {
+      const form = new FormData()
+      form.set('intent', 'join')
+      form.set('transactionId', transactionId)
+      const response = await fetch('/api/membership/checkout', { body: form, method: 'POST' })
+      return { body: await response.json(), status: response.status }
+    }, transactionID)
+    expect(missingAcceptance).toMatchObject({
+      body: { message: expect.stringMatching(/Accept the Membership Agreement/i) },
+      status: 400,
+    })
+    await page.getByLabel(/I have read and agree/).check()
     const response = page.waitForResponse(
       (candidate) =>
         candidate.url().endsWith('/api/membership/checkout') &&
@@ -244,6 +257,16 @@ test.describe.serial('Membership and Zelle experience', () => {
     await page.getByRole('button', { name: 'Submit for manual review' }).click()
     expect((await response).status()).toBe(201)
     await expect(page.getByText('Your membership payment is pending review.')).toBeVisible()
+    const acceptedAttempt = await payload.find({
+      collection: 'payments',
+      limit: 1,
+      overrideAccess: true,
+      where: { proofTransactionId: { equals: transactionID } },
+    })
+    expect(acceptedAttempt.docs[0]).toMatchObject({
+      paymentTermsVersionSnapshot: '2026-07-14',
+    })
+    expect(acceptedAttempt.docs[0]?.paymentTermsAcceptedAt).toBeTruthy()
     const reviewerNotice = await payload.find({
       collection: 'emailDeliveries',
       limit: 10,
@@ -294,6 +317,7 @@ test.describe.serial('Membership and Zelle experience', () => {
     await signIn(page, resubmitMember.email, resubmitPassword)
     await page.goto('/membership/join')
     await page.getByLabel(/Zelle transaction ID/).fill(`E2E-ZELLE-REJECT-${nonce}`)
+    await page.getByLabel(/I have read and agree/).check()
     await page.getByRole('button', { name: 'Submit for manual review' }).click()
     await expect(page.getByText('Your membership payment is pending review.')).toBeVisible()
 
@@ -310,6 +334,7 @@ test.describe.serial('Membership and Zelle experience', () => {
     await page.goto('/membership/renew')
     await expect(page.getByRole('heading', { name: 'Resubmit Zelle details' })).toBeVisible()
     await page.getByLabel(/Zelle transaction ID/).fill(`E2E-ZELLE-RESUBMIT-${nonce}`)
+    await page.getByLabel(/I have read and agree/).check()
     await page.getByRole('button', { name: 'Submit for manual review' }).click()
     await expect(page.getByText('Your new payment details are pending review.')).toBeVisible()
     await page.goto('/membership/status')

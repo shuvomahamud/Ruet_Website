@@ -19,7 +19,7 @@ If another document conflicts with this one, this document should take priority 
 
 As of 2026-03-29, the current implementation reflects these additional alignment points:
 
-- core public route copy for `about`, `membership`, `chapters`, `events`, `learning`, `contact`, and the placeholder legal pages is now CMS-managed through the `Pages` collection
+- core public route copy for `about`, `membership`, `chapters`, `events`, `learning`, `contact`, and the approved legal policies is CMS-managed through the `Pages` collection
 - those route slugs have been seeded into the CMS and are expected to remain published unless intentionally unpublished
 - the header logo now loads from [public/brand](/Users/shuvomahamud/Projects/RUET_Website/public/brand) using the standard `ruetian-usa-logo.*` naming convention
 - implementation status and task completion are tracked in:
@@ -31,6 +31,8 @@ As of 2026-07-13, Zelle is the only approved payment method. Stripe checkout, su
 As of 2026-07-13, the remaining-roadmap Phase 1 data-security gate is implemented: public-owned records are server-stamped, chapter data is assigned-chapter scoped, payment proof is private, commerce mutation is service-only, and workflow transitions use legal state checks, PostgreSQL row locks, shared-request transactions, immutable snapshots, and audit records.
 
 As of 2026-07-14, the Phase 8 communications scope is implemented: public/member and chapter announcements enforce active windows and direct-read audience rules; admin newsletter campaigns support preview, scheduling, cancellation, idempotent dispatch/retry, preferences, and history; and the institutional footer provides working contact, preference, legal, and social destinations.
+
+As of 2026-07-14, stakeholder-authorized standard Privacy, Terms of Use, Membership Agreement, Zelle, and no-refund language is published as policy version `2026-07-14`. Paid membership and event attempts require explicit acceptance and store the accepted version and server timestamp.
 
 ## 2. Inputs Reviewed
 
@@ -469,13 +471,8 @@ These assumptions were introduced to unblock planning and should be reviewed dur
 
 Only these items remain open:
 
-1. Final legal page copy:
-   - privacy policy
-   - terms of use
-   - membership terms
-   - final no-refund wording
-2. Expected SLA for manual payment approval.
-3. Media and storage policy:
+1. Expected SLA for manual payment approval.
+2. Media and storage policy:
    - production storage backend
    - file size limits
    - retention and archival rules

@@ -14,6 +14,7 @@ export const eventQuoteSchema = z.object({
 
 export const eventRegistrationSchema = z.object({
   intent: z.enum(['accept_offer', 'register', 'resubmit', 'waitlist']),
+  paymentTermsAccepted: z.boolean().default(false),
   promotionCode: z
     .string()
     .trim()

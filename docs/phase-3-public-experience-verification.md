@@ -50,8 +50,8 @@ Completed task dispositions:
 
 - Pages can be classified as `legal` with `placeholder` or `approved` status.
 - The template displays status, last-updated information, a generated table of contents, stable anchors, and a readable content width.
-- Privacy Policy, Terms of Use, and Membership Terms are seeded as clearly labeled approval-pending templates.
-- Final stakeholder-approved legal wording remains a production launch input; it does not require a layout or schema change.
+- Privacy Policy, Terms of Use, and Membership Terms were initially seeded as approval-pending templates.
+- Phase 10 update (2026-07-14): stakeholder-authorized standard policies replaced those templates as approved version `2026-07-14`, without requiring a layout change.
 
 ## Data and Migration Verification
 

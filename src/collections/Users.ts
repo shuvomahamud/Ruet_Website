@@ -237,6 +237,18 @@ export const Users: CollectionConfig = {
       admin: { readOnly: true },
     },
     {
+      name: 'termsVersionAccepted',
+      type: 'text',
+      access: {
+        create: publicSignupFieldAccess,
+        update: serverFieldOnly,
+      },
+      admin: {
+        description: 'Terms of Use version acknowledged when this account was created.',
+        readOnly: true,
+      },
+    },
+    {
       name: 'privacyAcceptedAt',
       type: 'date',
       access: {
@@ -244,6 +256,18 @@ export const Users: CollectionConfig = {
         update: serverFieldOnly,
       },
       admin: { readOnly: true },
+    },
+    {
+      name: 'privacyVersionAccepted',
+      type: 'text',
+      access: {
+        create: publicSignupFieldAccess,
+        update: serverFieldOnly,
+      },
+      admin: {
+        description: 'Privacy Policy version acknowledged when this account was created.',
+        readOnly: true,
+      },
     },
     {
       name: 'deletedAt',

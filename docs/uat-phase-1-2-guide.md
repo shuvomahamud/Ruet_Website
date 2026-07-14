@@ -54,7 +54,7 @@ This guide covers the implemented work from:
 - desktop mega-menus, mobile navigation drawer, keyboard focus behavior, and active navigation states
 - About mission/vision/governance content, the Contact form, and private contact submissions
 - learning search, category/content-type filters, pagination, rich content, related content, and metadata
-- privacy, terms-of-use, and membership-terms templates with explicit approval status
+- approved Privacy Policy, Terms of Use, and Membership Agreement with effective date, versioned payment terms, and explicit Zelle/no-refund acceptance
 - chapter directory search/region filtering, localized chapter modules, authenticated requests, and super-admin approval/rejection
 - published history timelines with decade archives and committee current/history views with recaps
 - automated email transport, template, deduplication, retry, audit, preference, and queue verification
@@ -78,7 +78,7 @@ Do not mark these as failures in this round because they are not implemented yet
 
 - Stripe checkout, which has been superseded by the Zelle-only payment decision
 - live Resend delivery until provider credentials and a verified sender are installed
-- final stakeholder legal text and approved organization/chapter/committee/launch content and assets; use the UAT fixtures only to validate behavior, not to approve production copy
+- final stakeholder-approved organization/chapter/committee/launch content and assets; use the UAT fixtures only to validate behavior, not to approve production copy
 
 Membership and event Zelle execution now share one role-scoped review queue and are in scope. Evidence is in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md) and [phase-7-events-manual-review-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-7-events-manual-review-verification.md).
 
@@ -460,12 +460,14 @@ Steps:
 
 1. Configure the UAT Zelle recipient in Site Settings.
 2. Complete three isolated checkouts: transaction ID only, screenshot/PDF only, and both.
-3. Try once with neither field and once with an unsupported/oversized file.
+3. Before each submission, explicitly accept the linked Membership Agreement, Zelle terms, and no-refund policy.
+4. Send a direct request without acceptance, then try once with neither evidence field and once with an unsupported/oversized file.
 
 Expected result:
 
 - all three permitted combinations create a pending membership, immutable order, and pending payment attempt
-- missing or invalid evidence is rejected
+- missing acceptance or missing/invalid evidence is rejected by the server
+- each accepted attempt stores policy version `2026-07-14` and a server acceptance timestamp
 - the member does not become active before approval
 - payer and assigned chapter reviewer receive one queued required notice per submission
 
@@ -711,7 +713,7 @@ Expected result:
 
 Steps:
 
-1. Open a paid event and submit a transaction ID, proof image, or both.
+1. Open a paid event, accept the linked Zelle/no-refund terms, and submit a transaction ID, proof image, or both.
 2. Open `/payments/review` as the event's chapter admin.
 3. Filter to `Event` and `Pending`, inspect the proof, and approve it.
 4. Repeat with a different registration and reject it with a reason.
@@ -719,6 +721,7 @@ Steps:
 Expected result:
 
 - a pending registration, order, and immutable payment attempt are created with server-calculated totals
+- direct submission without payment-term acceptance is rejected; accepted attempts store policy version `2026-07-14` and a server timestamp
 - pending quantity reserves capacity
 - the event chapter admin sees the proof; an unrelated chapter admin does not
 - approval confirms the registration without overbooking and queues one approval notice
@@ -910,7 +913,7 @@ Steps:
 
 Expected result:
 
-- each route shows its placeholder or approved status and last-updated date
+- each route shows `Approved policy`, the July 14, 2026 effective/last-updated date, and no approval-placeholder language
 - long pages show an on-page table of contents linked to section anchors
 - published CMS edits appear without a code or layout change
 
@@ -971,6 +974,7 @@ Steps:
 Expected result:
 
 - signup creates a standard `member`, never an elevated role
+- signup records the server-side Terms and Privacy acknowledgement timestamps and policy version `2026-07-14`
 - password login is blocked before verification
 - the verification link activates password sign-in
 - successful login opens `/account/settings`
@@ -1305,4 +1309,4 @@ This UAT round should confirm that:
 - Phase 8 announcement targeting/windows, newsletter workflow/preferences/history, and complete responsive footer meet their acceptance criteria
 - Phase 9 member dashboard, private histories, reconciled operational reports, and role/chapter scope meet their acceptance criteria
 - Phase 10 homepage, editorial workflow, draft/version isolation, realistic seeding, admin usability, SEO, sitemap, and robots behavior meet their technical acceptance criteria
-- final stakeholder legal text and approved launch content/assets are installed before Phase 10 receives sign-off and Phase 11 begins
+- approved organization-specific launch content/assets are installed before Phase 10 receives sign-off and Phase 11 begins; the stakeholder-authorized standard legal text is already approved and installed

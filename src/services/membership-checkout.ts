@@ -1,5 +1,6 @@
 import type { File, Payload, PayloadRequest } from 'payload'
 
+import { PAYMENT_TERMS_VERSION } from '@/content/legal-policy-20260714'
 import type {
   Chapter,
   Membership,
@@ -390,6 +391,8 @@ const createPayment = async ({
       order: order.id,
       orderTypeSnapshot: 'membership',
       paymentSource: 'zelle',
+      paymentTermsAcceptedAt: new Date().toISOString(),
+      paymentTermsVersionSnapshot: PAYMENT_TERMS_VERSION,
       proofImage: proof?.id,
       proofTransactionId: transactionId?.trim() || undefined,
       status: 'pending',

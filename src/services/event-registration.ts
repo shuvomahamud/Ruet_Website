@@ -2,6 +2,7 @@ import type { File, Payload, PayloadRequest } from 'payload'
 import { Forbidden } from 'payload'
 
 import { getManagedChapterIDs, getRole, isAdmin } from '@/access/roles'
+import { PAYMENT_TERMS_VERSION } from '@/content/legal-policy-20260714'
 import type {
   Chapter,
   Event,
@@ -636,6 +637,8 @@ const createPayment = async ({
       order: order.id,
       orderTypeSnapshot: 'event',
       paymentSource: 'zelle',
+      paymentTermsAcceptedAt: new Date().toISOString(),
+      paymentTermsVersionSnapshot: PAYMENT_TERMS_VERSION,
       proofImage: proof?.id,
       proofTransactionId: transactionId?.trim() || undefined,
       status: 'pending',

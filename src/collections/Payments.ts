@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { denyAll, userOrChapterScopedAccess } from '@/access/roles'
+import { PAYMENT_TERMS_VERSION } from '@/content/legal-policy-20260714'
 import { validateNonNegativeMoney, validateUSD } from '@/domain/validation'
 import { protectImmutableFields } from '@/hooks/protectImmutableFields'
 import { validatePaymentSnapshots } from '@/hooks/validateCommerceRelationships'
@@ -68,6 +69,24 @@ export const Payments: CollectionConfig = {
       name: 'submittedAt',
       type: 'date',
       required: true,
+    },
+    {
+      name: 'paymentTermsAcceptedAt',
+      type: 'date',
+      admin: {
+        description:
+          'Server-recorded time when the payer explicitly accepted the applicable Zelle and no-refund terms.',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'paymentTermsVersionSnapshot',
+      type: 'text',
+      admin: {
+        description: 'Immutable policy version accepted for this payment attempt.',
+        readOnly: true,
+      },
+      defaultValue: PAYMENT_TERMS_VERSION,
     },
     {
       name: 'amountSnapshot',
@@ -141,6 +160,8 @@ export const Payments: CollectionConfig = {
         'proofImage',
         'proofTransactionId',
         'submittedAt',
+        'paymentTermsAcceptedAt',
+        'paymentTermsVersionSnapshot',
         'amountSnapshot',
         'currencySnapshot',
         'orderTypeSnapshot',

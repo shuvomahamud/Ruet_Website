@@ -448,9 +448,9 @@ Exit gate:
 
 Required external input before phase completion for launch content:
 
-- final privacy policy
-- final terms of use
-- final membership terms and payment/no-refund language
+- final privacy policy — completed with stakeholder-authorized standard version `2026-07-14`
+- final terms of use — completed with stakeholder-authorized standard version `2026-07-14`
+- final membership terms and payment/no-refund language — completed with stakeholder-authorized standard version `2026-07-14`
 - approved organization, chapter, committee, and launch content/assets
 
 ## Phase 11: Full QA, Security, Performance, And Launch

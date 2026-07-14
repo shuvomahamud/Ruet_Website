@@ -307,8 +307,9 @@ Each membership payment or order record should store:
 
 Membership-related open items are now limited to:
 
-1. final legal membership terms and payment language
-2. expected SLA for manual approval
+1. expected SLA for manual approval
+
+The standard Membership Agreement, Zelle terms, and no-refund policy are installed as version `2026-07-14`; future revisions require a new dated version.
 
 There are no remaining functional blockers for schema or interface design.
 

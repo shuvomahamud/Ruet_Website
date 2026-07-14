@@ -70,6 +70,8 @@ test.describe.serial('Member authentication', () => {
     })
     const user = users.docs[0]
     expect(user?._verificationToken).toBeTruthy()
+    expect(user?.privacyVersionAccepted).toBe('2026-07-14')
+    expect(user?.termsVersionAccepted).toBe('2026-07-14')
     userID = user?.id
 
     await page.goto(`/verify-email?token=${encodeURIComponent(user?._verificationToken ?? '')}`)

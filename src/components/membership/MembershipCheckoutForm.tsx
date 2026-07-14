@@ -165,6 +165,14 @@ export const MembershipCheckoutForm = ({
           account and does not activate membership before approval. See the{' '}
           <Link href="/membership-terms">membership terms</Link>.
         </p>
+        <label className="check-field">
+          <input name="paymentTermsAccepted" required type="checkbox" />
+          <span>
+            I have read and agree to the{' '}
+            <Link href="/membership-terms">Membership Agreement and Zelle payment terms</Link>,
+            including the no-refund policy.
+          </span>
+        </label>
         <button
           className="button button--primary"
           disabled={submitting || !zelleRecipient}

@@ -210,11 +210,14 @@ test.describe.serial('Public experience', () => {
     await expect(page.locator('#vision').getByRole('heading', { name: 'Vision' })).toBeVisible()
 
     await page.goto('/privacy-policy')
-    await expect(page.getByText('Placeholder — legal approval pending')).toBeVisible()
+    await expect(page.getByText('Approved policy')).toBeVisible()
     const toc = page.getByRole('navigation', { name: 'On this page' })
     await expect(toc).toBeVisible()
-    await expect(toc.getByRole('link', { name: 'Information we collect' })).toBeVisible()
-    await expect(page.locator('#information-collected')).toBeVisible()
+    await expect(toc.getByRole('link', { name: 'Information you provide' })).toBeVisible()
+    await expect(page.locator('#information-you-provide')).toContainText('RUET department')
+    await expect(page.locator('#membership-events-and-payments')).toContainText(
+      'We do not ask for or store your online-banking password',
+    )
   })
 
   test('searches learning content, hides drafts, renders rich text, and exposes metadata', async ({

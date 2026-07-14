@@ -11,7 +11,7 @@ This document replaces the earlier gap list with a normalized decision baseline 
 The current implementation now adds these resolved delivery details:
 
 - informational page copy is no longer intended to live as route-level fallback text
-- `about`, `membership`, `chapters`, `events`, `learning`, `contact`, and legal placeholder copy are now expected to come from the Payload `Pages` collection
+- `about`, `membership`, `chapters`, `events`, `learning`, `contact`, and the approved legal policies come from the Payload `Pages` collection
 - the header logo asset path is standardized through [public/brand](/Users/shuvomahamud/Projects/RUET_Website/public/brand)
 - current task completion status is tracked in:
   - [developer-task-list.md](/Users/shuvomahamud/Projects/RUET_Website/docs/developer-task-list.md)
@@ -243,16 +243,7 @@ These should no longer appear as unresolved conflicts in downstream documents:
 
 Only the following items still need stakeholder closure:
 
-### 1. Legal content
-
-The website still needs finalized content for:
-
-- privacy policy
-- terms of use
-- membership terms / agreement
-- payment and no-refund wording
-
-### 2. Approved launch content and assets
+### 1. Approved launch content and assets
 
 The technically complete CMS and homepage still require stakeholder-approved production content for:
 
@@ -261,11 +252,11 @@ The technically complete CMS and homepage still require stakeholder-approved pro
 - running/advisory committee terms, member details, recaps, and media
 - homepage, learning, event, announcement, brand, and social assets
 
-### 3. Expected SLA for manual approval
+### 2. Expected SLA for manual approval
 
 The payment proof workflow is defined, but the expected review window is still open. The product should not promise a turnaround time until this is confirmed.
 
-### 4. Media and storage policy
+### 3. Media and storage policy
 
 There is no finalized policy yet for:
 
@@ -276,7 +267,7 @@ There is no finalized policy yet for:
 
 ## Implementation Direction
 
-Engineering and design can proceed with the current baseline, but Phase 10 cannot close and Phase 11 cannot begin until the legal and approved launch content above are supplied and installed. The SLA and media/storage policy remain Phase 11 launch inputs.
+The standard Privacy Policy, Terms of Use, Membership Agreement, Zelle terms, and no-refund language are installed as policy version `2026-07-14`, with acceptance evidence for new paid attempts. Phase 10 still cannot close and Phase 11 cannot begin until the approved launch content above is supplied and installed. The SLA and media/storage policy remain Phase 11 launch inputs.
 
 The main implementation posture should be:
 

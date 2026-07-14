@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 import { slugField } from 'payload'
 
 import { activeOrAdmins, superAdminsOnly } from '@/access/roles'
+import { STANDARD_NO_REFUND_NOTICE } from '@/content/legal-policy-20260714'
 import {
   validateNonNegativeInteger,
   validateNonNegativeMoney,
@@ -63,8 +64,7 @@ export const MembershipPlans: CollectionConfig = {
     {
       name: 'termsSummary',
       type: 'textarea',
-      defaultValue:
-        'Membership activates after the annual Zelle payment is manually approved. Payments are non-refundable and renewal is never automatic.',
+      defaultValue: `Membership activates only after the annual Zelle payment is manually approved, and renewal is never automatic. ${STANDARD_NO_REFUND_NOTICE}`,
       required: true,
     },
     {

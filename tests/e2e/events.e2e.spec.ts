@@ -304,7 +304,27 @@ test.describe.serial('Events, waitlists, and Zelle experience', () => {
     await page.goto(`/events/${paidEvent.slug}`)
     await expect(page.getByText('events-e2e@example.test')).toBeVisible()
     await expect(page.getByText('https://meet.example.test/e2e-private-conference')).toHaveCount(0)
-    await page.getByLabel(/Zelle transaction ID/).fill(`E2E-EVENT-APPROVE-${nonce}`)
+    const transactionID = `E2E-EVENT-APPROVE-${nonce}`
+    await page.getByLabel(/Zelle transaction ID/).fill(transactionID)
+    const missingAcceptance = await page.evaluate(
+      async ({ slug, transactionId }) => {
+        const form = new FormData()
+        form.set('intent', 'register')
+        form.set('quantity', '1')
+        form.set('transactionId', transactionId)
+        const response = await fetch(`/api/events/${slug}/registration`, {
+          body: form,
+          method: 'POST',
+        })
+        return { body: await response.json(), status: response.status }
+      },
+      { slug: paidEvent.slug, transactionId: transactionID },
+    )
+    expect(missingAcceptance).toMatchObject({
+      body: { message: expect.stringMatching(/Accept the Zelle payment/i) },
+      status: 400,
+    })
+    await page.getByLabel(/I agree to the Zelle payment/).check()
     await page.getByRole('button', { name: 'Submit registration for review' }).click()
     await expect(page.getByText(/Zelle payment is pending review/i)).toBeVisible()
 
@@ -333,6 +353,7 @@ test.describe.serial('Events, waitlists, and Zelle experience', () => {
     await signIn(page, resubmitMember.email)
     await page.goto(`/events/${paidEvent.slug}`)
     await page.getByLabel(/Zelle transaction ID/).fill(`E2E-EVENT-REJECT-${nonce}`)
+    await page.getByLabel(/I agree to the Zelle payment/).check()
     await page.getByRole('button', { name: 'Submit registration for review' }).click()
     await expect(page.getByText(/pending review/i)).toBeVisible()
 
@@ -349,6 +370,7 @@ test.describe.serial('Events, waitlists, and Zelle experience', () => {
     await page.goto(`/events/${paidEvent.slug}`)
     await expect(page.getByRole('heading', { name: 'Resubmit Zelle details' })).toBeVisible()
     await page.getByLabel(/Zelle transaction ID/).fill(`E2E-EVENT-RESUBMIT-${nonce}`)
+    await page.getByLabel(/I agree to the Zelle payment/).check()
     await page.getByRole('button', { name: 'Submit registration for review' }).click()
     await expect(page.getByText('Your new event payment details are pending review.')).toBeVisible()
     await page.goto('/events/registrations')

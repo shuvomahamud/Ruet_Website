@@ -51,7 +51,7 @@ The current codebase now follows these concrete implementation rules:
 - orders and payments
 - announcements and newsletter content
 - user accounts and roles
-- public page copy and legal placeholders
+- public page copy and approved, versioned legal policies
 
 ### 2.2 PostgreSQL is the primary database, but Payload owns the schema
 
@@ -602,7 +602,7 @@ Use Payload globals for:
 - contact settings and response guidance
 - SEO defaults
 
-The `Pages` collection owns legal page type, approval status, review date, anchored sections, and placeholder or approved policy content.
+The `Pages` collection owns legal page type, approval status, review date, anchored sections, and policy content. Standard policies are published as an immutable dated source snapshot; future changes require a new snapshot and forward migration so payment acceptance evidence remains traceable.
 
 ## 8. Frontend Rendering Strategy
 
@@ -691,7 +691,6 @@ Admins may still need internal notes or manual exception handling, but that shou
 
 These are policy decisions, not architecture blockers:
 
-- final legal text
 - expected SLA for manual approval
 - production media storage policy
 

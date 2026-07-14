@@ -11,6 +11,7 @@ export const membershipQuoteSchema = z.object({
 
 export const membershipCheckoutSchema = z.object({
   intent: z.enum(['join', 'renewal', 'reactivation', 'resubmit']),
+  paymentTermsAccepted: z.literal(true),
   promotionCode: z
     .string()
     .trim()

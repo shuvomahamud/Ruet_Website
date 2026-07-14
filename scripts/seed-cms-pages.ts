@@ -2,6 +2,13 @@ import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 import { defaultMainNavigation } from '../src/constants/site'
+import {
+  legalPolicyPages,
+  STANDARD_EVENT_PAYMENT_TERMS,
+  STANDARD_MANUAL_REVIEW_NOTE,
+  STANDARD_NO_REFUND_NOTICE,
+  STANDARD_ZELLE_INSTRUCTIONS,
+} from '../src/content/legal-policy-20260714'
 
 type SeedPage = {
   _status: 'published'
@@ -298,141 +305,7 @@ const pages: SeedPage[] = [
     summary: 'Contact information and a secure organization inquiry form.',
     title: 'Contact',
   },
-  {
-    _status: 'published',
-    editorialStatus: 'approved',
-    heroDescription:
-      'This structured policy template is ready for stakeholder-approved privacy language before public launch.',
-    heroEyebrow: 'Legal',
-    heroTitle: 'Privacy Policy',
-    lastReviewedAt: now,
-    legalStatus: 'placeholder',
-    pageType: 'legal',
-    sections: [
-      {
-        anchor: 'scope',
-        body: 'Approval placeholder: define who operates the website, the policy effective date, and which visitors, members, and services this policy covers.',
-        title: 'Scope and responsible organization',
-      },
-      {
-        anchor: 'information-collected',
-        body: 'Approval placeholder: document account, membership, payment-proof, event, contact, newsletter, and technical information collected through the website.',
-        title: 'Information we collect',
-      },
-      {
-        anchor: 'how-information-is-used',
-        body: 'Approval placeholder: explain operational, communication, security, compliance, and organizational uses of collected information.',
-        title: 'How information is used',
-      },
-      {
-        anchor: 'retention-and-rights',
-        body: 'Approval placeholder: define retention periods, account-deletion effects, available privacy choices, and the process for submitting a request.',
-        title: 'Retention, choices, and requests',
-      },
-      {
-        anchor: 'contact',
-        body: 'Approval placeholder: provide the approved privacy contact and mailing details.',
-        title: 'Privacy contact',
-      },
-    ],
-    seo: {
-      description: 'Privacy policy for the RUETIAN USA website and member services.',
-      title: 'Privacy Policy',
-    },
-    slug: 'privacy-policy',
-    summary: 'Privacy policy template awaiting final stakeholder approval.',
-    title: 'Privacy Policy',
-  },
-  {
-    _status: 'published',
-    editorialStatus: 'approved',
-    heroDescription:
-      'This structured terms template is ready for stakeholder-approved website terms before public launch.',
-    heroEyebrow: 'Legal',
-    heroTitle: 'Terms of Use',
-    lastReviewedAt: now,
-    legalStatus: 'placeholder',
-    pageType: 'legal',
-    sections: [
-      {
-        anchor: 'acceptance',
-        body: 'Approval placeholder: define acceptance of the terms and the relationship between visitors, registered users, members, and RUETIAN USA.',
-        title: 'Acceptance and eligibility',
-      },
-      {
-        anchor: 'accounts',
-        body: 'Approval placeholder: define account responsibilities, accurate information requirements, credential security, and suspension or closure rights.',
-        title: 'Accounts and acceptable use',
-      },
-      {
-        anchor: 'content',
-        body: 'Approval placeholder: define ownership, permitted use, user submissions, external links, and intellectual property expectations.',
-        title: 'Website content and submissions',
-      },
-      {
-        anchor: 'disclaimers',
-        body: 'Approval placeholder: add reviewed warranty disclaimers, limitation-of-liability language, governing law, and dispute provisions.',
-        title: 'Disclaimers and legal provisions',
-      },
-      {
-        anchor: 'contact',
-        body: 'Approval placeholder: provide the approved contact for questions about these terms.',
-        title: 'Contact',
-      },
-    ],
-    seo: {
-      description: 'Terms governing use of the RUETIAN USA website and services.',
-      title: 'Terms of Use',
-    },
-    slug: 'terms-of-use',
-    summary: 'Website terms template awaiting final stakeholder approval.',
-    title: 'Terms of Use',
-  },
-  {
-    _status: 'published',
-    editorialStatus: 'approved',
-    heroDescription:
-      'This structured template is ready for stakeholder-approved membership and payment terms before enrollment opens.',
-    heroEyebrow: 'Legal',
-    heroTitle: 'Membership Terms',
-    lastReviewedAt: now,
-    legalStatus: 'placeholder',
-    pageType: 'legal',
-    sections: [
-      {
-        anchor: 'eligibility',
-        body: 'Approval placeholder: define membership eligibility, the annual term, the information applicants must provide, and when membership becomes active.',
-        title: 'Eligibility and activation',
-      },
-      {
-        anchor: 'payment',
-        body: 'Approval placeholder: document the approved Zelle-only payment process, required reference information, manual verification, and processing expectations.',
-        title: 'Payment and verification',
-      },
-      {
-        anchor: 'renewal',
-        body: 'Approval placeholder: define expiration, renewal, reactivation, grace periods if any, and whether payments are refundable or transferable.',
-        title: 'Renewal, expiration, and refunds',
-      },
-      {
-        anchor: 'conduct',
-        body: 'Approval placeholder: define member conduct expectations and the conditions and review process for suspension or termination.',
-        title: 'Member responsibilities',
-      },
-      {
-        anchor: 'contact',
-        body: 'Approval placeholder: provide the approved membership-support contact.',
-        title: 'Membership support',
-      },
-    ],
-    seo: {
-      description: 'Terms for RUETIAN USA annual membership and payment verification.',
-      title: 'Membership Terms',
-    },
-    slug: 'membership-terms',
-    summary: 'Membership terms template awaiting final stakeholder approval.',
-    title: 'Membership Terms',
-  },
+  ...legalPolicyPages,
 ]
 
 const payload = await getPayload({ config })
@@ -588,15 +461,13 @@ await payload.updateGlobal({
     footerNote:
       'Membership, chapters, events, and learning opportunities for the RUET alumni community.',
     organizationName: 'RUETIAN USA',
-    manualPaymentReviewNote:
-      'Payment proof is reviewed manually by authorized volunteers. Review timing may vary.',
-    noRefundNotice:
-      'Zelle payments are non-refundable. Contact RUETIAN USA before paying if you have questions about an order.',
+    eventPaymentTerms: STANDARD_EVENT_PAYMENT_TERMS,
+    manualPaymentReviewNote: STANDARD_MANUAL_REVIEW_NOTE,
+    noRefundNotice: STANDARD_NO_REFUND_NOTICE,
     primaryEmail: 'info@ruetianusa.org',
     tagline: 'RUET alumni community in the United States',
     utilityMessage: 'Connecting RUET alumni across the United States',
-    zelleInstructions:
-      'Send the exact order total through Zelle, include your name in the memo, then submit the transaction ID, a screenshot, or both. Membership remains pending until an authorized reviewer approves the proof.',
+    zelleInstructions: STANDARD_ZELLE_INSTRUCTIONS,
     zelleRecipientName: 'RUETIAN USA',
   },
   draft: false,
@@ -626,8 +497,7 @@ const membershipPlanData = {
   currency: 'USD',
   faqs: [
     {
-      answer:
-        'Send the exact server-confirmed total through Zelle and submit the transaction ID, a screenshot or PDF, or both. Membership remains pending until manual approval.',
+      answer: STANDARD_ZELLE_INSTRUCTIONS,
       question: 'How is membership payment verified?',
     },
     {
@@ -651,7 +521,7 @@ const membershipPlanData = {
   slug: 'annual-membership',
   sortOrder: 0,
   termsSummary:
-    'Membership activates after the annual Zelle payment is manually approved. Payments are non-refundable and renewal is never automatic.',
+    'Membership activates only after manual approval of the annual Zelle payment. Renewal is never automatic. Membership dues are final and non-refundable except where required by law or expressly authorized in writing by RUETIAN USA.',
   title: 'Annual RUETIAN USA Membership',
 }
 if (activePlans.docs[0]) {

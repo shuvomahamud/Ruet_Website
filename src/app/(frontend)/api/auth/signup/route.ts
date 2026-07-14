@@ -9,6 +9,7 @@ import {
   rateLimitResponse,
   RateLimitError,
 } from '@/auth/rate-limit'
+import { LEGAL_POLICY_EFFECTIVE_DATE } from '@/content/legal-policy-20260714'
 
 export async function POST(request: Request) {
   try {
@@ -48,10 +49,12 @@ export async function POST(request: Request) {
         password: input.data.password,
         primaryChapter: input.data.primaryChapter,
         privacyAcceptedAt: acceptedAt,
+        privacyVersionAccepted: LEGAL_POLICY_EFFECTIVE_DATE,
         role: 'member',
         ruetDepartment: input.data.ruetDepartment,
         state: input.data.state,
         termsAcceptedAt: acceptedAt,
+        termsVersionAccepted: LEGAL_POLICY_EFFECTIVE_DATE,
       },
       overrideAccess: false,
     })
