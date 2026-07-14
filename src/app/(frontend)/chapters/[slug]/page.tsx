@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 
+import { authenticateRequest } from '@/auth/current-user'
+import { AnnouncementFeed } from '@/components/communications/AnnouncementFeed'
 import { CollectionCard } from '@/components/content/CollectionCard'
 import { Gallery } from '@/components/content/Gallery'
 import { PageHero } from '@/components/content/PageHero'
@@ -40,7 +43,8 @@ export default async function ChapterDetailPage({ params }: { params: Promise<{ 
   const { slug } = await params
   const chapter = await getActiveChapterBySlug(slug)
   if (!chapter) notFound()
-  const modules = await getChapterPublicModules(chapter.id)
+  const user = await authenticateRequest(await headers())
+  const modules = await getChapterPublicModules(chapter.id, user ?? undefined)
   const currentCommittees = modules.committees
   const images = modules.media.map(galleryImage).filter((item) => item !== null)
 
@@ -119,28 +123,7 @@ export default async function ChapterDetailPage({ params }: { params: Promise<{ 
           <section className="page-section">
             <Container>
               <SectionHeading eyebrow="Chapter updates" title="Announcements" />
-              <div className="card-grid card-grid--compact">
-                {modules.announcements.map((announcement) => (
-                  <article className="surface-card" key={announcement.id}>
-                    <Badge
-                      tone={
-                        announcement.tone === 'alert'
-                          ? 'red'
-                          : announcement.tone === 'success'
-                            ? 'green'
-                            : 'blue'
-                      }
-                    >
-                      {announcement.tone || 'info'}
-                    </Badge>
-                    <h3>{announcement.title}</h3>
-                    <p>{announcement.summary}</p>
-                    {announcement.ctaHref && announcement.ctaLabel ? (
-                      <Link href={announcement.ctaHref}>{announcement.ctaLabel} →</Link>
-                    ) : null}
-                  </article>
-                ))}
-              </div>
+              <AnnouncementFeed announcements={modules.announcements} />
             </Container>
           </section>
         ) : null}

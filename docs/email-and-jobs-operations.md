@@ -1,10 +1,10 @@
 # Email And Background-Job Operations
 
-Updated: 2026-07-13
+Updated: 2026-07-14
 
 ## Purpose
 
-This runbook covers the Phase 5 communication foundation: transport configuration, local capture, queued delivery, retries, preference enforcement, monitoring, and job execution.
+This runbook covers the Phase 5 communication foundation and Phase 8 newsletter execution: transport configuration, local capture, queued delivery, retries, preference enforcement, campaign scheduling, monitoring, and job execution.
 
 ## Email Transports
 
@@ -78,7 +78,9 @@ Available queues:
 
 Callers may supply `scheduledFor` to persist a future `waitUntil` time. Event lifecycle code completes its idempotent seat-allocation transition separately, then queues email with a stable key; retrying email never repeats the transition.
 
-The scheduler also runs the event lifecycle every 15 minutes. It expires elapsed waitlist offers, releases the reserved quantity, selects the earliest waiting group that fits, and queues the resulting offer/expiry notices. Keep `pnpm jobs:run` or one designated persistent worker running in production so offers do not remain stale.
+The scheduler also runs the event lifecycle every 15 minutes. It expires elapsed waitlist offers, releases the reserved quantity, selects the earliest waiting group that fits, and queues the resulting offer/expiry notices.
+
+The `newsletterLifecycle` schedule runs every minute on the `newsletters` queue. It atomically claims due campaigns, creates one semantic per-user delivery, records preference suppressions, and exposes a failed campaign for retry when initial recipient queueing fails. A campaign left in `sending` after a worker interruption is eligible for recovery after 15 minutes. Keep `pnpm jobs:run` or one designated persistent worker running in production so schedules are not delayed.
 
 ## Running Jobs
 
@@ -115,6 +117,9 @@ Investigate:
 - jobs whose `processing` state remains true after a worker crash window
 - queued records older than the expected scheduler interval
 - repeated provider rate-limit or sender-verification errors
+- newsletter campaigns in `scheduled` after their send time
+- newsletter campaigns in `sending` for longer than the 15-minute recovery window
+- newsletter campaigns in `failed` or whose selected count does not reconcile with queued, suppressed, and failed counts
 
 For a transient failure, rerun the existing Payload job. Do not create a new delivery key. For a corrected business event that genuinely requires a new message, queue a new semantic key that includes the new event/version identifier.
 
@@ -129,6 +134,6 @@ Before launch:
 3. Set `EMAIL_TRANSPORT=resend`.
 4. Send a production-like test to an approved mailbox.
 5. Confirm the delivery audit contains provider and message IDs but no message body or secret.
-6. Confirm the scheduler runs all four queues at the selected interval.
+6. Confirm the scheduler runs all four queues and the one-minute newsletter lifecycle at the selected interval.
 7. Trigger one controlled retry and confirm only one email is received.
 8. Configure alerts for final job failures and an operational owner for remediation.

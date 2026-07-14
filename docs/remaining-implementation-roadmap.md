@@ -1,6 +1,6 @@
 # RUETIAN USA Remaining Implementation Roadmap
 
-Updated: 2026-07-13
+Updated: 2026-07-14
 
 ## 1. Purpose
 
@@ -38,14 +38,14 @@ Historical migration files must not be rewritten after they have been applied. S
 
 ### 2.2 Active backlog
 
-After completion of roadmap Phase 7, the tracked backlog contains:
+After completion of roadmap Phase 8, the tracked backlog contains:
 
-- `42` completed tasks
-- `4` partially implemented tasks
-- `9` pending tasks
+- `45` completed tasks
+- `2` partially implemented tasks
+- `8` pending tasks
 - `2` superseded Stripe tasks
 
-There are `13` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
+There are `10` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
 
 ### 2.3 Work excluded from the approved launch scope
 
@@ -362,6 +362,8 @@ Exit gate:
 
 ## Phase 8: Announcements, Newsletters, And Footer Completion
 
+Status: `Completed` on 2026-07-14. Evidence: [phase-8-communications-footer-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-8-communications-footer-verification.md).
+
 Goal: complete organization communications and the footer experience that depends on them.
 
 Tasks completed in this phase:
@@ -373,7 +375,7 @@ Tasks completed in this phase:
 Work:
 
 - site-wide and chapter-scoped announcements with active date windows and audience rules
-- correct rendering on home, chapter, dashboard, and relevant public surfaces
+- correct rendering on home, chapter, and dedicated announcement surfaces, with the authenticated feed/query contract ready for the Phase 9 `K-01` dashboard assembly
 - newsletter authoring, preview, scheduling, cancellation, sending, and send history
 - recipient selection based on audience and communication preferences
 - deduplication, retry, delivery logging, and failure visibility

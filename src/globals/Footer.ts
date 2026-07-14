@@ -3,6 +3,7 @@ import type { GlobalConfig } from 'payload'
 import { anyone } from '@/access/anyone'
 import { adminsOnly } from '@/access/roles'
 import { navigationLinkField } from '@/fields/navigationLink'
+import { validateSafeHref } from '@/utilities/links'
 
 export const Footer: GlobalConfig = {
   slug: 'footer',
@@ -55,6 +56,40 @@ export const Footer: GlobalConfig = {
       type: 'textarea',
       defaultValue:
         'Receive organization news, chapter updates, event notices, and learning resources.',
+    },
+    {
+      name: 'newsletterCtaLabel',
+      type: 'text',
+      defaultValue: 'Manage newsletter preferences',
+      required: true,
+    },
+    {
+      name: 'newsletterCtaHref',
+      type: 'text',
+      defaultValue: '/communications/preferences',
+      required: true,
+      validate: validateSafeHref,
+    },
+    {
+      name: 'legalLinks',
+      type: 'array',
+      defaultValue: [
+        { href: '/privacy', label: 'Privacy' },
+        { href: '/terms-of-use', label: 'Website terms' },
+        { href: '/membership-terms', label: 'Membership terms' },
+      ],
+      fields: [
+        { name: 'label', type: 'text', required: true },
+        { name: 'href', type: 'text', required: true, validate: validateSafeHref },
+      ],
+    },
+    {
+      name: 'socialLinks',
+      type: 'array',
+      fields: [
+        { name: 'label', type: 'text', required: true },
+        { name: 'href', type: 'text', required: true, validate: validateSafeHref },
+      ],
     },
     {
       name: 'legalNotice',

@@ -1,6 +1,6 @@
 # RUETIAN USA Website Master Requirements And Assumptions
 
-Updated: 2026-07-13
+Updated: 2026-07-14
 
 ## 1. Purpose
 
@@ -29,6 +29,8 @@ As of 2026-03-29, the current implementation reflects these additional alignment
 As of 2026-07-13, Zelle is the only approved payment method. Stripe checkout, subscriptions, and webhook processing are no longer in scope.
 
 As of 2026-07-13, the remaining-roadmap Phase 1 data-security gate is implemented: public-owned records are server-stamped, chapter data is assigned-chapter scoped, payment proof is private, commerce mutation is service-only, and workflow transitions use legal state checks, PostgreSQL row locks, shared-request transactions, immutable snapshots, and audit records.
+
+As of 2026-07-14, the Phase 8 communications scope is implemented: public/member and chapter announcements enforce active windows and direct-read audience rules; admin newsletter campaigns support preview, scheduling, cancellation, idempotent dispatch/retry, preferences, and history; and the institutional footer provides working contact, preference, legal, and social destinations.
 
 ## 2. Inputs Reviewed
 

@@ -1,6 +1,6 @@
 # RUETIAN USA UAT Guide For Implemented Phases
 
-Updated: 2026-07-13
+Updated: 2026-07-14
 
 ## 1. Purpose
 
@@ -25,6 +25,7 @@ This guide covers the implemented work from:
 - Remaining-roadmap Phase 5: captured/Resend email adapter, responsive templates, private delivery audits, preference rules, and queued/scheduled job infrastructure
 - Remaining-roadmap Phase 6: annual membership overview, profile-gated join, Zelle proof/transaction submission, chapter-scoped approval, immutable resubmission, renewal, grace, expiration, reactivation, and membership notifications
 - Remaining-roadmap Phase 7: event discovery and recaps, free/Zelle registration, transaction-safe capacity, waitlists, shared payment review, protected virtual access, and event notifications
+- Remaining-roadmap Phase 8: public/member/chapter announcements, newsletter authoring/preview/schedule/cancel/send/retry/history, communication preferences, and the complete institutional footer
 
 ## 2. UAT Scope
 
@@ -57,6 +58,9 @@ This guide covers the implemented work from:
 - automated email transport, template, deduplication, retry, audit, preference, and queue verification
 - single-plan membership configuration, promotions, member join/status/renew/reactivate routes, Zelle proof submission, chapter-first review, failed-attempt resubmission, and scheduled lifecycle behavior
 - event catalog filtering, free and Zelle-paid registration, immutable registration/payment history, capacity and waitlist operations, protected virtual access, event recap galleries, and shared chapter-scoped payment review
+- active-window and audience-aware organization/chapter announcements on home, chapter, and dedicated announcement surfaces
+- newsletter preview, scheduling, cancellation, sending, preference suppression, delivery history, and failure visibility
+- responsive footer navigation, contact, newsletter preference, social, and legal destinations
 
 ## 2.2 Explicitly out of scope for this UAT
 
@@ -64,8 +68,6 @@ Do not mark these as failures in this round because they are not implemented yet
 
 - Stripe checkout, which has been superseded by the Zelle-only payment decision
 - member dashboard
-- newsletters sending
-- newsletter campaigns, which use the email foundation in Phase 8
 - live Resend delivery until provider credentials and a verified sender are installed
 
 Membership and event Zelle execution now share one role-scoped review queue and are in scope. Evidence is in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md) and [phase-7-events-manual-review-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-7-events-manual-review-verification.md).
@@ -333,12 +335,16 @@ Steps:
 1. Open `/`.
 2. Scroll to the footer.
 3. Compare the footer with the `Footer` global.
+4. Repeat at a narrow mobile width.
 
 Expected result:
 
 - footer link groups render
-- newsletter summary area renders
-- legal note and primary email render
+- newsletter summary and `Manage newsletter preferences` action render
+- legal notice, legal destinations, optional social links, and organization contact data render
+- the newsletter action opens `/communications/preferences`
+- privacy, website-terms, membership-terms, announcements, account-settings, contact, email, and optional phone links use their intended destinations
+- the footer does not overflow or hide actions on mobile
 - changing footer data updates the public footer after refresh
 
 ### UAT-PUB-03: Homepage loads with home-global content
@@ -792,17 +798,50 @@ Expected result:
 
 ## 6.9 Announcements
 
-### UAT-ANN-01: Published announcement appears on homepage
+### UAT-ANN-01: Public announcement obeys its active window
 
 Steps:
 
-1. Create and publish the sample announcement.
-2. Open `/`.
+1. Create and publish a site-wide `Public` announcement with an active-from time in the past and active-to time in the future.
+2. Open `/` and `/announcements` while signed out.
+3. Move its active-from time into the future and refresh both routes.
 
 Expected result:
 
-- announcement appears in the homepage announcement area
+- the active announcement appears in the homepage announcement area and dedicated listing
 - CTA link appears if CTA fields were set
+- the future announcement disappears from both public surfaces
+- draft and expired announcements are also absent
+
+### UAT-ANN-02: Member and chapter targeting is enforced
+
+Steps:
+
+1. Create one site-wide `Members` announcement and one `Members` announcement for Chapter A.
+2. Create a second member announcement for Chapter B.
+3. Open `/announcements` signed out, signed in as a Chapter A member, and signed in as a Chapter B member.
+4. Open both public chapter detail pages with each account.
+
+Expected result:
+
+- signed-out visitors see none of the member announcements
+- both members see the site-wide member announcement
+- each member sees only the member announcement for their primary chapter
+- chapter pages combine active site-wide notices with only the appropriate local notices
+
+### UAT-ANN-03: Chapter admin authoring is isolated
+
+Steps:
+
+1. Sign in to Payload as a chapter admin assigned only to Chapter A.
+2. Create and publish a Chapter A announcement.
+3. Try to create a site-wide announcement or assign it to Chapter B.
+
+Expected result:
+
+- the Chapter A record can be managed
+- site-wide and Chapter B authoring are rejected server-side
+- unsafe CTA schemes and an active-to time before active-from are rejected
 
 ## 6.10 Standard Pages
 
@@ -981,28 +1020,62 @@ Expected result:
 - an `account.anonymized` audit entry exists
 - direct hard deletion is not available to the member
 
-## 6.13 Data-Model-Only Collections
+## 6.13 Newsletter Campaigns And Preferences
 
-These collections are implemented at schema/admin level but do not yet have complete public workflows.
+### UAT-COM-01: Admin previews, schedules, and cancels a campaign
 
-### UAT-DAT-01: Admin can create records in operational collections
+Steps:
 
-Test the ability to create at least one draft or placeholder record in:
-
-- Newsletter Campaigns
+1. As an admin, create a draft `Newsletter Campaign` with a unique title, subject, body, and audience.
+2. Open `/communications/newsletters` and select `Preview email`.
+3. Confirm the HTML and plain-text content, then schedule the campaign for a future time.
+4. Reschedule it once, then cancel the schedule.
 
 Expected result:
 
-- each collection opens
-- form fields render
-- records can be saved when required fields are provided
+- the preview uses the saved subject/body and does not execute embedded content
+- the card changes from `draft` to `scheduled`, shows the chosen time, and supports rescheduling
+- cancellation changes it to `cancelled`
+- direct editing of campaign content after leaving draft is denied
+- schedule/cancel actions are recorded in audit history
 
-Note:
+### UAT-COM-02: Due campaign selects recipients and sends once
 
-- successful record creation is the UAT target here
-- newsletter end-to-end scheduling and delivery is not part of this round
+Steps:
 
-### UAT-DAT-02: Email delivery audits are private and immutable
+1. Prepare verified active accounts that are opted in and opted out of newsletters.
+2. For a `members` campaign, ensure only intended users have active or grace-period memberships.
+3. Schedule a campaign for the next scheduler run or choose `Send now`.
+4. Run `pnpm jobs:run` if no worker is active.
+5. Refresh `/communications/newsletters` and inspect `Email Deliveries`.
+6. Repeat the send action or lifecycle execution.
+
+Expected result:
+
+- the campaign reaches `sent` after recipient deliveries are queued/suppressed
+- only the selected audience receives campaign-linked delivery records
+- opted-in recipients are queued and opted-out recipients are `suppressed` with no job
+- selected, queued, suppressed, failed, and live delivery counts are visible
+- the repeated action does not create a second delivery for any user
+
+### UAT-COM-03: User manages newsletter preferences
+
+Steps:
+
+1. Follow `Manage newsletter preferences` from the footer while signed out.
+2. Sign in to a verified account and return to `/communications/preferences`.
+3. Disable `Scheduled newsletters`, save, and refresh.
+
+Expected result:
+
+- a signed-out visitor receives sign-in and create-account actions rather than an unverified email form
+- the authenticated preference saves and remains disabled after refresh
+- future campaign dispatch records a suppression and does not queue that user's newsletter
+- required security/payment/registration emails remain unaffected
+
+## 6.14 Delivery Audits
+
+### UAT-COM-04: Email delivery audits are private and immutable
 
 Steps:
 
@@ -1032,9 +1105,11 @@ Recommended order:
 8. History and committees
 9. Events
 10. Announcements
-11. Users and role fields
-12. Authentication and account lifecycle
-13. Data-model-only collections
+11. Newsletter campaigns and communication preferences
+12. Footer contact/legal destinations
+13. Users and role fields
+14. Authentication and account lifecycle
+15. Delivery audits
 
 ## 8. Defect Logging Template
 
@@ -1076,4 +1151,5 @@ This UAT round should confirm that:
 - Phase 5 email transport, templates, capture, preference enforcement, delivery audit, deduplication, retry, and job queues meet their acceptance criteria
 - Phase 6 membership plan, profile gating, promotion, Zelle evidence, chapter review, status history, resubmission, renewal, grace, expiration, reactivation, and notifications meet their acceptance criteria
 - Phase 7 event discovery, registration, capacity, Zelle review, rejection/resubmission, waitlist, protected access, recap/archive, and notification behavior meet their acceptance criteria
-- the repo is ready to continue into remaining-roadmap Phase 8
+- Phase 8 announcement targeting/windows, newsletter workflow/preferences/history, and complete responsive footer meet their acceptance criteria
+- the repo is ready to continue into remaining-roadmap Phase 9

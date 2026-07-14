@@ -14,6 +14,7 @@ export type EmailTemplateData = {
   }
   newsletter: {
     body: string
+    subject: string
     title: string
     unsubscribeUrl: string
   }
@@ -152,7 +153,7 @@ const renderers: {
       preheader: data.title,
       title: data.title,
     }),
-    subject: data.title,
+    subject: data.subject,
     template: 'newsletter',
     text: `${data.title}\n\n${data.body}\n\nManage newsletter preferences: ${data.unsubscribeUrl}`,
   }),

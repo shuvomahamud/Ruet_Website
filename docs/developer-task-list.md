@@ -1,6 +1,6 @@
 # RUETIAN USA Website Developer Task List
 
-Updated: 2026-07-13
+Updated: 2026-07-14
 
 ## 1. Purpose
 
@@ -89,8 +89,8 @@ The authoritative gated sequence is maintained in [remaining-implementation-road
 - Phase 4: chapters, history, and governance — completed
 - Phase 5: email and background-job foundation — completed
 - Phase 6: membership, promotions, and Zelle payments — completed
-- Phase 7: events, registration, waitlists, and shared manual review
-- Phase 8: announcements, newsletters, footer completion, and preferences
+- Phase 7: events, registration, waitlists, and shared manual review — completed
+- Phase 8: announcements, newsletters, footer completion, and preferences — completed
 - Phase 9: member dashboard, history, and reporting
 - Phase 10: homepage, publishing workflow, seeds, and admin usability
 - Phase 11: full validation, launch hardening, and deployment readiness
@@ -123,7 +123,9 @@ Strict status answer:
 - roadmap Phase 4 additionally completes `E-03`, `E-04`, and `G-01` through `G-04`
 - roadmap Phase 5 additionally completes `J-01`
 - roadmap Phase 6 additionally completes `F-01`, `F-02`, and `F-04` through `F-06`
-- `D-02` remains partial, so later completed work is intentionally non-contiguous
+- roadmap Phase 7 additionally completes `H-01` through `H-03`, `H-05` through `H-07`, `I-01`, `I-02`, and `J-02`
+- roadmap Phase 8 additionally completes `D-02`, `J-03`, and `J-04`
+- `E-01` and `L-01` remain partial, so later completed work is intentionally non-contiguous
 
 Fully completed tasks:
 
@@ -144,42 +146,42 @@ Fully completed tasks:
 - `C-03`
 - `C-04`
 - `D-01`
+- `D-02`
 - `D-03`
 - `E-02`
-- `E-05`
-- `E-06`
 - `E-03`
 - `E-04`
-- `G-01`
-- `G-02`
-- `G-03`
-- `G-04`
-- `J-01`
+- `E-05`
+- `E-06`
 - `F-01`
 - `F-02`
 - `F-04`
 - `F-05`
 - `F-06`
-
-Partially implemented tasks already started in code:
-
-- `D-02`
-- `E-01`
+- `G-01`
+- `G-02`
+- `G-03`
+- `G-04`
 - `H-01`
 - `H-02`
-- `J-03`
-- `L-01`
-
-Pending tasks:
-
 - `H-03`
 - `H-05`
 - `H-06`
 - `H-07`
 - `I-01`
 - `I-02`
+- `J-01`
 - `J-02`
+- `J-03`
 - `J-04`
+
+Partially implemented tasks already started in code:
+
+- `E-01`
+- `L-01`
+
+Pending tasks:
+
 - `K-01`
 - `K-02`
 - `K-03`
@@ -745,6 +747,8 @@ Acceptance criteria:
 
 - footer supports the required link density
 - footer content can be updated from Payload
+
+Verification update (2026-07-14): completed with CMS-driven navigation groups, organization contact data, newsletter/preference action, safe social/legal links, working legal/account/announcement destinations, legacy-placeholder backfill, external-link handling, and 390px responsive browser coverage.
 
 ### Task D-03: Shared public components
 
@@ -1568,6 +1572,8 @@ Acceptance criteria:
 - announcements can be created from admin
 - relevant pages display the correct announcements
 
+Verification update (2026-07-14): completed with site-wide and chapter-scoped authoring, public/member audiences, active date windows, safe CTA validation, direct-API visibility enforcement, assigned-chapter isolation, reusable home/chapter/dedicated feeds, and integration/browser targeting coverage. The Phase 9 dashboard consumes this authenticated feed contract.
+
 ### Task J-04: Scheduled newsletters
 
 Objective:
@@ -1594,6 +1600,8 @@ Acceptance criteria:
 
 - newsletters can be scheduled
 - send history is recorded
+
+Verification update (2026-07-14): completed with admin draft authoring, exact HTML/plain-text preview, row-locked schedule/reschedule/cancel/send/retry actions, minute lifecycle dispatch and stale recovery, verified-account and active/grace-member audiences, preference suppression, stable per-user deduplication, private delivery audits, sanitized failure visibility, and campaign history metrics.
 
 ## 7.11 Member Dashboard And Reporting
 

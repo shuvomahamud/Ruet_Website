@@ -1,41 +1,20 @@
 import type { CollectionConfig } from 'payload'
 
-import type { Where } from 'payload'
-
+import { announcementReadAccess } from '@/access/announcements'
 import {
   chapterScopedAccess,
   elevatedOnly,
-  getManagedChapterIDs,
-  getRole,
-  isAdmin,
 } from '@/access/roles'
 import { enforceManagedChapter } from '@/hooks/enforceManagedChapter'
+import { validateAnnouncement } from '@/hooks/validateAnnouncement'
+import { validateSafeHref } from '@/utilities/links'
 
 export const Announcements: CollectionConfig = {
   slug: 'announcements',
   access: {
     create: elevatedOnly,
     delete: chapterScopedAccess('chapter'),
-    read: ({ req: { user } }) => {
-      if (isAdmin(user)) return true
-
-      const publishedAudience: Where = {
-        and: [
-          { _status: { equals: 'published' } },
-          ...(user ? [] : [{ audience: { equals: 'public' } }]),
-        ],
-      }
-
-      if (getRole(user) !== 'chapterAdmin') return publishedAudience
-
-      const managedChapterIDs = getManagedChapterIDs(user)
-      return {
-        or: [
-          publishedAudience,
-          ...(managedChapterIDs.length ? [{ chapter: { in: managedChapterIDs } }] : []),
-        ],
-      } as Where
-    },
+    read: announcementReadAccess,
     update: chapterScopedAccess('chapter'),
   },
   admin: {
@@ -89,6 +68,8 @@ export const Announcements: CollectionConfig = {
     {
       name: 'ctaHref',
       type: 'text',
+      validate: (value: unknown) =>
+        value === null || value === undefined || value === '' ? true : validateSafeHref(value),
     },
     {
       name: 'activeFrom',
@@ -104,7 +85,7 @@ export const Announcements: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeChange: [enforceManagedChapter('chapter')],
+    beforeChange: [enforceManagedChapter('chapter'), validateAnnouncement],
   },
   versions: {
     drafts: {

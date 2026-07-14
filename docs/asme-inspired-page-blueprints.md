@@ -446,7 +446,7 @@ Use a confirmation modal or dedicated confirmation page with clear warnings.
 - chapter support guidance
 - newsletter signup
 
-Implementation note: the form, direct contact info, and chapter-support guidance are complete. Newsletter signup remains with the Phase 8 footer/newsletter work.
+Implementation note: the form, direct contact info, chapter-support guidance, and verified-account newsletter preference destination are complete. The shared footer supplies the newsletter action across public pages.
 
 ## 20. Legal Pages Blueprint
 

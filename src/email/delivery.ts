@@ -24,6 +24,7 @@ export type DeliverEmailTaskOutput = {
 }
 
 type QueueEmailInput<Template extends EmailTemplateSlug> = {
+  campaignID?: number
   category: EmailCategory
   data: EmailTemplateData[Template]
   deduplicationKey: string
@@ -109,6 +110,7 @@ const createDelivery = async ({
     collection: 'emailDeliveries',
     data: {
       attempts: 0,
+      campaign: input.campaignID,
       category: input.category,
       deduplicationKey: input.deduplicationKey,
       queue: input.queue ?? 'transactional',
@@ -129,7 +131,62 @@ export const queueEmail = async <Template extends EmailTemplateSlug>(
   input: QueueEmailInput<Template>,
 ): Promise<QueueEmailResult> => {
   const existing = await findDelivery(payload, input.deduplicationKey)
-  if (existing) return { deduplicated: true, delivery: existing, queued: false }
+  if (existing) {
+    if (existing.status !== 'failed' || existing.jobId) {
+      return { deduplicated: true, delivery: existing, queued: false }
+    }
+
+    // A delivery audit can exist without a job when the queue write failed after the unique
+    // audit insert. Retrying the same semantic key repairs that partial failure in place.
+    const user = await getUser(payload, input.userID)
+    const recipient = input.to ?? user?.email
+    if (!recipient) throw new Error('Email delivery requires a recipient or user ID.')
+    const required = input.category === 'system' && input.required === true
+    const preference = shouldDeliverEmail({ category: input.category, required, user })
+    const rendered = renderEmailTemplate(input.template, input.data)
+    if (!preference.deliver) {
+      const suppressed = await payload.update({
+        collection: 'emailDeliveries',
+        data: {
+          errorMessage: null,
+          status: 'suppressed',
+          suppressedReason: preference.reason,
+        },
+        id: existing.id,
+        overrideAccess: true,
+      })
+      return { deduplicated: false, delivery: suppressed, queued: false }
+    }
+
+    try {
+      const job = await payload.jobs.queue({
+        input: { deliveryID: existing.id, html: rendered.html, text: rendered.text },
+        queue: input.queue ?? 'transactional',
+        task: 'deliverEmail',
+        waitUntil: input.scheduledFor,
+      })
+      const repaired = await payload.update({
+        collection: 'emailDeliveries',
+        data: {
+          errorMessage: null,
+          jobId: String(job.id),
+          status: 'queued',
+          suppressedReason: null,
+        },
+        id: existing.id,
+        overrideAccess: true,
+      })
+      return { deduplicated: false, delivery: repaired, queued: true }
+    } catch (error) {
+      await payload.update({
+        collection: 'emailDeliveries',
+        data: { errorMessage: sanitizeError(error), status: 'failed' },
+        id: existing.id,
+        overrideAccess: true,
+      })
+      throw error
+    }
+  }
 
   const user = await getUser(payload, input.userID)
   const recipient = input.to ?? user?.email

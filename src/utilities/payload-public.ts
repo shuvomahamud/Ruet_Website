@@ -232,19 +232,42 @@ export const getRelatedPosts = async (post: Post, limit = 3): Promise<Post[]> =>
   return result.docs
 }
 
-export const getActiveAnnouncements = async (limit = 3): Promise<Announcement[]> => {
+export const getActiveAnnouncements = async ({
+  chapterID,
+  limit = 3,
+  scope = 'all',
+  user,
+}: {
+  chapterID?: number
+  limit?: number
+  scope?: 'all' | 'chapter' | 'home'
+  user?: User
+} = {}): Promise<Announcement[]> => {
   const payload = await getClient()
+  const now = new Date().toISOString()
+  const clauses: Where[] = [
+    { _status: { equals: 'published' } },
+    { or: [{ activeFrom: { exists: false } }, { activeFrom: { less_than_equal: now } }] },
+    { or: [{ activeTo: { exists: false } }, { activeTo: { greater_than_equal: now } }] },
+  ]
+  if (scope === 'home') clauses.push({ chapter: { exists: false } })
+  if (scope === 'chapter') {
+    clauses.push({
+      or: [
+        { chapter: { exists: false } },
+        ...(chapterID ? [{ chapter: { equals: chapterID } }] : []),
+      ],
+    })
+  }
   const result = await payload.find({
     collection: 'announcements',
     depth: 1,
     limit,
     overrideAccess: false,
+    pagination: false,
     sort: '-updatedAt',
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
+    user,
+    where: { and: clauses },
   })
 
   return result.docs
@@ -333,26 +356,11 @@ export const getActiveChapterBySlug = async (slug: string): Promise<Chapter | nu
   return result.docs[0] ?? null
 }
 
-export const getChapterPublicModules = async (chapterID: number) => {
+export const getChapterPublicModules = async (chapterID: number, user?: User) => {
   const payload = await getClient()
   const now = new Date().toISOString()
   const [announcements, events, committees, media] = await Promise.all([
-    payload.find({
-      collection: 'announcements',
-      depth: 1,
-      limit: 6,
-      overrideAccess: false,
-      pagination: false,
-      sort: '-publishedAt',
-      where: {
-        and: [
-          { _status: { equals: 'published' } },
-          { chapter: { equals: chapterID } },
-          { or: [{ activeFrom: { exists: false } }, { activeFrom: { less_than_equal: now } }] },
-          { or: [{ activeTo: { exists: false } }, { activeTo: { greater_than_equal: now } }] },
-        ],
-      },
-    }),
+    getActiveAnnouncements({ chapterID, limit: 6, scope: 'chapter', user }),
     payload.find({
       collection: 'events',
       depth: 1,
@@ -402,7 +410,7 @@ export const getChapterPublicModules = async (chapterID: number) => {
   ])
 
   return {
-    announcements: announcements.docs,
+    announcements,
     committees: committees.docs,
     events: events.docs,
     media: media.docs as Media[],

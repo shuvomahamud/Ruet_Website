@@ -8,6 +8,8 @@ import * as migration_20260714_045129 from './20260714_045129';
 import * as migration_20260714_051235 from './20260714_051235';
 import * as migration_20260714_054208 from './20260714_054208';
 import * as migration_20260714_061936_phase_7_events_registration_waitlists from './20260714_061936_phase_7_events_registration_waitlists';
+import * as migration_20260714_065657_phase_8_communications_footer from './20260714_065657_phase_8_communications_footer';
+import * as migration_20260714_070100_phase_8_footer_content_backfill from './20260714_070100_phase_8_footer_content_backfill';
 
 export const migrations = [
   {
@@ -58,6 +60,16 @@ export const migrations = [
   {
     up: migration_20260714_061936_phase_7_events_registration_waitlists.up,
     down: migration_20260714_061936_phase_7_events_registration_waitlists.down,
-    name: '20260714_061936_phase_7_events_registration_waitlists'
+    name: '20260714_061936_phase_7_events_registration_waitlists',
+  },
+  {
+    up: migration_20260714_065657_phase_8_communications_footer.up,
+    down: migration_20260714_065657_phase_8_communications_footer.down,
+    name: '20260714_065657_phase_8_communications_footer',
+  },
+  {
+    up: migration_20260714_070100_phase_8_footer_content_backfill.up,
+    down: migration_20260714_070100_phase_8_footer_content_backfill.down,
+    name: '20260714_070100_phase_8_footer_content_backfill',
   },
 ];

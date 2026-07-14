@@ -139,6 +139,7 @@ describe('email delivery and background-job foundation', () => {
       category: 'newsletter',
       data: {
         body: 'Optional organization news.',
+        subject: 'Newsletter preference test',
         title: 'Newsletter preference test',
         unsubscribeUrl: 'https://example.test/account/settings',
       },

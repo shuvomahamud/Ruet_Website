@@ -16,7 +16,7 @@ C-02,Google sign-in integration,Completed
 C-03,Profile management,Completed
 C-04,Self-service account deletion,Completed
 D-01,Header navigation and mega-menu system,Completed
-D-02,Footer system,Partial
+D-02,Footer system,Completed
 D-03,Shared public components,Completed
 E-01,Home page implementation,Partial
 E-02,About mission and contact pages,Completed
@@ -45,8 +45,8 @@ I-01,Manual payment review queue,Completed
 I-02,Approve / reject manual payment actions,Completed
 J-01,Transactional email foundation,Completed
 J-02,System-triggered emails,Completed
-J-03,Admin announcements,Partial
-J-04,Scheduled newsletters,Pending
+J-03,Admin announcements,Completed
+J-04,Scheduled newsletters,Completed
 K-01,Member dashboard,Pending
 K-02,Payment and registration history views,Pending
 K-03,Admin reporting views,Pending

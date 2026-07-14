@@ -50,6 +50,12 @@ export const EmailDeliveries: CollectionConfig = {
       relationTo: 'users',
     },
     {
+      name: 'campaign',
+      type: 'relationship',
+      index: true,
+      relationTo: 'newsletterCampaigns',
+    },
+    {
       name: 'subject',
       type: 'text',
       required: true,

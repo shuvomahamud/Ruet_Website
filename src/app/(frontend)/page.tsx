@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 
+import { authenticateRequest } from '@/auth/current-user'
 import { CollectionCard } from '@/components/content/CollectionCard'
+import { AnnouncementFeed } from '@/components/communications/AnnouncementFeed'
 import { SiteFooter } from '@/components/site/SiteFooter'
 import { SiteHeader } from '@/components/site/SiteHeader'
 import { Container } from '@/components/ui/Container'
@@ -31,10 +34,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
+  const user = await authenticateRequest(await headers())
   const [home, stats, announcements, chapters, events, posts, plan] = await Promise.all([
     getHomeGlobal(),
     getPageStats(),
-    getActiveAnnouncements(3),
+    getActiveAnnouncements({ limit: 3, scope: 'home', user: user ?? undefined }),
     getActiveChapters(3),
     getUpcomingEvents(3),
     getPublishedPosts(3),
@@ -113,20 +117,7 @@ export default async function HomePage() {
                 title="Latest organization notices"
                 description="Stay informed about association news, chapter updates, and opportunities across the alumni network."
               />
-              <div className="card-grid card-grid--compact">
-                {announcements.map((announcement) => (
-                  <article className="surface-card" key={announcement.id}>
-                    <p className="surface-card__label">{announcement.audience || 'public'}</p>
-                    <h3>{announcement.title}</h3>
-                    <p>{announcement.summary}</p>
-                    {announcement.ctaHref && announcement.ctaLabel ? (
-                      <Link className="surface-card__link" href={announcement.ctaHref}>
-                        {announcement.ctaLabel}
-                      </Link>
-                    ) : null}
-                  </article>
-                ))}
-              </div>
+              <AnnouncementFeed announcements={announcements} />
             </Container>
           </section>
         ) : null}

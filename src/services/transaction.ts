@@ -7,6 +7,7 @@ type LockableTable =
   | 'events'
   | 'memberships'
   | 'membership_plans'
+  | 'newsletter_campaigns'
   | 'orders'
   | 'payments'
   | 'promotions'
@@ -20,6 +21,8 @@ const lockQueries: Record<LockableTable, (id: number | string) => ReturnType<typ
   events: (id) => sql`SELECT id FROM "events" WHERE id = ${id} FOR UPDATE`,
   memberships: (id) => sql`SELECT id FROM "memberships" WHERE id = ${id} FOR UPDATE`,
   membership_plans: (id) => sql`SELECT id FROM "membership_plans" WHERE id = ${id} FOR UPDATE`,
+  newsletter_campaigns: (id) =>
+    sql`SELECT id FROM "newsletter_campaigns" WHERE id = ${id} FOR UPDATE`,
   orders: (id) => sql`SELECT id FROM "orders" WHERE id = ${id} FOR UPDATE`,
   payments: (id) => sql`SELECT id FROM "payments" WHERE id = ${id} FOR UPDATE`,
   promotions: (id) => sql`SELECT id FROM "promotions" WHERE id = ${id} FOR UPDATE`,

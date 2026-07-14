@@ -128,9 +128,17 @@ export const fallbackFooter = {
   ],
   legalNotice:
     'RUETIAN USA is an alumni-led community serving RUET graduates in the United States.',
+  legalLinks: [
+    { href: '/privacy', label: 'Privacy' },
+    { href: '/terms-of-use', label: 'Website terms' },
+    { href: '/membership-terms', label: 'Membership terms' },
+  ],
+  newsletterCtaHref: '/communications/preferences',
+  newsletterCtaLabel: 'Manage newsletter preferences',
   newsletterSummary:
     'Receive organization news, chapter updates, event notices, and learning resources.',
   newsletterTitle: 'Stay connected',
+  socialLinks: [],
 }
 
 export const fallbackPages: Record<

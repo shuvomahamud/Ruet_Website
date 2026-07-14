@@ -159,6 +159,7 @@ export interface Config {
       deliverEmail: DeliverEmailJobInput;
       eventLifecycle: EventLifecycleJobInput;
       membershipLifecycle: MembershipLifecycleJobInput;
+      newsletterLifecycle: NewsletterLifecycleJobInput;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -368,6 +369,7 @@ export interface EmailDelivery {
   required: boolean;
   recipient: string;
   user?: (number | null) | User;
+  campaign?: (number | null) | NewsletterCampaign;
   subject: string;
   template: string;
   status: 'queued' | 'processing' | 'sent' | 'failed' | 'suppressed';
@@ -381,6 +383,35 @@ export interface EmailDelivery {
   scheduledFor?: string | null;
   suppressedReason?: string | null;
   errorMessage?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletterCampaigns".
+ */
+export interface NewsletterCampaign {
+  id: number;
+  title: string;
+  subject: string;
+  summary?: string | null;
+  body: string;
+  audience: 'all' | 'members';
+  status: 'draft' | 'scheduled' | 'sending' | 'sent' | 'cancelled' | 'failed';
+  scheduledAt?: string | null;
+  sendStartedAt?: string | null;
+  sentAt?: string | null;
+  cancelledAt?: string | null;
+  createdBy?: (number | null) | User;
+  lastActionBy?: (number | null) | User;
+  recipientCount: number;
+  queuedCount: number;
+  suppressedCount: number;
+  failedCount: number;
+  /**
+   * Sanitized campaign dispatch failure summary.
+   */
+  sendError?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -850,23 +881,6 @@ export interface HistoryEntry {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "newsletterCampaigns".
- */
-export interface NewsletterCampaign {
-  id: number;
-  title: string;
-  subject: string;
-  summary?: string | null;
-  body: string;
-  audience: 'all' | 'members';
-  status: 'draft' | 'scheduled' | 'sent';
-  scheduledAt?: string | null;
-  sentAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -934,7 +948,13 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'deliverEmail' | 'eventLifecycle' | 'membershipLifecycle' | 'schedulePublish';
+        taskSlug:
+          | 'inline'
+          | 'deliverEmail'
+          | 'eventLifecycle'
+          | 'membershipLifecycle'
+          | 'newsletterLifecycle'
+          | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -967,7 +987,9 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'deliverEmail' | 'eventLifecycle' | 'membershipLifecycle' | 'schedulePublish') | null;
+  taskSlug?:
+    | ('inline' | 'deliverEmail' | 'eventLifecycle' | 'membershipLifecycle' | 'newsletterLifecycle' | 'schedulePublish')
+    | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1278,6 +1300,7 @@ export interface EmailDeliveriesSelect<T extends boolean = true> {
   required?: T;
   recipient?: T;
   user?: T;
+  campaign?: T;
   subject?: T;
   template?: T;
   status?: T;
@@ -1712,7 +1735,16 @@ export interface NewsletterCampaignsSelect<T extends boolean = true> {
   audience?: T;
   status?: T;
   scheduledAt?: T;
+  sendStartedAt?: T;
   sentAt?: T;
+  cancelledAt?: T;
+  createdBy?: T;
+  lastActionBy?: T;
+  recipientCount?: T;
+  queuedCount?: T;
+  suppressedCount?: T;
+  failedCount?: T;
+  sendError?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1891,6 +1923,22 @@ export interface Footer {
     | null;
   newsletterTitle?: string | null;
   newsletterSummary?: string | null;
+  newsletterCtaLabel: string;
+  newsletterCtaHref: string;
+  legalLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  socialLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
   legalNotice?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -2060,6 +2108,22 @@ export interface FooterSelect<T extends boolean = true> {
       };
   newsletterTitle?: T;
   newsletterSummary?: T;
+  newsletterCtaLabel?: T;
+  newsletterCtaHref?: T;
+  legalLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  socialLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
   legalNotice?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2161,6 +2225,18 @@ export interface MembershipLifecycleJobInput {
     expired: number;
     graceStarted: number;
     remindersQueued: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsletterLifecycleJobInput".
+ */
+export interface NewsletterLifecycleJobInput {
+  input?: unknown;
+  output: {
+    failedCampaigns: number;
+    processedCampaigns: number;
+    sentCampaigns: number;
   };
 }
 /**

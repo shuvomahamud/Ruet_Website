@@ -554,11 +554,11 @@ Key fields:
 
 ### 6.15 `announcements`
 
-For site-wide and chapter-specific notices.
+Site-wide and chapter-specific notices with public/member audiences, optional active windows, safe CTA pairs, draft/publish versions, assigned-chapter authoring, and read-access enforcement that prevents future, expired, draft, or wrong-chapter records from leaking through direct APIs.
 
 ### 6.16 `newsletterCampaigns`
 
-Recommended for scheduled newsletter authoring and send history.
+Admin-only newsletter authoring and operations. Draft content progresses through scheduled, sending, sent, cancelled, or failed states using row-locked services. Campaigns store schedule/actor/result counts and connect to private per-recipient delivery audits; stable semantic keys, preference suppression, retry, and stale-claim recovery prevent duplicate sending.
 
 ### 6.17 `media`
 

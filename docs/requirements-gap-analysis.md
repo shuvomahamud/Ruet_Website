@@ -1,6 +1,6 @@
 # RUETIAN USA Website Requirements Baseline
 
-Updated: 2026-07-13
+Updated: 2026-07-14
 
 ## Purpose
 
@@ -23,6 +23,7 @@ The current implementation now adds these resolved delivery details:
 - the email/job foundation now includes local capture and a Resend-capable Payload adapter, shared responsive typed templates, private delivery audits, required-vs-optional preference rules, deduplicated retrying jobs, four isolated queues, scheduled execution, and an operations runbook; verification is recorded in [phase-5-email-jobs-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-5-email-jobs-verification.md)
 - the complete annual membership lifecycle now includes one database-enforced active plan, CMS benefits/FAQs/policies, profile-gated Zelle checkout, promotion validation and immutable snapshots, chapter-first review, approval/rejection/resubmission notices, scheduled renewal/grace/expiration processing, and pay-to-reactivate; verification is recorded in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md)
 - event operations now include the public filtered catalog and recap archive, free and Zelle-paid registration, transaction-safe capacity, quantity-aware waitlists and expiring offers, protected virtual access, chapter-scoped galleries, a shared manual-payment queue, and deduplicated event/payment notices; verification is recorded in [phase-7-events-manual-review-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-7-events-manual-review-verification.md)
+- organization communications now include date-windowed public/member and chapter announcements, admin-authored newsletter preview/schedule/cancel/send/retry/history, audience/preference-aware deduplicated delivery, and a complete responsive footer with preference/contact/legal destinations; verification is recorded in [phase-8-communications-footer-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-8-communications-footer-verification.md)
 
 ## Reviewed Inputs
 
