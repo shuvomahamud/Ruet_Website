@@ -1,8 +1,9 @@
 import type { Chapter, Event, Media, User } from '@/payload-types'
-import type { Payload } from 'payload'
+import { createLocalReq, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { getRelationshipID } from '@/utilities/relationships'
+import { submitEventRegistration } from '@/services/event-registration'
 import { getTestPayload } from '../helpers/payload'
 
 const futureDate = (days: number): string => {
@@ -115,16 +116,18 @@ describe.sequential('direct API ownership and chapter isolation', () => {
     const eventData = {
       _status: 'published' as const,
       basePrice: 0,
+      capacity: 1,
       currency: 'USD',
       endAt: futureDate(4),
       eventMode: 'inPerson' as const,
       isPaid: false,
-      maxRegistrationQuantity: 2,
+      maxRegistrationQuantity: 1,
       startAt: futureDate(3),
       status: 'published' as const,
       summary: 'Access-control event fixture.',
       timezone: 'America/New_York' as const,
       waitlistEnabled: true,
+      waitlistOfferHours: 48,
     }
     eventA = await payload.create({
       collection: 'events',
@@ -204,41 +207,51 @@ describe.sequential('direct API ownership and chapter isolation', () => {
   })
 
   it('forces a submitted registration owner to the authenticated user', async () => {
-    const registration = await payload.create({
-      collection: 'eventRegistrations',
-      data: {
-        event: eventA.id,
-        discountSnapshot: 999,
-        quantity: 1,
-        registrationPriceSnapshot: 999,
-        status: 'confirmed',
-        user: memberB.id,
-      },
-      overrideAccess: false,
-      user: memberA,
+    await expect(
+      payload.create({
+        collection: 'eventRegistrations',
+        data: {
+          chapterNameSnapshot: chapterA.name,
+          currencySnapshot: 'USD',
+          discountSnapshot: 999,
+          event: eventA.id,
+          eventStartAtSnapshot: eventA.startAt,
+          eventTitleSnapshot: eventA.title,
+          quantity: 1,
+          registrationPriceSnapshot: 999,
+          status: 'confirmed',
+          unitPriceSnapshot: 999,
+          user: memberB.id,
+        },
+        overrideAccess: false,
+        user: memberA,
+      }),
+    ).rejects.toThrow()
+    const req = await createLocalReq({ user: memberA }, payload)
+    const result = await submitEventRegistration({
+      eventID: eventA.id,
+      intent: 'register',
+      quantity: 1,
+      req,
     })
+    const registration = result.registration!
     registrationIDs.push(registration.id)
 
     expect(getRelationshipID(registration.user)).toBe(memberA.id)
-    expect(registration.status).toBe('pending')
+    expect(registration.status).toBe('confirmed')
     expect(registration.registrationPriceSnapshot).toBe(0)
     expect(registration.discountSnapshot).toBe(0)
   })
 
   it('isolates member and chapter-admin reads by owner and managed chapter', async () => {
-    const otherRegistration = await payload.create({
-      collection: 'eventRegistrations',
-      data: {
-        discountSnapshot: 999,
-        event: eventB.id,
-        quantity: 1,
-        registrationPriceSnapshot: 999,
-        status: 'pending',
-        user: memberB.id,
-      },
-      overrideAccess: false,
-      user: memberB,
+    const req = await createLocalReq({ user: memberB }, payload)
+    const result = await submitEventRegistration({
+      eventID: eventB.id,
+      intent: 'register',
+      quantity: 1,
+      req,
     })
+    const otherRegistration = result.registration!
     registrationIDs.push(otherRegistration.id)
 
     const memberResults = await payload.find({
@@ -280,18 +293,28 @@ describe.sequential('direct API ownership and chapter isolation', () => {
   })
 
   it('forces waitlist ownership and prevents cross-account profile mutation', async () => {
-    const waitlist = await payload.create({
-      collection: 'waitlistEntries',
-      data: {
-        event: eventA.id,
-        joinedAt: futureDate(-1),
-        quantity: 1,
-        status: 'promoted',
-        user: memberA.id,
-      },
-      overrideAccess: false,
-      user: memberB,
+    await expect(
+      payload.create({
+        collection: 'waitlistEntries',
+        data: {
+          event: eventA.id,
+          joinedAt: futureDate(-1),
+          quantity: 1,
+          status: 'promoted',
+          user: memberA.id,
+        },
+        overrideAccess: false,
+        user: memberB,
+      }),
+    ).rejects.toThrow()
+    const req = await createLocalReq({ user: memberB }, payload)
+    const result = await submitEventRegistration({
+      eventID: eventA.id,
+      intent: 'waitlist',
+      quantity: 1,
+      req,
     })
+    const waitlist = result.waitlistEntry!
     waitlistIDs.push(waitlist.id)
     expect(getRelationshipID(waitlist.user)).toBe(memberB.id)
     expect(waitlist.status).toBe('waiting')

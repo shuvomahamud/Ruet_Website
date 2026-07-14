@@ -24,6 +24,7 @@ This guide covers the implemented work from:
 - Remaining-roadmap Phase 4: searchable chapters, complete chapter detail modules, chapter requests and super-admin review, history archives, committee pages, and chapter isolation
 - Remaining-roadmap Phase 5: captured/Resend email adapter, responsive templates, private delivery audits, preference rules, and queued/scheduled job infrastructure
 - Remaining-roadmap Phase 6: annual membership overview, profile-gated join, Zelle proof/transaction submission, chapter-scoped approval, immutable resubmission, renewal, grace, expiration, reactivation, and membership notifications
+- Remaining-roadmap Phase 7: event discovery and recaps, free/Zelle registration, transaction-safe capacity, waitlists, shared payment review, protected virtual access, and event notifications
 
 ## 2. UAT Scope
 
@@ -55,6 +56,7 @@ This guide covers the implemented work from:
 - published history timelines with decade archives and committee current/history views with recaps
 - automated email transport, template, deduplication, retry, audit, preference, and queue verification
 - single-plan membership configuration, promotions, member join/status/renew/reactivate routes, Zelle proof submission, chapter-first review, failed-attempt resubmission, and scheduled lifecycle behavior
+- event catalog filtering, free and Zelle-paid registration, immutable registration/payment history, capacity and waitlist operations, protected virtual access, event recap galleries, and shared chapter-scoped payment review
 
 ## 2.2 Explicitly out of scope for this UAT
 
@@ -62,13 +64,11 @@ Do not mark these as failures in this round because they are not implemented yet
 
 - Stripe checkout, which has been superseded by the Zelle-only payment decision
 - member dashboard
-- event registration flow
-- waitlist promotion logic execution
 - newsletters sending
-- event-specific status emails and newsletter campaigns, which use this foundation in later phases
+- newsletter campaigns, which use the email foundation in Phase 8
 - live Resend delivery until provider credentials and a verified sender are installed
 
-Membership Zelle execution and its dedicated review queue are now in scope. Event Zelle registration and the later shared organization-wide queue remain assigned to Phase 7. Membership evidence is in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md).
+Membership and event Zelle execution now share one role-scoped review queue and are in scope. Evidence is in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md) and [phase-7-events-manual-review-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-7-events-manual-review-verification.md).
 
 ## 3. Tester Prerequisites
 
@@ -636,8 +636,9 @@ Steps:
 
 Expected result:
 
-- fields exist for chapter, event mode, timezone, capacity, waitlist enabled, and pricing inputs
+- fields exist for chapter, event mode, timezone, capacity, waitlist enabled, configurable offer hours, pricing, registration dates, recap, and gallery inputs
 - record saves successfully
+- gallery media cannot be assigned before the event has ended
 
 ### UAT-EVT-02: Published event appears in public listing
 
@@ -649,7 +650,9 @@ Steps:
 Expected result:
 
 - event appears in the public events listing
-- event card shows title and descriptive text
+- event card shows title, schedule/timezone, chapter, mode, price, and capacity state
+- date, chapter, mode, price, upcoming/archive, and availability filters return the expected published events
+- draft events remain hidden
 
 ### UAT-EVT-03: Event detail page renders
 
@@ -660,7 +663,87 @@ Steps:
 Expected result:
 
 - event title and summary render
-- detail page shows start, end, timezone, capacity, and waitlist values
+- detail page shows start, end, timezone, venue/mode, authoritative price, capacity, remaining seats, and the correct register/waitlist state
+- a private virtual link is hidden from anonymous and unconfirmed users
+- an authorized manager or confirmed registrant can see that private link
+
+### UAT-EVT-04: Free registration confirms without overbooking
+
+Steps:
+
+1. Sign in as a complete-profile member and open a free event with available capacity.
+2. Register for a quantity within the remaining capacity.
+3. Open `/events/registrations`.
+4. In a second browser session, attempt concurrent registrations that together exceed the remaining capacity.
+
+Expected result:
+
+- the first registration is confirmed immediately and has immutable event/date/chapter/price snapshots
+- history shows the confirmed state and quantity
+- concurrent requests never confirm more seats than capacity; the losing eligible request is offered the waitlist path
+- exactly one confirmation notice is queued for a successful registration
+
+### UAT-EVT-05: Paid Zelle registration and shared review
+
+Steps:
+
+1. Open a paid event and submit a transaction ID, proof image, or both.
+2. Open `/payments/review` as the event's chapter admin.
+3. Filter to `Event` and `Pending`, inspect the proof, and approve it.
+4. Repeat with a different registration and reject it with a reason.
+
+Expected result:
+
+- a pending registration, order, and immutable payment attempt are created with server-calculated totals
+- pending quantity reserves capacity
+- the event chapter admin sees the proof; an unrelated chapter admin does not
+- approval confirms the registration without overbooking and queues one approval notice
+- rejection fails the attempt, releases capacity, preserves the attempt, and queues one rejection notice
+
+### UAT-EVT-06: Rejected payment can be resubmitted
+
+Steps:
+
+1. Sign in as the owner of a rejected paid registration.
+2. Submit new Zelle evidence from the event detail page.
+3. Inspect both payment records as an authorized reviewer.
+
+Expected result:
+
+- a new pending payment attempt is created
+- the failed attempt and its evidence/reviewer metadata remain unchanged
+- the registration returns to pending payment and reserves capacity
+
+### UAT-EVT-07: Quantity-aware waitlist, cancellation, and expiry
+
+Steps:
+
+1. Fill an event, then join its waitlist with groups of different quantities.
+2. Cancel a confirmed/pending registration from `/events/registrations/manage` as an authorized manager.
+3. Verify that the earliest waiting group that fits is promoted even when an earlier oversized group does not fit.
+4. Accept one offer from the public event page.
+5. Allow another offer to pass its configured expiry and run `pnpm jobs:run`.
+
+Expected result:
+
+- an unexpired offer reserves its group quantity and cannot cause overbooking
+- accepting the offer creates the correct free-confirmed or paid-pending state
+- expiry returns the stale offer to expired, releases capacity, and considers the next earliest-fitting group
+- promotion and expiry messages are each queued once
+- cancellation does not perform or promise an automated refund
+
+### UAT-EVT-08: Completed event archive and gallery
+
+Steps:
+
+1. Configure a completed event with a recap summary and same-chapter public gallery media.
+2. Open `/events?period=archive` and then the event detail page.
+
+Expected result:
+
+- the event remains discoverable in the archive
+- its recap and gallery render publicly
+- future events cannot use post-event galleries and cross-chapter/private media is rejected
 
 ## 6.8 Learning Content
 
@@ -906,12 +989,6 @@ These collections are implemented at schema/admin level but do not yet have comp
 
 Test the ability to create at least one draft or placeholder record in:
 
-- Memberships
-- Event Registrations
-- Waitlist Entries
-- Orders
-- Payments
-- Promotions
 - Newsletter Campaigns
 
 Expected result:
@@ -923,7 +1000,7 @@ Expected result:
 Note:
 
 - successful record creation is the UAT target here
-- end-to-end business workflow execution for these collections is not part of this round
+- newsletter end-to-end scheduling and delivery is not part of this round
 
 ### UAT-DAT-02: Email delivery audits are private and immutable
 
@@ -998,4 +1075,5 @@ This UAT round should confirm that:
 - Phase 4 chapters, chapter requests/review, chapter isolation, history, and committees meet their acceptance criteria
 - Phase 5 email transport, templates, capture, preference enforcement, delivery audit, deduplication, retry, and job queues meet their acceptance criteria
 - Phase 6 membership plan, profile gating, promotion, Zelle evidence, chapter review, status history, resubmission, renewal, grace, expiration, reactivation, and notifications meet their acceptance criteria
-- the repo is ready to continue into remaining-roadmap Phase 7
+- Phase 7 event discovery, registration, capacity, Zelle review, rejection/resubmission, waitlist, protected access, recap/archive, and notification behavior meet their acceptance criteria
+- the repo is ready to continue into remaining-roadmap Phase 8

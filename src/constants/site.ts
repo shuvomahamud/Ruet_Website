@@ -11,6 +11,8 @@ export const fallbackSiteSettings = {
   manualPaymentReviewNote:
     'Payment proof is reviewed by authorized volunteers. No turnaround time is promised until the organization approves a review SLA.',
   noRefundNotice: 'No-refund wording is awaiting final stakeholder and legal approval before launch.',
+  eventPaymentTerms:
+    'Paid event registration is reserved while Zelle proof is reviewed. Event payments are not automatically debited. No refunds are issued; contact the event chapter for exceptional handling.',
 }
 
 export const defaultMainNavigation = [

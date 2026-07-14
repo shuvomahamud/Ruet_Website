@@ -157,6 +157,7 @@ export interface Config {
   jobs: {
     tasks: {
       deliverEmail: DeliverEmailJobInput;
+      eventLifecycle: EventLifecycleJobInput;
       membershipLifecycle: MembershipLifecycleJobInput;
       schedulePublish: TaskSchedulePublish;
       inline: {
@@ -624,9 +625,25 @@ export interface Event {
   basePrice?: number | null;
   currency?: string | null;
   capacity?: number | null;
+  /**
+   * Optional. If empty, registration is available as soon as the event is published.
+   */
+  registrationOpensAt?: string | null;
+  /**
+   * Optional. If empty, registration closes when the event starts.
+   */
+  registrationClosesAt?: string | null;
   waitlistEnabled?: boolean | null;
+  /**
+   * Hours a promoted attendee has to accept an available-seat offer.
+   */
+  waitlistOfferHours: number;
   maxRegistrationQuantity?: number | null;
   galleryAfterCompletion?: (number | Media)[] | null;
+  /**
+   * Optional public recap shown after the event ends.
+   */
+  recapSummary?: string | null;
   publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -645,6 +662,12 @@ export interface EventRegistration {
   order?: (number | null) | Order;
   paymentStatus?: ('pending' | 'paid' | 'failed') | null;
   registrationPriceSnapshot: number;
+  unitPriceSnapshot: number;
+  currencySnapshot: string;
+  eventTitleSnapshot: string;
+  eventStartAtSnapshot: string;
+  chapterNameSnapshot: string;
+  waitlistEntry?: (number | null) | WaitlistEntry;
   discountSnapshot: number;
   waitlistPosition?: number | null;
   updatedAt: string;
@@ -703,9 +726,10 @@ export interface WaitlistEntry {
   user: number | User;
   quantity: number;
   joinedAt: string;
-  status: 'waiting' | 'promoted' | 'expired';
+  status: 'waiting' | 'promoted' | 'accepted' | 'expired';
   promotedAt?: string | null;
   promotionExpiryAt?: string | null;
+  acceptedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -910,7 +934,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'deliverEmail' | 'membershipLifecycle' | 'schedulePublish';
+        taskSlug: 'inline' | 'deliverEmail' | 'eventLifecycle' | 'membershipLifecycle' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -943,7 +967,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'deliverEmail' | 'membershipLifecycle' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'deliverEmail' | 'eventLifecycle' | 'membershipLifecycle' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1481,9 +1505,13 @@ export interface EventsSelect<T extends boolean = true> {
   basePrice?: T;
   currency?: T;
   capacity?: T;
+  registrationOpensAt?: T;
+  registrationClosesAt?: T;
   waitlistEnabled?: T;
+  waitlistOfferHours?: T;
   maxRegistrationQuantity?: T;
   galleryAfterCompletion?: T;
+  recapSummary?: T;
   publishedAt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1501,6 +1529,12 @@ export interface EventRegistrationsSelect<T extends boolean = true> {
   order?: T;
   paymentStatus?: T;
   registrationPriceSnapshot?: T;
+  unitPriceSnapshot?: T;
+  currencySnapshot?: T;
+  eventTitleSnapshot?: T;
+  eventStartAtSnapshot?: T;
+  chapterNameSnapshot?: T;
+  waitlistEntry?: T;
   discountSnapshot?: T;
   waitlistPosition?: T;
   updatedAt?: T;
@@ -1518,6 +1552,7 @@ export interface WaitlistEntriesSelect<T extends boolean = true> {
   status?: T;
   promotedAt?: T;
   promotionExpiryAt?: T;
+  acceptedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1777,6 +1812,7 @@ export interface SiteSetting {
   zelleInstructions: string;
   manualPaymentReviewNote: string;
   noRefundNotice: string;
+  eventPaymentTerms: string;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1938,6 +1974,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   zelleInstructions?: T;
   manualPaymentReviewNote?: T;
   noRefundNotice?: T;
+  eventPaymentTerms?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2100,6 +2137,18 @@ export interface DeliverEmailJobInput {
   output: {
     deliveryID: number;
     status: 'sent' | 'deduplicated' | 'suppressed';
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventLifecycleJobInput".
+ */
+export interface EventLifecycleJobInput {
+  input?: unknown;
+  output: {
+    expiredOffers: number;
+    promotedOffers: number;
+    processedEvents: number;
   };
 }
 /**

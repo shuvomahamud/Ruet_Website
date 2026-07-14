@@ -4,7 +4,7 @@ import { createLocalReq, getPayload } from 'payload'
 import { getRole } from '@/access/roles'
 import { authenticateRequest } from '@/auth/current-user'
 import { membershipPaymentReviewSchema } from '@/membership/schema'
-import { queueMembershipReviewNotice } from '@/services/membership-notifications'
+import { queuePaymentReviewNotice } from '@/services/payment-notifications'
 import { reviewZellePayment } from '@/services/payment-review'
 import { AppError } from '@/utilities/errors'
 
@@ -27,7 +27,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const req = await createLocalReq({ user }, payload)
     const result = await reviewZellePayment({ paymentID, req, ...input.data })
     try {
-      await queueMembershipReviewNotice(payload, result.payment, input.data.decision)
+      await queuePaymentReviewNotice(payload, result.payment, input.data.decision)
     } catch (error) {
       payload.logger.error({ err: error, msg: 'Membership review notification could not queue.' })
     }

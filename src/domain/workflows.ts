@@ -29,8 +29,9 @@ export const WORKFLOW_TRANSITIONS = {
     waitlisted: ['cancelled', 'confirmed'],
   },
   waitlist: {
+    accepted: [],
     expired: [],
-    promoted: ['expired'],
+    promoted: ['accepted', 'expired'],
     waiting: ['expired', 'promoted'],
   },
 } as const

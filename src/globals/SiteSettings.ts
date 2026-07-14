@@ -88,6 +88,13 @@ export const SiteSettings: GlobalConfig = {
         'No-refund wording is awaiting final stakeholder and legal approval before launch.',
       required: true,
     },
+    {
+      name: 'eventPaymentTerms',
+      type: 'textarea',
+      defaultValue:
+        'Paid event registration is reserved while Zelle proof is reviewed. Event payments are not automatically debited. No refunds are issued; contact the event chapter for exceptional handling.',
+      required: true,
+    },
   ],
   label: 'Site Settings',
 }

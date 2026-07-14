@@ -73,10 +73,12 @@ Available queues:
 | --------------- | --------------------------------------------------------------------- |
 | `transactional` | Immediate required account and transaction messages                   |
 | `reminders`     | Scheduled membership and operational reminders                        |
-| `waitlist`      | Waitlist-related delivery after the Phase 7 state transition succeeds |
+| `waitlist`      | Waitlist-related delivery after an idempotent state transition succeeds |
 | `newsletters`   | Scheduled optional newsletter delivery                                |
 
-Callers may supply `scheduledFor` to persist a future `waitUntil` time. Future waitlist code must complete its idempotent business-state transition separately, then queue email with a stable key; retrying email must never repeat the seat-allocation transition.
+Callers may supply `scheduledFor` to persist a future `waitUntil` time. Event lifecycle code completes its idempotent seat-allocation transition separately, then queues email with a stable key; retrying email never repeats the transition.
+
+The scheduler also runs the event lifecycle every 15 minutes. It expires elapsed waitlist offers, releases the reserved quantity, selects the earliest waiting group that fits, and queues the resulting offer/expiry notices. Keep `pnpm jobs:run` or one designated persistent worker running in production so offers do not remain stale.
 
 ## Running Jobs
 

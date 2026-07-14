@@ -65,6 +65,9 @@ export const publicSignupFieldAccess: FieldAccess = ({ req }) =>
 export const publicContactCreateAccess: Access = ({ req }) =>
   isAdmin(req.user) || req.context?.publicContactSubmissionValidated === true
 
+export const eventWorkflowCreateAccess: Access = ({ req }) =>
+  isAdmin(req.user) || req.context?.eventWorkflowValidated === true
+
 export const publicUserCreateAccess: Access = ({ req }) => {
   if (isAdmin(req.user)) return true
 

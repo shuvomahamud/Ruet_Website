@@ -22,6 +22,7 @@ The current implementation now adds these resolved delivery details:
 - the chapter and governance experience now includes a searchable active-only chapter directory, complete localized chapter modules, authenticated chapter requests with transactional super-admin review, structured history archives, shared committee-term pages, and direct-API chapter isolation; verification is recorded in [phase-4-chapters-governance-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-4-chapters-governance-verification.md)
 - the email/job foundation now includes local capture and a Resend-capable Payload adapter, shared responsive typed templates, private delivery audits, required-vs-optional preference rules, deduplicated retrying jobs, four isolated queues, scheduled execution, and an operations runbook; verification is recorded in [phase-5-email-jobs-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-5-email-jobs-verification.md)
 - the complete annual membership lifecycle now includes one database-enforced active plan, CMS benefits/FAQs/policies, profile-gated Zelle checkout, promotion validation and immutable snapshots, chapter-first review, approval/rejection/resubmission notices, scheduled renewal/grace/expiration processing, and pay-to-reactivate; verification is recorded in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md)
+- event operations now include the public filtered catalog and recap archive, free and Zelle-paid registration, transaction-safe capacity, quantity-aware waitlists and expiring offers, protected virtual access, chapter-scoped galleries, a shared manual-payment queue, and deduplicated event/payment notices; verification is recorded in [phase-7-events-manual-review-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-7-events-manual-review-verification.md)
 
 ## Reviewed Inputs
 
@@ -147,6 +148,14 @@ The event baseline is now:
 - chapter admin can set the event timezone
 - chapter admin can upload event gallery media after completion
 - no refunds
+
+Implementation defaults now adopted:
+
+- pending paid registrations reserve their requested capacity until approval, rejection, or authorized cancellation
+- unexpired promoted waitlist offers reserve capacity so another registration cannot consume an offered seat
+- the waitlist offer window is configurable per event and defaults to `48 hours`
+- non-public conference links are visible only to confirmed registrants and authorized managers
+- registration cancellation is an authorized operational action; automated refunds and public self-service cancellation remain out of scope
 
 ### 9. Manual payment approval workflow
 

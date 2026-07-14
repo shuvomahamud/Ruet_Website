@@ -4,6 +4,7 @@ import { sql } from '@payloadcms/db-postgres'
 type LockableTable =
   | 'chapter_requests'
   | 'event_registrations'
+  | 'events'
   | 'memberships'
   | 'membership_plans'
   | 'orders'
@@ -16,6 +17,7 @@ const lockQueries: Record<LockableTable, (id: number | string) => ReturnType<typ
   chapter_requests: (id) => sql`SELECT id FROM "chapter_requests" WHERE id = ${id} FOR UPDATE`,
   event_registrations: (id) =>
     sql`SELECT id FROM "event_registrations" WHERE id = ${id} FOR UPDATE`,
+  events: (id) => sql`SELECT id FROM "events" WHERE id = ${id} FOR UPDATE`,
   memberships: (id) => sql`SELECT id FROM "memberships" WHERE id = ${id} FOR UPDATE`,
   membership_plans: (id) => sql`SELECT id FROM "membership_plans" WHERE id = ${id} FOR UPDATE`,
   orders: (id) => sql`SELECT id FROM "orders" WHERE id = ${id} FOR UPDATE`,

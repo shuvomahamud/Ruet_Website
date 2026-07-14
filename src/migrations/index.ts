@@ -7,6 +7,7 @@ import * as migration_20260714_043004 from './20260714_043004';
 import * as migration_20260714_045129 from './20260714_045129';
 import * as migration_20260714_051235 from './20260714_051235';
 import * as migration_20260714_054208 from './20260714_054208';
+import * as migration_20260714_061936_phase_7_events_registration_waitlists from './20260714_061936_phase_7_events_registration_waitlists';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20260714_054208.up,
     down: migration_20260714_054208.down,
-    name: '20260714_054208'
+    name: '20260714_054208',
+  },
+  {
+    up: migration_20260714_061936_phase_7_events_registration_waitlists.up,
+    down: migration_20260714_061936_phase_7_events_registration_waitlists.down,
+    name: '20260714_061936_phase_7_events_registration_waitlists'
   },
 ];

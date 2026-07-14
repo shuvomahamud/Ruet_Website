@@ -1,9 +1,12 @@
 import type { CollectionConfig } from 'payload'
 import { slugField } from 'payload'
 
+import { eventVirtualLinkReadAccess } from '@/access/events'
 import { chapterScopedAccess, elevatedOnly, publishedOrManagedChapterAccess } from '@/access/roles'
 import { validateNonNegativeMoney, validatePositiveInteger, validateUSD } from '@/domain/validation'
 import { enforceManagedChapter } from '@/hooks/enforceManagedChapter'
+import { AppError } from '@/utilities/errors'
+import { getRelationshipID } from '@/utilities/relationships'
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -82,6 +85,9 @@ export const Events: CollectionConfig = {
     {
       name: 'virtualLink',
       type: 'text',
+      access: {
+        read: eventVirtualLinkReadAccess,
+      },
     },
     {
       name: 'virtualAccessVisibility',
@@ -130,9 +136,33 @@ export const Events: CollectionConfig = {
         value === null || value === undefined ? true : validatePositiveInteger(value),
     },
     {
+      name: 'registrationOpensAt',
+      type: 'date',
+      admin: {
+        description: 'Optional. If empty, registration is available as soon as the event is published.',
+      },
+    },
+    {
+      name: 'registrationClosesAt',
+      type: 'date',
+      admin: {
+        description: 'Optional. If empty, registration closes when the event starts.',
+      },
+    },
+    {
       name: 'waitlistEnabled',
       type: 'checkbox',
       defaultValue: true,
+    },
+    {
+      name: 'waitlistOfferHours',
+      type: 'number',
+      defaultValue: 48,
+      required: true,
+      validate: validatePositiveInteger,
+      admin: {
+        description: 'Hours a promoted attendee has to accept an available-seat offer.',
+      },
     },
     {
       name: 'maxRegistrationQuantity',
@@ -147,6 +177,13 @@ export const Events: CollectionConfig = {
       relationTo: 'media',
     },
     {
+      name: 'recapSummary',
+      type: 'textarea',
+      admin: {
+        description: 'Optional public recap shown after the event ends.',
+      },
+    },
+    {
       name: 'publishedAt',
       type: 'date',
       admin: {
@@ -157,12 +194,62 @@ export const Events: CollectionConfig = {
   hooks: {
     beforeChange: [
       enforceManagedChapter('chapter'),
+      async ({ data, originalDoc, req }) => {
+        if (!Object.prototype.hasOwnProperty.call(data, 'galleryAfterCompletion')) return data
+        const gallery = Array.isArray(data.galleryAfterCompletion)
+          ? data.galleryAfterCompletion
+          : []
+        if (!gallery.length) return data
+        const endAt = data.endAt ?? originalDoc?.endAt
+        if (!endAt || new Date(String(endAt)) > new Date()) {
+          throw new AppError('Event gallery media can be attached only after the event ends.', {
+            code: 'EVENT_GALLERY_BEFORE_COMPLETION',
+            status: 409,
+          })
+        }
+        const chapterID = getRelationshipID(data.chapter ?? originalDoc?.chapter)
+        for (const value of gallery) {
+          const mediaID = getRelationshipID(value)
+          if (!mediaID) continue
+          const media = await req.payload.findByID({
+            collection: 'media',
+            depth: 0,
+            id: mediaID,
+            overrideAccess: true,
+            req,
+          })
+          if (media.visibility !== 'public' || getRelationshipID(media.chapter) !== chapterID) {
+            throw new AppError('Event gallery images must be public media from the same chapter.', {
+              code: 'INVALID_EVENT_GALLERY_MEDIA',
+              status: 409,
+            })
+          }
+        }
+        return data
+      },
       ({ data, originalDoc }) => {
         const startAt = data.startAt ?? originalDoc?.startAt
         const endAt = data.endAt ?? originalDoc?.endAt
 
         if (startAt && endAt && new Date(String(endAt)) <= new Date(String(startAt))) {
           throw new Error('Event end time must be after its start time.')
+        }
+
+        const registrationOpensAt = data.registrationOpensAt ?? originalDoc?.registrationOpensAt
+        const registrationClosesAt = data.registrationClosesAt ?? originalDoc?.registrationClosesAt
+        if (
+          registrationOpensAt &&
+          registrationClosesAt &&
+          new Date(String(registrationClosesAt)) <= new Date(String(registrationOpensAt))
+        ) {
+          throw new Error('Registration close time must be after its open time.')
+        }
+        if (
+          registrationClosesAt &&
+          endAt &&
+          new Date(String(registrationClosesAt)) > new Date(String(endAt))
+        ) {
+          throw new Error('Registration cannot close after the event ends.')
         }
 
         const capacity = data.capacity ?? originalDoc?.capacity

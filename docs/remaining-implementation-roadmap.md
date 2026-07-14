@@ -38,14 +38,14 @@ Historical migration files must not be rewritten after they have been applied. S
 
 ### 2.2 Active backlog
 
-After completion of roadmap Phase 6, the tracked backlog contains:
+After completion of roadmap Phase 7, the tracked backlog contains:
 
-- `33` completed tasks
-- `6` partially implemented tasks
-- `16` pending tasks
+- `42` completed tasks
+- `4` partially implemented tasks
+- `9` pending tasks
 - `2` superseded Stripe tasks
 
-There are `22` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
+There are `13` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
 
 ### 2.3 Work excluded from the approved launch scope
 
@@ -321,6 +321,8 @@ Required external input before launch:
 - approved manual-review SLA, or copy that intentionally makes no timing promise
 
 ## Phase 7: Events, Registration, Waitlists, And Shared Manual Review
+
+Status: `Completed` on 2026-07-13. Evidence: [phase-7-events-manual-review-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-7-events-manual-review-verification.md).
 
 Goal: complete free and paid event operations, then close the shared Zelle approval and notification tasks.
 

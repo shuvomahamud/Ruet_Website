@@ -308,6 +308,9 @@ This section separates confirmed requirements from assumptions.
 
 - Event registration quantity must support group-size logic because the waitlist rule depends on it.
 - Archived events should convert into recap-style pages rather than becoming invisible list items.
+- Pending paid registrations reserve capacity until their payment is approved, rejected, or the registration is cancelled by an authorized operator.
+- An unexpired promoted waitlist offer reserves the offered quantity; offer duration is configurable per event and defaults to `48 hours`.
+- Registration cancellation is an authorized administrative operation and does not imply an automated refund.
 
 ## 8.9 Conference and Zoom access
 
@@ -319,6 +322,7 @@ This section separates confirmed requirements from assumptions.
 ### Assumptions
 
 - Event records should include an explicit virtual-access visibility setting rather than hiding this logic inside free/paid flags.
+- Non-public virtual-access links should be visible only to confirmed registrants and authorized event/chapter managers.
 
 ## 8.10 Payment routing and payment methods
 

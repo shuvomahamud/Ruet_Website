@@ -17,6 +17,7 @@ Current implementation behavior for membership content ownership:
 - the annual membership experience is implemented end to end: single active plan, profile-gated join, server-authoritative promotions, Zelle transaction/proof submission, immutable pending attempts, chapter-scoped review, approval/rejection notices, renewal, grace, expiration, and pay-to-reactivate
 - daily scheduled lifecycle work sends deduplicated pre-expiration and grace reminders while preserving the rule that the website never automatically debits a member
 - implementation and verification evidence is recorded in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md)
+- membership and event payments now share the role-scoped `/payments/review` queue and idempotent approval/rejection service while preserving their separate business-state transitions; event workflow evidence is recorded in [phase-7-events-manual-review-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-7-events-manual-review-verification.md)
 - public account signup, verification, password reset, Google sign-in/linking, protected profile settings, chapter changes, preferences, and audited account anonymization are implemented; production Google and email-provider credentials remain explicit environment/launch inputs
 
 ## 2. Final Membership Baseline

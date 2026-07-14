@@ -7,6 +7,7 @@ import type { Membership, Order, Payment } from '@/payload-types'
 import { AppError } from '@/utilities/errors'
 import { getRelationshipID } from '@/utilities/relationships'
 import { writeAuditLog } from './audit'
+import { assertEventRegistrationApprovalCapacity } from './event-registration'
 import { lockWorkflowRecord, runInTransaction } from './transaction'
 import { transitionWorkflowRecord } from './workflow-transitions'
 
@@ -119,13 +120,7 @@ const updateApprovedTarget = async (
   }
 
   if (registrationID) {
-    const registration = await req.payload.findByID({
-      collection: 'eventRegistrations',
-      depth: 0,
-      id: registrationID,
-      overrideAccess: true,
-      req,
-    })
+    const registration = await assertEventRegistrationApprovalCapacity(req, registrationID)
 
     await transitionWorkflowRecord({
       collection: 'eventRegistrations',
@@ -153,6 +148,7 @@ const updateRejectedTarget = async (req: PayloadRequest, order: Order): Promise<
   }
 
   if (registrationID) {
+    await lockWorkflowRecord(req, 'event_registrations', registrationID)
     await req.payload.update({
       collection: 'eventRegistrations',
       context: { workflowTransition: true },

@@ -1,7 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { denyAll, userOrChapterScopedAccess } from '@/access/roles'
-import { authenticated } from '@/access/authenticated'
+import { denyAll, eventWorkflowCreateAccess, userOrChapterScopedAccess } from '@/access/roles'
 import { validateNonNegativeMoney, validatePositiveInteger } from '@/domain/validation'
 import { forceAuthenticatedUser } from '@/hooks/forceAuthenticatedUser'
 import { prepareEventRegistration } from '@/hooks/prepareRegistration'
@@ -11,7 +10,7 @@ import { validateWorkflowTransition } from '@/hooks/validateWorkflowTransition'
 export const EventRegistrations: CollectionConfig = {
   slug: 'eventRegistrations',
   access: {
-    create: authenticated,
+    create: eventWorkflowCreateAccess,
     delete: denyAll,
     read: userOrChapterScopedAccess('user', 'event.chapter'),
     update: denyAll,
@@ -72,6 +71,38 @@ export const EventRegistrations: CollectionConfig = {
       validate: validateNonNegativeMoney,
     },
     {
+      name: 'unitPriceSnapshot',
+      type: 'number',
+      required: true,
+      validate: validateNonNegativeMoney,
+    },
+    {
+      name: 'currencySnapshot',
+      type: 'text',
+      defaultValue: 'USD',
+      required: true,
+    },
+    {
+      name: 'eventTitleSnapshot',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'eventStartAtSnapshot',
+      type: 'date',
+      required: true,
+    },
+    {
+      name: 'chapterNameSnapshot',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'waitlistEntry',
+      type: 'relationship',
+      relationTo: 'waitlistEntries',
+    },
+    {
       name: 'discountSnapshot',
       type: 'number',
       defaultValue: 0,
@@ -94,6 +125,12 @@ export const EventRegistrations: CollectionConfig = {
         'order',
         'registrationPriceSnapshot',
         'discountSnapshot',
+        'unitPriceSnapshot',
+        'currencySnapshot',
+        'eventTitleSnapshot',
+        'eventStartAtSnapshot',
+        'chapterNameSnapshot',
+        'waitlistEntry',
       ]),
       validateWorkflowTransition('registration'),
     ],

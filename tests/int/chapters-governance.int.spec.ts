@@ -214,6 +214,7 @@ describe.sequential('chapters, history, and governance workflows', () => {
         timezone: 'America/New_York',
         title: `Phase 4 Event ${nonce}`,
         waitlistEnabled: true,
+        waitlistOfferHours: 48,
       },
       overrideAccess: false,
       user: chapterAdmin,

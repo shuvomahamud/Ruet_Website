@@ -19,8 +19,10 @@ import type {
   CommitteeTerm,
   Media,
   SeoDefault,
+  User,
 } from '@/payload-types'
 import type { Where } from 'payload'
+import { getEventAvailability, type EventAvailability } from '@/services/event-registration'
 
 const getClient = async () => getPayload({ config: configPromise })
 
@@ -362,6 +364,7 @@ export const getChapterPublicModules = async (chapterID: number) => {
         and: [
           { _status: { equals: 'published' } },
           { chapter: { equals: chapterID } },
+          { status: { equals: 'published' } },
           { endAt: { greater_than_equal: now } },
         ],
       },
@@ -415,25 +418,28 @@ export const getUpcomingEvents = async (limit = 6): Promise<Event[]> => {
     overrideAccess: false,
     sort: 'startAt',
     where: {
-      _status: {
-        equals: 'published',
-      },
-      endAt: {
-        greater_than_equal: new Date().toISOString(),
-      },
+      and: [
+        { _status: { equals: 'published' } },
+        { status: { equals: 'published' } },
+        { endAt: { greater_than_equal: new Date().toISOString() } },
+      ],
     },
   })
 
   return result.docs
 }
 
-export const getPublishedEventBySlug = async (slug: string): Promise<Event | null> => {
+export const getPublishedEventBySlug = async (
+  slug: string,
+  user?: User,
+): Promise<Event | null> => {
   const payload = await getClient()
   const result = await payload.find({
     collection: 'events',
     depth: 1,
     limit: 1,
     overrideAccess: false,
+    user,
     where: {
       _status: {
         equals: 'published',
@@ -445,6 +451,91 @@ export const getPublishedEventBySlug = async (slug: string): Promise<Event | nul
   })
 
   return result.docs[0] ?? null
+}
+
+export type EventCatalogItem = {
+  availability: EventAvailability
+  event: Event
+}
+
+export const getEventCatalog = async ({
+  availability,
+  chapter,
+  dateFrom,
+  dateTo,
+  mode,
+  price,
+  user,
+  view = 'upcoming',
+}: {
+  availability?: string
+  chapter?: string
+  dateFrom?: string
+  dateTo?: string
+  mode?: string
+  price?: string
+  user?: User
+  view?: string
+}): Promise<{ chapters: Chapter[]; items: EventCatalogItem[] }> => {
+  const payload = await getClient()
+  const now = new Date().toISOString()
+  const clauses: Where[] = [
+    { _status: { equals: 'published' } },
+    view === 'archive'
+      ? { or: [{ endAt: { less_than: now } }, { status: { equals: 'archived' } }] }
+      : { and: [{ endAt: { greater_than_equal: now } }, { status: { equals: 'published' } }] },
+  ]
+  if (mode && ['inPerson', 'virtual', 'hybrid'].includes(mode)) {
+    clauses.push({ eventMode: { equals: mode } })
+  }
+  if (price === 'free') clauses.push({ isPaid: { equals: false } })
+  if (price === 'paid') clauses.push({ isPaid: { equals: true } })
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateFrom ?? '')) {
+    clauses.push({ startAt: { greater_than_equal: `${dateFrom}T00:00:00.000Z` } })
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateTo ?? '')) {
+    const exclusiveEnd = new Date(`${dateTo}T00:00:00.000Z`)
+    exclusiveEnd.setUTCDate(exclusiveEnd.getUTCDate() + 1)
+    clauses.push({ startAt: { less_than: exclusiveEnd.toISOString() } })
+  }
+  const chaptersResult = await payload.find({
+    collection: 'chapters',
+    depth: 0,
+    limit: 1000,
+    overrideAccess: false,
+    pagination: false,
+    sort: 'name',
+    where: { chapterStatus: { equals: 'active' } },
+  })
+  if (chapter) {
+    const selected = chaptersResult.docs.find((item) => item.slug === chapter)
+    if (!selected) return { chapters: chaptersResult.docs, items: [] }
+    clauses.push({ chapter: { equals: selected.id } })
+  }
+  const events = await payload.find({
+    collection: 'events',
+    depth: 1,
+    limit: 200,
+    overrideAccess: false,
+    pagination: false,
+    sort: view === 'archive' ? '-startAt' : 'startAt',
+    user,
+    where: { and: clauses },
+  })
+  const items = await Promise.all(
+    events.docs.map(async (event) => ({
+      availability: await getEventAvailability({ event, payload, userID: user?.id }),
+      event,
+    })),
+  )
+  return {
+    chapters: chaptersResult.docs,
+    items: items.filter((item) => {
+      if (availability === 'available') return !item.availability.isFull
+      if (availability === 'full') return item.availability.isFull
+      return true
+    }),
+  }
 }
 
 export const getActiveMembershipPlan = async (): Promise<MembershipPlan | null> => {

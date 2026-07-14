@@ -10,6 +10,10 @@ export const prepareEventRegistration: CollectionBeforeChangeHook = async ({
 }) => {
   if (operation !== 'create' || !req.user?.id) return data
 
+  if (req.context?.eventWorkflowValidated === true) {
+    return { ...data, user: Number(req.user.id) }
+  }
+
   const eventID = getRelationshipID(data.event)
   const quantity = data.quantity ?? 1
 
@@ -66,15 +70,30 @@ export const prepareEventRegistration: CollectionBeforeChangeHook = async ({
   }
 
   const price = event.isPaid ? (event.basePrice ?? 0) : 0
+  const chapter =
+    typeof event.chapter === 'object'
+      ? event.chapter
+      : await req.payload.findByID({
+          collection: 'chapters',
+          depth: 0,
+          id: event.chapter,
+          overrideAccess: true,
+          req,
+        })
 
   return {
     ...data,
+    chapterNameSnapshot: chapter.name,
+    currencySnapshot: event.currency,
     discountSnapshot: 0,
+    eventStartAtSnapshot: event.startAt,
+    eventTitleSnapshot: event.title,
     order: undefined,
     paymentStatus: event.isPaid ? 'pending' : undefined,
     quantity,
     registrationPriceSnapshot: price * quantity,
     status: 'pending',
+    unitPriceSnapshot: price,
     user: Number(req.user.id),
   }
 }
@@ -85,6 +104,10 @@ export const prepareWaitlistEntry: CollectionBeforeChangeHook = async ({
   req,
 }) => {
   if (operation !== 'create' || !req.user?.id) return data
+
+  if (req.context?.eventWorkflowValidated === true) {
+    return { ...data, user: Number(req.user.id) }
+  }
 
   const eventID = getRelationshipID(data.event)
   const quantity = data.quantity ?? 1

@@ -34,17 +34,17 @@ G-01,Chapters directory page,Completed
 G-02,Chapter detail pages,Completed
 G-03,Chapter request workflow,Completed
 G-04,Chapter-admin content workflow,Completed
-H-01,Events listing page,Partial
-H-02,Event detail page,Partial
-H-03,Event registration flow,Pending
+H-01,Events listing page,Completed
+H-02,Event detail page,Completed
+H-03,Event registration flow,Completed
 H-04,Event Stripe checkout,Superseded
-H-05,Event Zelle payment flow,Pending
-H-06,Waitlist logic,Pending
-H-07,Post-event galleries and archive behavior,Pending
-I-01,Manual payment review queue,Pending
-I-02,Approve / reject manual payment actions,Pending
+H-05,Event Zelle payment flow,Completed
+H-06,Waitlist logic,Completed
+H-07,Post-event galleries and archive behavior,Completed
+I-01,Manual payment review queue,Completed
+I-02,Approve / reject manual payment actions,Completed
 J-01,Transactional email foundation,Completed
-J-02,System-triggered emails,Pending
+J-02,System-triggered emails,Completed
 J-03,Admin announcements,Partial
 J-04,Scheduled newsletters,Pending
 K-01,Member dashboard,Pending

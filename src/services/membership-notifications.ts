@@ -72,7 +72,7 @@ export const queueMembershipSubmissionNotice = async (
         data: {
           action: {
             label: 'Review pending payment',
-            url: `${env.NEXT_PUBLIC_SITE_URL}/membership/payments/review`,
+            url: `${env.NEXT_PUBLIC_SITE_URL}/payments/review?type=membership`,
           },
           message: `A ${formatCurrency(result.order.total, result.order.currency)} membership Zelle payment is waiting for authorized review in your queue.`,
           subject: 'Membership payment awaiting review',

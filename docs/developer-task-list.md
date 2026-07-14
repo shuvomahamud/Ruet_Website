@@ -1260,6 +1260,8 @@ Acceptance criteria:
 - events are filterable and easy to scan
 - free, paid, virtual, hybrid, and in-person events are visually distinct
 
+Verification update (2026-07-13): completed with a database-backed catalog supporting date, chapter, mode, price, upcoming/archive, and availability filters; clear free/paid and event-mode states; capacity labels; responsive cards; and published-only visibility.
+
 ### Task H-02: Event detail page
 
 Objective:
@@ -1285,6 +1287,8 @@ Acceptance criteria:
 
 - the page clearly shows event mode and timezone
 - full events present a waitlist path rather than a dead end
+
+Verification update (2026-07-13): completed with schedule/timezone, venue or protected virtual-access, authoritative pricing, capacity and remaining-seat states, registration history links, responsive sticky registration summary, full-event waitlist CTA, and post-event recap/gallery rendering.
 
 ### Task H-03: Event registration flow
 
@@ -1314,6 +1318,8 @@ Acceptance criteria:
 
 - free event registration creates valid registration records
 - paid event registration creates pending order/payment records
+
+Verification update (2026-07-13): completed through transactional service-only registration routes with immutable event/price snapshots, server-authoritative totals and promotions, free confirmation, paid pending state, quantity support, row locking, and concurrent no-overbooking coverage.
 
 ### Task H-04: Event Stripe checkout — Superseded
 
@@ -1345,6 +1351,8 @@ Acceptance criteria:
 - event tickets remain pending until proof approval
 - proof submission supports transaction ID, screenshot, or both
 
+Verification update (2026-07-13): completed with Zelle-only instructions, transaction-ID/image/both proof validation, private proof media, immutable payment attempts, failed-attempt resubmission, pending capacity reservation, and chapter-first reviewer notification.
+
 ### Task H-06: Waitlist logic
 
 Objective:
@@ -1372,6 +1380,8 @@ Acceptance criteria:
 
 - the system promotes the earliest fitting waitlist entry
 - quantity-sensitive promotion works correctly
+
+Verification update (2026-07-13): completed with quantity-aware earliest-fitting selection, oversized-group skipping, configurable offer windows, promotion expiry/reprocessing, accepted-offer registration, cancellation capacity release, reserved offered capacity, and deduplicated promotion/expiry notices.
 
 ### Task H-07: Post-event galleries and archive behavior
 
@@ -1401,6 +1411,8 @@ Acceptance criteria:
 - completed events can display gallery media
 - archived events remain publicly useful
 
+Verification update (2026-07-13): completed with future-gallery validation, chapter-scoped public media enforcement, archived/past catalog filtering, recap summaries, gallery rendering, and useful public detail pages after completion.
+
 ## 7.9 Manual Approval Workflow
 
 ### Task I-01: Manual payment review queue
@@ -1428,6 +1440,8 @@ Acceptance criteria:
 
 - chapter admin sees relevant pending proofs first
 - admins and super admins can review all required proofs
+
+Verification update (2026-07-13): completed with one `/payments/review` queue for memberships and events, type/status/chapter filters, chapter-scoped proof visibility for chapter reviewers, and organization-wide admin/super-admin oversight.
 
 ### Task I-02: Approve / reject manual payment actions
 
@@ -1459,6 +1473,8 @@ Acceptance criteria:
 - approved proof activates the related pending record
 - rejected proof marks payment failed and triggers notification
 - resubmission produces a new payment attempt
+
+Verification update (2026-07-13): completed with shared idempotent approve/reject actions, reviewer metadata, correct membership/event transitions, approval-time event capacity enforcement, immutable failed attempts, resubmission, and deduplicated outcome notifications.
 
 ## 7.10 Communications And Newsletters
 
@@ -1522,6 +1538,8 @@ Acceptance criteria:
 
 - all critical system states trigger the correct email
 - email content reflects the correct status and next action
+
+Verification update (2026-07-13): completed across authentication, membership, event registration, payment pending/approved/rejected, waitlist joined/promoted/expired, authorized cancellation, lifecycle reminders, and account-state messages using stable deduplication keys and required operational delivery rules.
 
 ### Task J-03: Admin announcements
 

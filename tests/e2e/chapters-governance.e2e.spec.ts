@@ -114,6 +114,7 @@ test.describe.serial('Chapters and governance experience', () => {
         timezone: 'America/New_York',
         title: `E2E Chapter Gathering ${nonce}`,
         waitlistEnabled: true,
+        waitlistOfferHours: 48,
       },
       overrideAccess: true,
     })
