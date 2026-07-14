@@ -127,8 +127,8 @@ Status baseline for this document:
 
 Strict status answer:
 
-- the continuous fully completed block is `A-01` through `B-08`
-- in other words, the project is fully complete through letter `B`, task `08`
+- the continuous fully completed block is `A-01` through `C-04`
+- in other words, the project is fully complete through letter `C`, task `04`
 
 Fully completed tasks:
 
@@ -144,6 +144,10 @@ Fully completed tasks:
 - `B-06`
 - `B-07`
 - `B-08`
+- `C-01`
+- `C-02`
+- `C-03`
+- `C-04`
 
 Partially implemented tasks already started in code:
 
@@ -165,10 +169,6 @@ Partially implemented tasks already started in code:
 
 Pending tasks:
 
-- `C-01`
-- `C-02`
-- `C-03`
-- `C-04`
 - `E-03`
 - `E-04`
 - `F-02`
@@ -601,6 +601,8 @@ Acceptance criteria:
 - invalid credentials show clear errors
 - password reset is functional
 
+Verification update (2026-07-13): completed with public signup/sign-in/sign-out pages, verification and resend handling, forgot/reset password, strong-password enforcement, session protection, rate limits, protected-route redirects, and browser lifecycle coverage. See [phase-2-auth-account-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-2-auth-account-verification.md).
+
 ### Task C-02: Google sign-in integration
 
 Objective:
@@ -627,6 +629,8 @@ Acceptance criteria:
 
 - Google sign-in creates or reuses the correct user record
 - duplicate account behavior is predictable and safe
+
+Verification update (2026-07-13): completed with Authorization Code + PKCE, signed state, nonce-verified ID tokens, hashed revocable sessions, explicit same-email linking, and safe duplicate-email rejection. Live provider verification still requires the production Google credentials already identified as an external launch input.
 
 ### Task C-03: Profile management
 
@@ -656,6 +660,8 @@ Acceptance criteria:
 - users can update their own profile fields
 - users cannot edit restricted admin-only fields
 
+Verification update (2026-07-13): completed with a protected settings page, server-side field allowlist, active-chapter validation, profile-completeness derivation, communication preferences, immutable email/elevated-role fields, and direct-API regression tests.
+
 ### Task C-04: Self-service account deletion
 
 Objective:
@@ -682,6 +688,8 @@ Acceptance criteria:
 - users can trigger account deletion from settings
 - required business records are preserved for audit
 - deleted users lose active access
+
+Verification update (2026-07-13): completed as transactional in-place anonymization. Personal and authentication data are revoked, hard self-deletion is denied, financial relationships retain the stable user ID, and an append-only audit event records the action.
 
 ## 7.4 Public Site Shell And Shared UI
 

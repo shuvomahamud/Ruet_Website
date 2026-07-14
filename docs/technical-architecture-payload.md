@@ -89,10 +89,16 @@ The following items must be editable from admin without code changes:
 
 ### 3.4 Authentication
 
-- Payload auth for core user management
-- email/password auth
-- Google sign-in
-- self-signup open to everyone
+- Payload verified email/password auth for core user management
+- public signup, login, logout, forgot/reset password, and verification/resend routes
+- Google Authorization Code OAuth with PKCE, signed state, nonce validation, verified ID-token claims, and revocable opaque sessions stored only as hashes
+- explicit authenticated account linking for matching verified email addresses; an unauthenticated duplicate email is never auto-linked
+- self-signup open to everyone while server hooks force the default `member` role and block public hard deletion
+- protected account settings with a field allowlist, active-chapter validation, and communication preferences
+- transactional logical deletion/anonymization that revokes sessions but preserves stable user relationships for finance and audit
+- suspended and deleted accounts are rejected by local login, refresh/me hooks, custom Google sessions, role access helpers, and protected routes
+
+Production email delivery is owned by roadmap Phase 5. Production Google verification requires client credentials and the approved `/api/auth/google/callback` URL.
 
 ### 3.5 Payments
 

@@ -20,6 +20,7 @@ import { Media } from './collections/Media'
 import { MembershipPlans } from './collections/MembershipPlans'
 import { Memberships } from './collections/Memberships'
 import { NewsletterCampaigns } from './collections/NewsletterCampaigns'
+import { OAuthSessions } from './collections/OAuthSessions'
 import { Orders } from './collections/Orders'
 import { Pages } from './collections/Pages'
 import { Payments } from './collections/Payments'
@@ -49,6 +50,7 @@ export default buildConfig({
   },
   collections: [
     Users,
+    OAuthSessions,
     Media,
     PaymentProofs,
     Categories,
@@ -71,8 +73,11 @@ export default buildConfig({
     NewsletterCampaigns,
   ],
   editor: lexicalEditor(),
+  cors: [env.NEXT_PUBLIC_SITE_URL],
+  csrf: [env.NEXT_PUBLIC_SITE_URL],
   globals: [SiteSettings, Header, Footer, Home, SeoDefaults],
   secret: env.PAYLOAD_SECRET,
+  serverURL: env.NEXT_PUBLIC_SITE_URL,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

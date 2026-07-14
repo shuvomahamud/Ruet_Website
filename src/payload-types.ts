@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    oauthSessions: OauthSession;
     media: Media;
     paymentProofs: PaymentProof;
     categories: Category;
@@ -97,6 +98,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    oauthSessions: OauthSessionsSelect<false> | OauthSessionsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     paymentProofs: PaymentProofsSelect<false> | PaymentProofsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
@@ -185,6 +187,9 @@ export interface User {
   lastName?: string | null;
   role: 'member' | 'chapterAdmin' | 'admin' | 'superAdmin';
   accountStatus: 'pending' | 'active' | 'suspended' | 'deleted';
+  authMethods?: ('password' | 'google')[] | null;
+  googleSubject?: string | null;
+  profileStatus?: ('incomplete' | 'complete') | null;
   primaryChapter?: (number | null) | Chapter;
   managedChapters?: (number | Chapter)[] | null;
   phoneNumber?: string | null;
@@ -201,6 +206,10 @@ export interface User {
     allowNewsletters?: boolean | null;
     allowSystemEmails?: boolean | null;
   };
+  termsAcceptedAt?: string | null;
+  privacyAcceptedAt?: string | null;
+  deletedAt?: string | null;
+  anonymizedReference?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -208,6 +217,8 @@ export interface User {
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
+  _verified?: boolean | null;
+  _verificationToken?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
   sessions?:
@@ -266,6 +277,20 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "oauthSessions".
+ */
+export interface OauthSession {
+  id: number;
+  tokenHash: string;
+  user: number | User;
+  provider: 'google';
+  expiresAt: string;
+  revokedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -814,6 +839,10 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'oauthSessions';
+        value: number | OauthSession;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -944,6 +973,9 @@ export interface UsersSelect<T extends boolean = true> {
   lastName?: T;
   role?: T;
   accountStatus?: T;
+  authMethods?: T;
+  googleSubject?: T;
+  profileStatus?: T;
   primaryChapter?: T;
   managedChapters?: T;
   phoneNumber?: T;
@@ -962,6 +994,10 @@ export interface UsersSelect<T extends boolean = true> {
         allowNewsletters?: T;
         allowSystemEmails?: T;
       };
+  termsAcceptedAt?: T;
+  privacyAcceptedAt?: T;
+  deletedAt?: T;
+  anonymizedReference?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -969,6 +1005,8 @@ export interface UsersSelect<T extends boolean = true> {
   resetPasswordExpiration?: T;
   salt?: T;
   hash?: T;
+  _verified?: T;
+  _verificationToken?: T;
   loginAttempts?: T;
   lockUntil?: T;
   sessions?:
@@ -978,6 +1016,19 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "oauthSessions_select".
+ */
+export interface OauthSessionsSelect<T extends boolean = true> {
+  tokenHash?: T;
+  user?: T;
+  provider?: T;
+  expiresAt?: T;
+  revokedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

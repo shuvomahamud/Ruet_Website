@@ -22,7 +22,7 @@ export const fallbackHeader = {
   primaryCtaLabel: 'Join Membership',
   utilityLinks: [
     { link: { href: '/contact', label: 'Contact' } },
-    { link: { href: '/admin', label: 'Sign In' } },
+    { link: { href: '/login', label: 'Sign In' } },
   ],
 }
 

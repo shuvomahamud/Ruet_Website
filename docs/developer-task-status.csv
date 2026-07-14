@@ -11,10 +11,10 @@ B-05,Implement event and registration collections,Completed
 B-06,Implement commerce collections,Completed
 B-07,Implement content collections,Completed
 B-08,Role-based access control,Completed
-C-01,Local auth flows,Pending
-C-02,Google sign-in integration,Pending
-C-03,Profile management,Pending
-C-04,Self-service account deletion,Pending
+C-01,Local auth flows,Completed
+C-02,Google sign-in integration,Completed
+C-03,Profile management,Completed
+C-04,Self-service account deletion,Completed
 D-01,Header navigation and mega-menu system,Partial
 D-02,Footer system,Partial
 D-03,Shared public components,Partial

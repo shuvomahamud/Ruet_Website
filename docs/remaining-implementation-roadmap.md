@@ -38,14 +38,14 @@ Historical migration files must not be rewritten after they have been applied. S
 
 ### 2.2 Active backlog
 
-After the Zelle-only decision, the tracked backlog contains:
+After completion of roadmap Phase 2, the tracked backlog contains:
 
-- `12` completed tasks
+- `16` completed tasks
 - `15` partially implemented tasks
-- `28` pending tasks
+- `24` pending tasks
 - `2` superseded Stripe tasks
 
-There are `43` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
+There are `39` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
 
 ### 2.3 Work excluded from the approved launch scope
 
@@ -76,7 +76,7 @@ A phase may be marked complete only when all of the following are true for the w
 
 The entire roadmap is complete only when:
 
-- all `43` active remaining tasks are `Completed`
+- all `43` tasks that were active when this roadmap began are `Completed`
 - `F-03` and `H-04` remain explicitly `Superseded`
 - there are no tasks left in `Partial` or `Pending`
 - all final UAT, security, performance, migration, backup, and deployment gates pass
@@ -146,6 +146,8 @@ Exit gate:
 - the completed `B-08` access groundwork has regression coverage sufficient for later phases
 
 ## Phase 2: Authentication And Account Lifecycle
+
+Status: `Completed` on 2026-07-13. Evidence: [phase-2-auth-account-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-2-auth-account-verification.md).
 
 Goal: complete public account access and safe self-service account management.
 

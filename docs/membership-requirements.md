@@ -15,6 +15,7 @@ Current implementation behavior for membership content ownership:
 - this keeps editorial page copy and business-plan data separated cleanly inside the CMS
 - membership, order, payment, chapter, plan-price, currency, promotion, proof, and reviewer relationships/snapshots are now validated and protected as audit data
 - Zelle approval/rejection is implemented as an idempotent, row-locked transaction primitive; the public join/renew UI and admin review queue remain assigned to their later roadmap phases
+- public account signup, verification, password reset, Google sign-in/linking, protected profile settings, chapter changes, preferences, and audited account anonymization are implemented; production Google and email-provider credentials remain explicit environment/launch inputs
 
 ## 2. Final Membership Baseline
 

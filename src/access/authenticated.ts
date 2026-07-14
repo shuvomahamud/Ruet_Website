@@ -1,3 +1,5 @@
 import type { Access } from 'payload'
 
-export const authenticated: Access = ({ req: { user } }) => Boolean(user)
+import { isActiveAccount } from './roles'
+
+export const authenticated: Access = ({ req: { user } }) => isActiveAccount(user)

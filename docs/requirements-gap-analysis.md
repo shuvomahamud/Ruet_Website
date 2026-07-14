@@ -17,6 +17,7 @@ The current implementation now adds these resolved delivery details:
   - [developer-task-list.md](/Users/shuvomahamud/Projects/RUET_Website/docs/developer-task-list.md)
   - [developer-task-status.csv](/Users/shuvomahamud/Projects/RUET_Website/docs/developer-task-status.csv)
 - the authorization and transaction foundation now enforces authenticated ownership, assigned-chapter isolation, private Zelle proofs, service-only commerce mutation, row-locked legal state transitions, immutable snapshots, and append-only audit records; verification is recorded in [phase-1-security-workflow-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-1-security-workflow-verification.md)
+- the public account lifecycle now includes verification-gated email/password auth, Google OAuth with explicit safe linking, profile/preferences management, active-account enforcement, and audited in-place account anonymization; verification is recorded in [phase-2-auth-account-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-2-auth-account-verification.md)
 
 ## Reviewed Inputs
 

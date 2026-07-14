@@ -6,6 +6,7 @@ const elevatedRoles: UserRole[] = ['chapterAdmin', 'admin', 'superAdmin']
 const adminRoles: UserRole[] = ['admin', 'superAdmin']
 
 type AuthUserLike = {
+  accountStatus?: string | null
   id?: number | string
   managedChapters?: Array<number | { id?: number | string } | null> | null
   primaryChapter?: number | { id?: number | string } | null
@@ -22,8 +23,11 @@ const normalizeID = (value: number | string | { id?: number | string } | null | 
   return undefined
 }
 
+export const isActiveAccount = (user: AuthUserLike | null | undefined): boolean =>
+  Boolean(user) && (user?.accountStatus === undefined || user.accountStatus === 'active')
+
 export const getRole = (user: AuthUserLike | null | undefined): UserRole | undefined =>
-  user?.role ?? undefined
+  isActiveAccount(user) ? (user?.role ?? undefined) : undefined
 
 export const getManagedChapterIDs = (user: AuthUserLike | null | undefined): number[] => {
   if (!user?.managedChapters?.length) return []
@@ -53,7 +57,23 @@ export const denyAll: Access = () => false
 
 export const adminFieldOnly: FieldAccess = ({ req: { user } }) => isAdmin(user)
 
+export const serverFieldOnly: FieldAccess = () => false
+
+export const publicSignupFieldAccess: FieldAccess = ({ req }) =>
+  req.context?.publicSignupValidated === true
+
+export const publicUserCreateAccess: Access = ({ req }) => {
+  if (isAdmin(req.user)) return true
+
+  const isFirstUserRegistration = new URL(req.url ?? '/', 'http://payload.local').pathname.endsWith(
+    '/first-register',
+  )
+
+  return isFirstUserRegistration || req.context?.publicSignupValidated === true
+}
+
 export const adminsOrSelf: Access = ({ req: { user } }) => {
+  if (!isActiveAccount(user)) return false
   if (getRole(user) === 'superAdmin') return true
   if (getRole(user) === 'admin') {
     return {
@@ -73,6 +93,7 @@ export const adminsOrSelf: Access = ({ req: { user } }) => {
 }
 
 export const adminsOrManagedChapterUsers: Access = ({ req: { user } }) => {
+  if (!isActiveAccount(user)) return false
   if (isAdmin(user)) return true
 
   if (getRole(user) === 'chapterAdmin') {
@@ -101,6 +122,7 @@ export const adminsOrManagedChapterUsers: Access = ({ req: { user } }) => {
 export const userScopedAccess =
   (fieldName = 'user'): Access =>
   ({ req: { user } }) => {
+    if (!isActiveAccount(user)) return false
     if (isAdmin(user)) return true
 
     if (user?.id) {
@@ -117,6 +139,7 @@ export const userScopedAccess =
 export const chapterScopedAccess =
   (fieldName = 'chapter'): Access =>
   ({ req: { user } }) => {
+    if (!isActiveAccount(user)) return false
     if (isAdmin(user)) return true
 
     if (getRole(user) === 'chapterAdmin') {
@@ -137,6 +160,7 @@ export const chapterScopedAccess =
 export const userOrChapterScopedAccess =
   (userField = 'user', chapterField = 'chapter'): Access =>
   ({ req: { user } }) => {
+    if (!isActiveAccount(user)) return false
     if (isAdmin(user)) return true
 
     if (!user?.id) return false
@@ -277,6 +301,7 @@ export const mediaMutationAccess: Access = ({ req: { user } }) => {
 }
 
 export const managedChapterAccessByDocumentID: Access = ({ req: { user } }) => {
+  if (!isActiveAccount(user)) return false
   if (isAdmin(user)) return true
 
   if (getRole(user) === 'chapterAdmin') {

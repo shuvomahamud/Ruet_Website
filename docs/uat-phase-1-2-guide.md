@@ -19,6 +19,7 @@ This guide covers the implemented work from:
 - Phase 1: Payload schema, roles, access groundwork, and admin structure
 - Phase 2: public site shell, homepage foundation, public content routes, and ASME-inspired shared UI
 - Remaining-roadmap Phase 1: direct-API ownership/chapter isolation, private payment proofs, legal workflow primitives, and idempotent Zelle review (automated security verification only; public transaction UI remains later scope)
+- Remaining-roadmap Phase 2: public local authentication, Google sign-in/linking, protected profile settings, and audited account anonymization
 
 ## 2. UAT Scope
 
@@ -39,6 +40,9 @@ This guide covers the implemented work from:
 - basic role data structure and chapter-admin assignment fields
 - media upload and content attachment
 - database-backed content visibility rules for published vs draft records
+- signup, verification/resend, login, logout, forgot/reset password, and protected-route behavior
+- Google sign-in and safe account linking when Google credentials are configured
+- profile, primary chapter, communication preferences, and account anonymization
 
 ## 2.2 Explicitly out of scope for this UAT
 
@@ -46,10 +50,6 @@ Do not mark these as failures in this round because they are not implemented yet
 
 - Stripe checkout, which has been superseded by the Zelle-only payment decision
 - Zelle/manual payment workflow execution
-- public signup page
-- public sign-in page
-- forgot-password and reset-password UI
-- Google sign-in
 - member dashboard
 - event registration flow
 - waitlist promotion logic execution
@@ -95,7 +95,9 @@ pnpm verify
 pnpm test:e2e
 ```
 
-The expected automated result after the remaining-roadmap Phase 1 gate is `15` integration tests and `6` browser tests passing.
+The expected automated result after the remaining-roadmap Phase 2 gate is `21` integration tests and `8` browser tests passing.
+
+For manual verification/reset delivery, configure the production-like email adapter when it becomes available in Phase 5 or use a test-only database token locally. Live Google UAT requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and an approved callback URL. Missing external credentials should be recorded as `Blocked`, not as missing application logic.
 
 ## 4. Important Visibility Rules
 
@@ -525,12 +527,101 @@ Expected result:
 - managed chapters field is available
 - primary chapter field is available
 
-Note:
+### UAT-USR-03: Suspended user loses account access
 
-- full public auth flows are not part of this UAT
-- if you want to test restricted admin access with a second login, that is optional exploratory testing in this round, not a required pass/fail item
+Steps:
 
-## 6.11 Data-Model-Only Collections
+1. Sign in with a verified test member.
+2. In a separate admin session, set that user's account status to `suspended`.
+3. Sign out and try to sign in again.
+
+Expected result:
+
+- login is rejected without exposing sensitive account-state details
+- protected account routes redirect to sign in
+
+## 6.11 Authentication And Account Lifecycle
+
+### UAT-AUTH-01: Local signup and email verification
+
+Steps:
+
+1. Ensure at least one active, published chapter exists.
+2. Open `/signup` and submit all required fields, consent checkboxes, a 12+ character mixed-case password, and a primary chapter.
+3. Open the verification link delivered to the test address.
+4. Sign in at `/login`.
+
+Expected result:
+
+- signup creates a standard `member`, never an elevated role
+- password login is blocked before verification
+- the verification link activates password sign-in
+- successful login opens `/account/settings`
+
+### UAT-AUTH-02: Recovery does not enumerate accounts
+
+Steps:
+
+1. Open `/forgot-password` and submit a registered address.
+2. Repeat with an unregistered address.
+3. Use the registered account's reset link to set a strong password.
+
+Expected result:
+
+- both requests show the same generic public response
+- weak replacement passwords are rejected
+- the new strong password works and the old password no longer works
+
+### UAT-AUTH-03: Profile fields and chapter change
+
+Steps:
+
+1. Sign in and open `/account/settings`.
+2. Change allowed profile fields, communication preferences, and the primary chapter.
+3. Save and reload.
+
+Expected result:
+
+- allowed values persist
+- email, role, account status, managed chapters, Google subject, and audit fields are not editable
+- only an active, published chapter can be selected
+
+### UAT-AUTH-04: Google sign-in and explicit linking
+
+Prerequisite: Google OAuth credentials and the exact environment callback URL are configured.
+
+Steps:
+
+1. Sign up with a new Google identity.
+2. Sign out and sign in again with that identity.
+3. For a separate password account, try Google with the same email while signed out.
+4. Sign in with the password and use `Link Google account` in settings.
+
+Expected result:
+
+- a new Google identity creates one standard member account
+- returning Google sign-in reuses that account
+- the duplicate password email is not auto-linked while signed out
+- explicit linking succeeds only with the same verified email
+
+### UAT-AUTH-05: Account anonymization
+
+Steps:
+
+1. Use a disposable verified member that has a related test order/payment.
+2. Open account settings and type `DELETE MY ACCOUNT`.
+3. Enter the current password if requested and confirm.
+4. Try to sign in again and inspect the related records as an authorized admin.
+
+Expected result:
+
+- the member loses access immediately
+- personal/authentication fields are anonymized and sessions are revoked
+- related financial records retain the stable user relationship
+- an `account.anonymized` audit entry exists
+- direct hard deletion is not available to the member
+
+## 6.12 Data-Model-Only Collections
 
 These collections are implemented at schema/admin level but do not yet have complete public workflows.
 
@@ -573,7 +664,8 @@ Recommended order:
 7. Announcements
 8. Standard pages
 9. Users and role fields
-10. Data-model-only collections
+10. Authentication and account lifecycle
+11. Data-model-only collections
 
 ## 8. Defect Logging Template
 
@@ -609,4 +701,5 @@ This UAT round should confirm that:
 - the Payload data model is present and usable
 - the public shell is connected to admin-managed content
 - the currently implemented public routes render real data correctly
-- the repo is ready to continue into the next feature phase
+- the public account lifecycle is safe and usable
+- the repo is ready to continue into remaining-roadmap Phase 3

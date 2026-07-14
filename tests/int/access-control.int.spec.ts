@@ -329,6 +329,7 @@ describe.sequential('direct API ownership and chapter isolation', () => {
     const nonce = `${Date.now()}-${Math.random().toString(36).slice(2)}`
     const publicSignup = await payload.create({
       collection: 'users',
+      context: { publicSignupValidated: true },
       data: {
         accountStatus: 'active',
         email: `public-role-test-${nonce}@example.test`,

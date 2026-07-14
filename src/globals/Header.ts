@@ -26,7 +26,7 @@ export const Header: GlobalConfig = {
         },
         {
           link: {
-            href: '/admin',
+            href: '/login',
             label: 'Sign In',
           },
         },

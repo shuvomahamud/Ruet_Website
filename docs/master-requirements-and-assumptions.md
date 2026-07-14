@@ -195,6 +195,11 @@ This section separates confirmed requirements from assumptions.
 - Public self-signup creates only the default member-capable account type.
 - Self-service account deletion should behave as logical deletion plus data anonymization where possible rather than unsafe hard deletion of financial history.
 
+### Implementation status
+
+- Completed in remaining-roadmap Phase 2 with local verified auth, Google sign-in and explicit linking, protected profile/preferences management, and in-place anonymization that preserves financial and audit relationships.
+- Production Google credentials and production email delivery remain environment/launch inputs, not missing application logic.
+
 ## 8.4 Recommended signup fields
 
 ### Agreed

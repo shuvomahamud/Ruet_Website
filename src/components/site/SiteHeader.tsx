@@ -13,7 +13,9 @@ export const SiteHeader = async () => {
     getSiteSettings(),
   ])
 
-  const utilityLinks = header.utilityLinks?.length ? header.utilityLinks : fallbackHeader.utilityLinks
+  const utilityLinks = header.utilityLinks?.length
+    ? header.utilityLinks
+    : fallbackHeader.utilityLinks
   const mainLinks = header.mainLinks?.length ? header.mainLinks : fallbackHeader.mainLinks
   const ctaHref = header.primaryCtaHref || fallbackHeader.primaryCtaHref
   const ctaLabel = header.primaryCtaLabel || fallbackHeader.primaryCtaLabel
@@ -28,7 +30,14 @@ export const SiteHeader = async () => {
             </span>
             <nav aria-label="Utility navigation" className="site-header__utility-nav">
               {utilityLinks.map((item, index) => (
-                <Link href={item.link?.href || '#'} key={`${item.link?.href}-${index}`}>
+                <Link
+                  href={
+                    item.link?.label === 'Sign In' && item.link?.href === '/admin'
+                      ? '/login'
+                      : item.link?.href || '#'
+                  }
+                  key={`${item.link?.href}-${index}`}
+                >
                   {item.link?.label}
                 </Link>
               ))}

@@ -32,7 +32,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html className={`${primarySans.variable} ${editorialSerif.variable}`} lang="en">
+    <html
+      className={`${primarySans.variable} ${editorialSerif.variable}`}
+      data-scroll-behavior="smooth"
+      lang="en"
+    >
       <body>{children}</body>
     </html>
   )

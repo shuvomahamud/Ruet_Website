@@ -26,17 +26,18 @@
     "ci": "pnpm db:migrate && pnpm verify && pnpm test:e2e"
   },
   "dependencies": {
+    "@payloadcms/db-postgres": "3.80.0",
     "@payloadcms/next": "3.80.0",
     "@payloadcms/richtext-lexical": "3.80.0",
     "@payloadcms/ui": "3.80.0",
     "cross-env": "^7.0.3",
     "graphql": "^16.8.1",
+    "jose": "^6.2.3",
     "next": "16.2.1",
     "payload": "3.80.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "sharp": "0.34.2",
-    "@payloadcms/db-postgres": "3.80.0",
     "zod": "^4.1.11"
   },
   "devDependencies": {
