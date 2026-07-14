@@ -17,13 +17,8 @@ import { activeAccountHooks } from '@/hooks/enforceActiveAccount'
 import { enforceUserRoleHierarchy } from '@/hooks/enforceUserRoleHierarchy'
 import { validateUserChapter } from '@/hooks/validateUserChapter'
 import { validateResetPassword, validateUserPassword } from '@/hooks/validateUserPassword'
+import { renderEmailTemplate } from '@/email/templates'
 import { env } from '@/utilities/env'
-
-const emailButton = (href: string, label: string) =>
-  `<a href="${href}" style="background:#1e4faf;border-radius:8px;color:#fff;display:inline-block;font-family:Arial,sans-serif;font-weight:700;padding:12px 18px;text-decoration:none">${label}</a>`
-
-const emailShell = (heading: string, body: string, action: string) =>
-  `<div style="font-family:Arial,sans-serif;line-height:1.6;max-width:600px"><h1 style="color:#12306b">${heading}</h1><p>${body}</p>${action}<p style="color:#5b6572;font-size:14px">If you did not request this, you can ignore this email.</p></div>`
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -48,11 +43,7 @@ export const Users: CollectionConfig = {
       generateEmailHTML: (args) => {
         const token = args?.token
         const href = `${env.NEXT_PUBLIC_SITE_URL}/reset-password?token=${encodeURIComponent(token ?? '')}`
-        return emailShell(
-          'Reset your RUETIAN USA password',
-          'Use the secure link below within one hour to choose a new password.',
-          emailButton(href, 'Reset password'),
-        )
+        return renderEmailTemplate('passwordReset', { actionUrl: href }).html
       },
       generateEmailSubject: () => 'Reset your RUETIAN USA password',
     },
@@ -65,11 +56,7 @@ export const Users: CollectionConfig = {
     verify: {
       generateEmailHTML: ({ token }) => {
         const href = `${env.NEXT_PUBLIC_SITE_URL}/verify-email?token=${encodeURIComponent(token)}`
-        return emailShell(
-          'Verify your RUETIAN USA email',
-          'Confirm your email address to activate password sign-in.',
-          emailButton(href, 'Verify email'),
-        )
+        return renderEmailTemplate('accountVerification', { actionUrl: href }).html
       },
       generateEmailSubject: () => 'Verify your RUETIAN USA email',
     },
@@ -232,6 +219,10 @@ export const Users: CollectionConfig = {
         {
           name: 'allowSystemEmails',
           type: 'checkbox',
+          admin: {
+            description:
+              'Controls optional reminders only. Required security and transaction messages always send.',
+          },
           defaultValue: true,
         },
       ],

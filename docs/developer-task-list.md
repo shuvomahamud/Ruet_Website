@@ -121,6 +121,7 @@ Strict status answer:
 - the continuous fully completed block remains `A-01` through `C-04`
 - roadmap Phase 3 additionally completes `D-01`, `D-03`, `E-02`, `E-05`, and `E-06`
 - roadmap Phase 4 additionally completes `E-03`, `E-04`, and `G-01` through `G-04`
+- roadmap Phase 5 additionally completes `J-01`
 - `D-02` remains partial, so later completed work is intentionally non-contiguous
 
 Fully completed tasks:
@@ -152,6 +153,7 @@ Fully completed tasks:
 - `G-02`
 - `G-03`
 - `G-04`
+- `J-01`
 
 Partially implemented tasks already started in code:
 
@@ -175,7 +177,6 @@ Pending tasks:
 - `H-07`
 - `I-01`
 - `I-02`
-- `J-01`
 - `J-02`
 - `J-04`
 - `K-01`
@@ -1475,6 +1476,8 @@ Acceptance criteria:
 
 - the app can send test emails
 - templates are reusable across system events
+
+Verification update (2026-07-13): completed with a Payload email adapter supporting safe local/test capture and the Resend API; shared responsive typed templates used by verification/reset email; private delivery audits; unique business/provider idempotency; preference enforcement; exponential retry and sanitized failure recording; transactional, reminder, waitlist, and newsletter queues; scheduled execution; super-admin job access; and a documented worker/monitoring runbook.
 
 ### Task J-02: System-triggered emails
 

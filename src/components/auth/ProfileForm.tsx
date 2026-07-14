@@ -151,8 +151,11 @@ export const ProfileForm = ({ chapters, user }: { chapters: Chapter[]; user: Use
             name="allowSystemEmails"
             type="checkbox"
           />
-          <span>Essential account and system messages</span>
+          <span>Optional account reminders</span>
         </label>
+        <p className="form-help">
+          Required security, payment, registration, and account-status messages are always sent.
+        </p>
       </fieldset>
       <button className="button button--primary auth-button" disabled={submitting} type="submit">
         {submitting ? 'Saving…' : 'Save profile'}

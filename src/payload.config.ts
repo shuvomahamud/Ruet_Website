@@ -5,6 +5,8 @@ import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
+import { getRole } from '@/access/roles'
+import { createEmailAdapter } from '@/email/adapter'
 import { env } from '@/utilities/env'
 import { Announcements } from './collections/Announcements'
 import { AuditLogs } from './collections/AuditLogs'
@@ -13,6 +15,7 @@ import { ChapterRequests } from './collections/ChapterRequests'
 import { Chapters } from './collections/Chapters'
 import { CommitteeTerms } from './collections/CommitteeTerms'
 import { ContactSubmissions } from './collections/ContactSubmissions'
+import { EmailDeliveries } from './collections/EmailDeliveries'
 import { EventRegistrations } from './collections/EventRegistrations'
 import { Events } from './collections/Events'
 import { HistoryEntries } from './collections/HistoryEntries'
@@ -29,6 +32,7 @@ import { PaymentProofs } from './collections/PaymentProofs'
 import { Posts } from './collections/Posts'
 import { Promotions } from './collections/Promotions'
 import { WaitlistEntries } from './collections/WaitlistEntries'
+import { deliverEmailTask } from './jobs/deliver-email'
 import { Footer } from './globals/Footer'
 import { Header } from './globals/Header'
 import { Home } from './globals/Home'
@@ -56,6 +60,7 @@ export default buildConfig({
     PaymentProofs,
     Categories,
     ContactSubmissions,
+    EmailDeliveries,
     Pages,
     Posts,
     Announcements,
@@ -75,9 +80,32 @@ export default buildConfig({
     NewsletterCampaigns,
   ],
   editor: lexicalEditor(),
+  email: createEmailAdapter(),
   cors: [env.NEXT_PUBLIC_SITE_URL],
   csrf: [env.NEXT_PUBLIC_SITE_URL],
   globals: [SiteSettings, Header, Footer, Home, SeoDefaults],
+  jobs: {
+    access: {
+      cancel: ({ req }) => getRole(req.user) === 'superAdmin',
+      queue: ({ req }) => getRole(req.user) === 'superAdmin',
+      run: ({ req }) => getRole(req.user) === 'superAdmin',
+    },
+    ...(env.JOBS_AUTORUN
+      ? {
+          autoRun: [
+            {
+              allQueues: true,
+              cron: env.JOBS_POLL_CRON,
+              limit: 25,
+            },
+          ],
+        }
+      : {}),
+    deleteJobOnComplete: false,
+    enableConcurrencyControl: true,
+    processingOrder: 'createdAt',
+    tasks: [deliverEmailTask],
+  },
   secret: env.PAYLOAD_SECRET,
   serverURL: env.NEXT_PUBLIC_SITE_URL,
   typescript: {

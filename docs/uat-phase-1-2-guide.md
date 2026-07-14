@@ -22,6 +22,7 @@ This guide covers the implemented work from:
 - Remaining-roadmap Phase 2: public local authentication, Google sign-in/linking, protected profile settings, and audited account anonymization
 - Remaining-roadmap Phase 3: accessible desktop/mobile navigation, shared public components, institutional/contact pages, learning search/detail, legal templates, and metadata
 - Remaining-roadmap Phase 4: searchable chapters, complete chapter detail modules, chapter requests and super-admin review, history archives, committee pages, and chapter isolation
+- Remaining-roadmap Phase 5: captured/Resend email adapter, responsive templates, private delivery audits, preference rules, and queued/scheduled job infrastructure
 
 ## 2. UAT Scope
 
@@ -51,6 +52,7 @@ This guide covers the implemented work from:
 - privacy, terms-of-use, and membership-terms templates with explicit approval status
 - chapter directory search/region filtering, localized chapter modules, authenticated requests, and super-admin approval/rejection
 - published history timelines with decade archives and committee current/history views with recaps
+- automated email transport, template, deduplication, retry, audit, preference, and queue verification
 
 ## 2.2 Explicitly out of scope for this UAT
 
@@ -63,7 +65,8 @@ Do not mark these as failures in this round because they are not implemented yet
 - waitlist promotion logic execution
 - membership purchase, renewal, or reactivation flow execution
 - newsletters sending
-- system email delivery
+- phase-specific membership/event status emails and newsletter campaigns, which use this foundation in later phases
+- live Resend delivery until provider credentials and a verified sender are installed
 
 The transaction primitives behind Zelle review are implemented and automated, but they do not make the public membership/event flows or the manual-review queue part of this manual UAT round. Their evidence is in [phase-1-security-workflow-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-1-security-workflow-verification.md).
 
@@ -100,7 +103,7 @@ pnpm verify
 pnpm test:e2e
 ```
 
-The expected automated result after the remaining-roadmap Phase 4 gate is `30` integration tests and `20` browser tests passing.
+The expected automated result after the remaining-roadmap Phase 5 gate is `36` integration tests and `20` browser tests passing.
 
 For manual verification/reset delivery, configure the production-like email adapter when it becomes available in Phase 5 or use a test-only database token locally. Live Google UAT requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and an approved callback URL. Missing external credentials should be recorded as `Blocked`, not as missing application logic.
 
@@ -806,6 +809,22 @@ Note:
 - successful record creation is the UAT target here
 - end-to-end business workflow execution for these collections is not part of this round
 
+### UAT-DAT-02: Email delivery audits are private and immutable
+
+Steps:
+
+1. Run the automated Phase 5 email/job test or queue a test delivery through application code.
+2. Sign in as an admin and open `Email Deliveries`.
+3. Inspect the delivery and try to create, edit, or delete an audit record through normal collection access.
+4. Try to read the collection as a standard member.
+
+Expected result:
+
+- admins can inspect recipient, category, required flag, queue, attempts, status, provider ID, and sanitized error fields
+- email bodies and credentials are not stored in the audit
+- normal create, update, and delete operations are denied
+- standard members cannot read delivery audits
+
 ## 7. Suggested UAT Execution Order
 
 Recommended order:
@@ -861,4 +880,5 @@ This UAT round should confirm that:
 - the public account lifecycle is safe and usable
 - Phase 3 navigation, shared components, contact, learning, legal, metadata, responsive, and keyboard behavior meet their acceptance criteria
 - Phase 4 chapters, chapter requests/review, chapter isolation, history, and committees meet their acceptance criteria
-- the repo is ready to continue into remaining-roadmap Phase 5
+- Phase 5 email transport, templates, capture, preference enforcement, delivery audit, deduplication, retry, and job queues meet their acceptance criteria
+- the repo is ready to continue into remaining-roadmap Phase 6

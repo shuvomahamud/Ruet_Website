@@ -38,14 +38,14 @@ Historical migration files must not be rewritten after they have been applied. S
 
 ### 2.2 Active backlog
 
-After completion of roadmap Phase 4, the tracked backlog contains:
+After completion of roadmap Phase 5, the tracked backlog contains:
 
-- `27` completed tasks
+- `28` completed tasks
 - `7` partially implemented tasks
-- `21` pending tasks
+- `20` pending tasks
 - `2` superseded Stripe tasks
 
-There are `28` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
+There are `27` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
 
 ### 2.3 Work excluded from the approved launch scope
 
@@ -247,6 +247,8 @@ Exit gate:
 - chapter request, approval, deactivation, timeline, committee archive, and public visibility tests pass
 
 ## Phase 5: Email And Background-Job Foundation
+
+Status: `Completed` on 2026-07-13. Evidence: [phase-5-email-jobs-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-5-email-jobs-verification.md).
 
 Goal: provide the reliable communication infrastructure required by transactional phases.
 

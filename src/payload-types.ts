@@ -73,6 +73,7 @@ export interface Config {
     paymentProofs: PaymentProof;
     categories: Category;
     contactSubmissions: ContactSubmission;
+    emailDeliveries: EmailDelivery;
     pages: Page;
     posts: Post;
     announcements: Announcement;
@@ -104,6 +105,7 @@ export interface Config {
     paymentProofs: PaymentProofsSelect<false> | PaymentProofsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     contactSubmissions: ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
+    emailDeliveries: EmailDeliveriesSelect<false> | EmailDeliveriesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
@@ -152,6 +154,7 @@ export interface Config {
   user: User;
   jobs: {
     tasks: {
+      deliverEmail: DeliverEmailJobInput;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -206,6 +209,9 @@ export interface User {
   communicationPreferences?: {
     allowAnnouncements?: boolean | null;
     allowNewsletters?: boolean | null;
+    /**
+     * Controls optional reminders only. Required security and transaction messages always send.
+     */
     allowSystemEmails?: boolean | null;
   };
   termsAcceptedAt?: string | null;
@@ -344,6 +350,33 @@ export interface ContactSubmission {
   status: 'new' | 'in_review' | 'closed';
   submittedAt: string;
   internalNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emailDeliveries".
+ */
+export interface EmailDelivery {
+  id: number;
+  deduplicationKey: string;
+  category: 'system' | 'announcement' | 'newsletter';
+  required: boolean;
+  recipient: string;
+  user?: (number | null) | User;
+  subject: string;
+  template: string;
+  status: 'queued' | 'processing' | 'sent' | 'failed' | 'suppressed';
+  attempts: number;
+  queue: 'transactional' | 'reminders' | 'waitlist' | 'newsletters';
+  jobId?: string | null;
+  provider?: ('capture' | 'resend') | null;
+  providerMessageId?: string | null;
+  lastAttemptAt?: string | null;
+  sentAt?: string | null;
+  scheduledFor?: string | null;
+  suppressedReason?: string | null;
+  errorMessage?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -860,7 +893,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
+        taskSlug: 'inline' | 'deliverEmail' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -893,10 +926,14 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'deliverEmail' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
+  /**
+   * Used for concurrency control. Jobs with the same key are subject to exclusive/supersedes rules.
+   */
+  concurrencyKey?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -930,6 +967,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contactSubmissions';
         value: number | ContactSubmission;
+      } | null)
+    | ({
+        relationTo: 'emailDeliveries';
+        value: number | EmailDelivery;
       } | null)
     | ({
         relationTo: 'pages';
@@ -1174,6 +1215,32 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
   status?: T;
   submittedAt?: T;
   internalNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emailDeliveries_select".
+ */
+export interface EmailDeliveriesSelect<T extends boolean = true> {
+  deduplicationKey?: T;
+  category?: T;
+  required?: T;
+  recipient?: T;
+  user?: T;
+  subject?: T;
+  template?: T;
+  status?: T;
+  attempts?: T;
+  queue?: T;
+  jobId?: T;
+  provider?: T;
+  providerMessageId?: T;
+  lastAttemptAt?: T;
+  sentAt?: T;
+  scheduledFor?: T;
+  suppressedReason?: T;
+  errorMessage?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1610,6 +1677,7 @@ export interface PayloadJobsSelect<T extends boolean = true> {
   queue?: T;
   waitUntil?: T;
   processing?: T;
+  concurrencyKey?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1936,6 +2004,21 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DeliverEmailJobInput".
+ */
+export interface DeliverEmailJobInput {
+  input: {
+    deliveryID: number;
+    html: string;
+    text: string;
+  };
+  output: {
+    deliveryID: number;
+    status: 'sent' | 'deduplicated' | 'suppressed';
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -31,6 +31,8 @@ The current codebase now follows these concrete implementation rules:
 - public contact writes pass through the validated and rate-limited `/api/contact` boundary into the private `contactSubmissions` collection
 - public chapter/history/governance reads enforce published and active visibility, while chapter-admin writes remain assigned-chapter scoped
 - chapter requests pass through authenticated, rate-limited creation and a transactional, row-locked, super-admin-only review service that provisions at most one chapter and records an audit entry
+- email uses a Payload adapter with local/test capture and a Resend REST transport; queued business email records private delivery metadata without storing message bodies or credentials
+- Payload jobs provide exclusive per-delivery concurrency, exponential retry, scheduled execution, and transactional/reminder/waitlist/newsletter queues; operating procedures are in [email-and-jobs-operations.md](/Users/shuvomahamud/Projects/RUET_Website/docs/email-and-jobs-operations.md)
 
 ## 2. Core Architecture Principles
 
@@ -114,13 +116,18 @@ Production email delivery is owned by roadmap Phase 5. Production Google verific
 
 ### 3.6 Email and scheduled jobs
 
-- transactional provider such as `Resend`, `Postmark`, or `SendGrid`
-- scheduled jobs for:
+- Resend is the production transport; local and test environments use an external-send-free capture adapter
+- responsive typed templates are shared by Payload authentication and queued application messages
+- private `emailDeliveries` records hold deduplication, preference, attempt, provider, failure, and delivery audit data without storing message bodies
+- required system messages bypass optional preferences; optional reminders, announcements, and newsletters honor their specific preferences
+- Payload jobs and named queues support:
   - renewal reminders
   - failed-payment reminders
   - waitlist promotion emails
   - newsletter sends
   - approval-status emails
+- each queued delivery has a database uniqueness key, exclusive concurrency key, retry/backoff policy, and provider idempotency header
+- persistent hosts may run one in-process worker; serverless hosts invoke `pnpm jobs:run` from an external scheduler
 
 ### 3.7 File handling
 
@@ -560,6 +567,28 @@ Central upload collection for images, PDFs, and payment-proof assets.
 ### 6.18 `contactSubmissions`
 
 Private public-inquiry records created only after server validation. Public callers cannot read or mutate submissions, and trusted status, time, and internal-note fields are forced on the server.
+
+### 6.19 `emailDeliveries`
+
+Private, service-written delivery audit records.
+
+Key fields:
+
+- deduplicationKey unique
+- category and required classification
+- recipient and optional user relationship
+- subject and template name
+- queue, scheduled time, and Payload job ID
+- status, attempts, and last-attempt time
+- provider and provider message ID
+- sent time, suppressed reason, and sanitized error detail
+
+Behavior:
+
+- normal collection create, update, and delete are denied
+- admins may inspect delivery operations; standard members have no read access
+- bodies and provider credentials are intentionally excluded
+- one semantic business event reuses one delivery record across retries
 
 ## 7. Globals
 
