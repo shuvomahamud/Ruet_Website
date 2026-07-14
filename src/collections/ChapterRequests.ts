@@ -23,6 +23,14 @@ export const ChapterRequests: CollectionConfig = {
       required: true,
     },
     {
+      name: 'requestedRegion',
+      type: 'text',
+    },
+    {
+      name: 'motivation',
+      type: 'textarea',
+    },
+    {
       name: 'requester',
       type: 'relationship',
       relationTo: 'users',
@@ -52,19 +60,38 @@ export const ChapterRequests: CollectionConfig = {
       name: 'reviewedAt',
       type: 'date',
     },
+    {
+      name: 'resultingChapter',
+      type: 'relationship',
+      relationTo: 'chapters',
+    },
   ],
   hooks: {
     beforeChange: [
       forceAuthenticatedUser('requester'),
-      ({ data, operation }) =>
-        operation === 'create'
-          ? {
-              ...data,
-              reviewedAt: undefined,
-              reviewedBy: undefined,
-              status: 'pending',
-            }
-          : data,
+      ({ data, operation, originalDoc, req }) => {
+        if (operation === 'create') {
+          return {
+            ...data,
+            resultingChapter: undefined,
+            reviewedAt: undefined,
+            reviewedBy: undefined,
+            status: 'pending',
+          }
+        }
+
+        if (req.context?.chapterRequestReview !== true) {
+          return {
+            ...data,
+            resultingChapter: originalDoc?.resultingChapter,
+            reviewedAt: originalDoc?.reviewedAt,
+            reviewedBy: originalDoc?.reviewedBy,
+            status: originalDoc?.status,
+          }
+        }
+
+        return data
+      },
     ],
   },
 }

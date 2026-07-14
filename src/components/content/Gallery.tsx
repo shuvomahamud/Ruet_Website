@@ -1,5 +1,7 @@
 import Image from 'next/image'
 
+import { imageSource } from '@/utilities/media-url'
+
 export const Gallery = ({
   images,
   label = 'Image gallery',
@@ -21,7 +23,7 @@ export const Gallery = ({
           <Image
             alt={item.alt}
             height={item.height || 800}
-            src={item.url}
+            src={imageSource(item.url)}
             width={item.width || 1200}
           />
         </figure>

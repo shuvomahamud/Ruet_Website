@@ -40,7 +40,24 @@ export const HistoryEntries: CollectionConfig = {
       type: 'textarea',
     },
     {
+      name: 'sortOrder',
+      type: 'number',
+      defaultValue: 0,
+      required: true,
+    },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      defaultValue: false,
+    },
+    {
       name: 'images',
+      type: 'relationship',
+      hasMany: true,
+      relationTo: 'media',
+    },
+    {
+      name: 'documents',
       type: 'relationship',
       hasMany: true,
       relationTo: 'media',

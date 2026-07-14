@@ -190,6 +190,78 @@ const pages: SeedPage[] = [
   {
     _status: 'published',
     heroDescription:
+      'Explore milestones, memories, documents, and community stories preserved across generations.',
+    heroEyebrow: 'Our story',
+    heroTitle: 'RUET history and alumni continuity.',
+    pageType: 'institutional',
+    sections: [
+      {
+        anchor: 'archive',
+        body: 'Published timeline entries are arranged chronologically and can include photographs, documents, and links to supporting records.',
+        eyebrow: 'Living archive',
+        title: 'Preserving the institutional record',
+      },
+    ],
+    seo: {
+      description:
+        'Explore the RUET and RUETIAN USA history archive, milestones, images, and documents.',
+      title: 'Our History',
+    },
+    slug: 'history',
+    summary: 'A chronological archive of RUET and RUETIAN USA milestones.',
+    title: 'Our History',
+  },
+  {
+    _status: 'published',
+    heroDescription:
+      'Meet the volunteers responsible for current programs, operations, and organizational stewardship.',
+    heroEyebrow: 'Leadership',
+    heroTitle: 'Running Committee',
+    pageType: 'institutional',
+    sections: [],
+    seo: {
+      description: 'Meet the current RUETIAN USA running committee and review its programs.',
+      title: 'Running Committee',
+    },
+    slug: 'running-committee',
+    summary: 'Current RUETIAN USA running committee.',
+    title: 'Running Committee',
+  },
+  {
+    _status: 'published',
+    heroDescription:
+      'Meet the alumni advisors who contribute experience, guidance, and institutional perspective.',
+    heroEyebrow: 'Leadership',
+    heroTitle: 'Advisory Committee',
+    pageType: 'institutional',
+    sections: [],
+    seo: {
+      description: 'Meet the current RUETIAN USA advisory committee.',
+      title: 'Advisory Committee',
+    },
+    slug: 'advisory-committee',
+    summary: 'Current RUETIAN USA advisory committee.',
+    title: 'Advisory Committee',
+  },
+  {
+    _status: 'published',
+    heroDescription:
+      'Review current and past leadership terms, member roles, and programs completed during each term.',
+    heroEyebrow: 'Institutional archive',
+    heroTitle: 'Committee History',
+    pageType: 'institutional',
+    sections: [],
+    seo: {
+      description: 'Browse the RUETIAN USA running and advisory committee archive.',
+      title: 'Committee History',
+    },
+    slug: 'committee-history',
+    summary: 'Current and past RUETIAN USA committee terms.',
+    title: 'Committee History',
+  },
+  {
+    _status: 'published',
+    heroDescription:
       'Send a question or request and it will be routed to the appropriate RUETIAN USA volunteer.',
     heroEyebrow: 'Contact',
     heroTitle: 'We would be glad to hear from you.',

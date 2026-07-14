@@ -2,6 +2,7 @@ import { commitTransaction, initTransaction, killTransaction, type PayloadReques
 import { sql } from '@payloadcms/db-postgres'
 
 type LockableTable =
+  | 'chapter_requests'
   | 'event_registrations'
   | 'memberships'
   | 'orders'
@@ -9,6 +10,7 @@ type LockableTable =
   | 'waitlist_entries'
 
 const lockQueries: Record<LockableTable, (id: number | string) => ReturnType<typeof sql>> = {
+  chapter_requests: (id) => sql`SELECT id FROM "chapter_requests" WHERE id = ${id} FOR UPDATE`,
   event_registrations: (id) =>
     sql`SELECT id FROM "event_registrations" WHERE id = ${id} FOR UPDATE`,
   memberships: (id) => sql`SELECT id FROM "memberships" WHERE id = ${id} FOR UPDATE`,

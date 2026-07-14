@@ -120,6 +120,7 @@ Strict status answer:
 
 - the continuous fully completed block remains `A-01` through `C-04`
 - roadmap Phase 3 additionally completes `D-01`, `D-03`, `E-02`, `E-05`, and `E-06`
+- roadmap Phase 4 additionally completes `E-03`, `E-04`, and `G-01` through `G-04`
 - `D-02` remains partial, so later completed work is intentionally non-contiguous
 
 Fully completed tasks:
@@ -145,15 +146,18 @@ Fully completed tasks:
 - `E-02`
 - `E-05`
 - `E-06`
+- `E-03`
+- `E-04`
+- `G-01`
+- `G-02`
+- `G-03`
+- `G-04`
 
 Partially implemented tasks already started in code:
 
 - `D-02`
 - `E-01`
 - `F-01`
-- `G-01`
-- `G-02`
-- `G-04`
 - `H-01`
 - `H-02`
 - `J-03`
@@ -161,13 +165,10 @@ Partially implemented tasks already started in code:
 
 Pending tasks:
 
-- `E-03`
-- `E-04`
 - `F-02`
 - `F-04`
 - `F-05`
 - `F-06`
-- `G-03`
 - `H-03`
 - `H-05`
 - `H-06`
@@ -864,6 +865,8 @@ Acceptance criteria:
 - timeline entries render in correct order
 - media and document links work
 
+Verification update (2026-07-13): completed with a published-only, explicitly ordered timeline; decade archive filtering; images, downloadable documents, and external links; seeded CMS page content; generated metadata; and loading, empty, error, responsive, and browser-tested states.
+
 ### Task E-04: Committee pages
 
 Objective:
@@ -890,6 +893,8 @@ Acceptance criteria:
 
 - both advisory and running committees use the same underlying structure
 - committee-event recaps can render photo galleries and summaries
+
+Verification update (2026-07-13): completed with shared running, advisory, current, and historical committee routes; term/archive filters; member roles, photos, and bios; recap dates and summaries; and recap galleries capped at six photos in the schema and covered by integration/browser tests.
 
 ### Task E-05: Learning and development pages
 
@@ -1127,6 +1132,8 @@ Acceptance criteria:
 - users can browse and find chapters
 - deactivated chapters do not appear publicly
 
+Verification update (2026-07-13): completed with GET-based name/region search, region filtering, pagination, chapter cards, request-a-chapter CTA, metadata, and published-active-only visibility verified against inactive and draft records.
+
 ### Task G-02: Chapter detail pages
 
 Objective:
@@ -1153,6 +1160,8 @@ Acceptance criteria:
 
 - each chapter can render its own localized content
 - the structure remains consistent across chapters
+
+Verification update (2026-07-13): completed with a consistent chapter template for overview/contact, leadership and local committees, active public announcements, upcoming events, and public gallery media; inactive chapters return not-found and all modules are integration/browser tested.
 
 ### Task G-03: Chapter request workflow
 
@@ -1181,6 +1190,8 @@ Acceptance criteria:
 - a user can submit a chapter request
 - a super admin can review and act on it
 
+Verification update (2026-07-13): completed with an authenticated, rate-limited request form; duplicate-pending protection; member-visible request status; super-admin-only review UI/API; required rejection reasons; transactional row locking; idempotent terminal decisions; exactly-one-chapter provisioning; and append-only audit evidence.
+
 ### Task G-04: Chapter-admin content workflow
 
 Objective:
@@ -1207,6 +1218,8 @@ Acceptance criteria:
 
 - chapter admins can manage their own chapter content
 - chapter admins cannot see or edit restricted data from other chapters
+
+Verification update (2026-07-13): completed with server-enforced chapter scope across chapter records, announcements, events, galleries/media, and committee content. Direct-API tests use two chapters to prove authorized create/update behavior and cross-chapter read/write denial.
 
 ## 7.8 Events And Registrations
 

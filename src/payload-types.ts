@@ -474,11 +474,14 @@ export interface Announcement {
 export interface ChapterRequest {
   id: number;
   requestedName: string;
+  requestedRegion?: string | null;
+  motivation?: string | null;
   requester: number | User;
   status: 'pending' | 'approved' | 'rejected';
   notes?: string | null;
   reviewedBy?: (number | null) | User;
   reviewedAt?: string | null;
+  resultingChapter?: (number | null) | Chapter;
   updatedAt: string;
   createdAt: string;
 }
@@ -719,6 +722,7 @@ export interface CommitteeTerm {
   committeeType: 'running' | 'advisory';
   chapter?: (number | null) | Chapter;
   title: string;
+  summary?: string | null;
   startDate: string;
   endDate: string;
   isCurrent?: boolean | null;
@@ -755,7 +759,10 @@ export interface HistoryEntry {
   endYear?: number | null;
   summary: string;
   body?: string | null;
+  sortOrder: number;
+  featured?: boolean | null;
   images?: (number | Media)[] | null;
+  documents?: (number | Media)[] | null;
   externalLinks?:
     | {
         label: string;
@@ -1284,11 +1291,14 @@ export interface ChaptersSelect<T extends boolean = true> {
  */
 export interface ChapterRequestsSelect<T extends boolean = true> {
   requestedName?: T;
+  requestedRegion?: T;
+  motivation?: T;
   requester?: T;
   status?: T;
   notes?: T;
   reviewedBy?: T;
   reviewedAt?: T;
+  resultingChapter?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1497,6 +1507,7 @@ export interface CommitteeTermsSelect<T extends boolean = true> {
   committeeType?: T;
   chapter?: T;
   title?: T;
+  summary?: T;
   startDate?: T;
   endDate?: T;
   isCurrent?: T;
@@ -1532,7 +1543,10 @@ export interface HistoryEntriesSelect<T extends boolean = true> {
   endYear?: T;
   summary?: T;
   body?: T;
+  sortOrder?: T;
+  featured?: T;
   images?: T;
+  documents?: T;
   externalLinks?:
     | T
     | {

@@ -36,6 +36,10 @@ export const CommitteeTerms: CollectionConfig = {
       required: true,
     },
     {
+      name: 'summary',
+      type: 'textarea',
+    },
+    {
       name: 'startDate',
       type: 'date',
       required: true,
@@ -97,13 +101,24 @@ export const CommitteeTerms: CollectionConfig = {
           name: 'photoGallery',
           type: 'relationship',
           hasMany: true,
+          maxRows: 6,
           relationTo: 'media',
         },
       ],
     },
   ],
   hooks: {
-    beforeChange: [enforceManagedChapter('chapter')],
+    beforeChange: [
+      enforceManagedChapter('chapter'),
+      ({ data, originalDoc }) => {
+        const startDate = data.startDate ?? originalDoc?.startDate
+        const endDate = data.endDate ?? originalDoc?.endDate
+        if (startDate && endDate && new Date(String(endDate)) < new Date(String(startDate))) {
+          throw new Error('Committee end date must be on or after its start date.')
+        }
+        return data
+      },
+    ],
   },
   versions: {
     drafts: {

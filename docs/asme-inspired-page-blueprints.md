@@ -121,6 +121,8 @@ Each timeline entry should show:
 - documents
 - links
 
+Implementation note: the published timeline, explicit ordering, decade archive filter, linked images/documents/external resources, and responsive states are complete in roadmap Phase 4.
+
 ## 6. Committee Pages Blueprint
 
 Required pages:
@@ -145,6 +147,8 @@ Each member card should support:
 - name
 - role
 - short bio optional
+
+Implementation note: running, advisory, current, and history routes share the committee-term schema and render members plus event recaps with galleries capped at six photos.
 
 ## 6.3 Committee-event recap card
 
@@ -261,6 +265,8 @@ Each chapter card should show:
 - next event preview if available
 - activity indicator if useful
 
+Implementation note: the active-only directory now supports search, region filters, pagination, and the authenticated request-a-chapter destination.
+
 ## 11. Chapter Detail Blueprint
 
 ## 11.1 Goal
@@ -282,6 +288,8 @@ Give each chapter a strong local homepage while keeping the main site consistent
 
 - chapter pages should feel like part of a larger network, similar to ASME sections/divisions
 - structure should be consistent even when content differs by chapter
+
+Implementation note: the chapter template now renders overview/contact, leadership and local committees, announcements, upcoming events, and galleries with chapter-scoped public queries.
 
 ## 12. Events Listing Blueprint
 

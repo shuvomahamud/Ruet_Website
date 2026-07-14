@@ -16,6 +16,8 @@ import type {
   SiteSetting,
   Header as HeaderGlobal,
   Category,
+  CommitteeTerm,
+  Media,
   SeoDefault,
 } from '@/payload-types'
 import type { Where } from 'payload'
@@ -264,6 +266,51 @@ export const getActiveChapters = async (limit = 6): Promise<Chapter[]> => {
   return result.docs
 }
 
+export const getChapterDirectory = async ({
+  limit = 12,
+  page = 1,
+  query,
+  region,
+}: {
+  limit?: number
+  page?: number
+  query?: string
+  region?: string
+}) => {
+  const payload = await getClient()
+  const clauses: Where[] = [
+    { _status: { equals: 'published' } },
+    { chapterStatus: { equals: 'active' } },
+  ]
+  if (query?.trim()) {
+    clauses.push({
+      or: [
+        { name: { contains: query.trim() } },
+        { regionOrState: { contains: query.trim() } },
+        { summary: { contains: query.trim() } },
+      ],
+    })
+  }
+  if (region?.trim()) clauses.push({ regionOrState: { equals: region.trim() } })
+
+  return payload.find({
+    collection: 'chapters',
+    depth: 1,
+    limit,
+    overrideAccess: false,
+    page: Math.max(1, page),
+    sort: 'name',
+    where: { and: clauses },
+  })
+}
+
+export const getChapterRegions = async (): Promise<string[]> => {
+  const chapters = await getActiveChapters(500)
+  return Array.from(
+    new Set(chapters.map((chapter) => chapter.regionOrState?.trim()).filter(Boolean) as string[]),
+  ).sort((left, right) => left.localeCompare(right))
+}
+
 export const getActiveChapterBySlug = async (slug: string): Promise<Chapter | null> => {
   const payload = await getClient()
   const result = await payload.find({
@@ -282,6 +329,81 @@ export const getActiveChapterBySlug = async (slug: string): Promise<Chapter | nu
   })
 
   return result.docs[0] ?? null
+}
+
+export const getChapterPublicModules = async (chapterID: number) => {
+  const payload = await getClient()
+  const now = new Date().toISOString()
+  const [announcements, events, committees, media] = await Promise.all([
+    payload.find({
+      collection: 'announcements',
+      depth: 1,
+      limit: 6,
+      overrideAccess: false,
+      pagination: false,
+      sort: '-publishedAt',
+      where: {
+        and: [
+          { _status: { equals: 'published' } },
+          { chapter: { equals: chapterID } },
+          { or: [{ activeFrom: { exists: false } }, { activeFrom: { less_than_equal: now } }] },
+          { or: [{ activeTo: { exists: false } }, { activeTo: { greater_than_equal: now } }] },
+        ],
+      },
+    }),
+    payload.find({
+      collection: 'events',
+      depth: 1,
+      limit: 6,
+      overrideAccess: false,
+      pagination: false,
+      sort: 'startAt',
+      where: {
+        and: [
+          { _status: { equals: 'published' } },
+          { chapter: { equals: chapterID } },
+          { endAt: { greater_than_equal: now } },
+        ],
+      },
+    }),
+    payload.find({
+      collection: 'committeeTerms',
+      depth: 2,
+      limit: 10,
+      overrideAccess: false,
+      pagination: false,
+      sort: ['-isCurrent', '-startDate'],
+      where: {
+        and: [
+          { _status: { equals: 'published' } },
+          { chapter: { equals: chapterID } },
+          { isCurrent: { equals: true } },
+        ],
+      },
+    }),
+    payload.find({
+      collection: 'media',
+      depth: 0,
+      limit: 12,
+      overrideAccess: false,
+      pagination: false,
+      sort: '-createdAt',
+      where: {
+        and: [
+          { chapter: { equals: chapterID } },
+          { mimeType: { contains: 'image/' } },
+          { visibility: { equals: 'public' } },
+        ],
+      },
+    }),
+  ])
+
+  return {
+    announcements: announcements.docs,
+    committees: committees.docs,
+    events: events.docs,
+    media: media.docs as Media[],
+  }
 }
 
 export const getUpcomingEvents = async (limit = 6): Promise<Event[]> => {
@@ -357,6 +479,43 @@ export const getActiveHistoryEntries = async (limit = 6): Promise<HistoryEntry[]
     },
   })
 
+  return result.docs
+}
+
+export const getPublishedHistoryEntries = async (): Promise<HistoryEntry[]> => {
+  const payload = await getClient()
+  const result = await payload.find({
+    collection: 'historyEntries',
+    depth: 2,
+    limit: 500,
+    overrideAccess: false,
+    pagination: false,
+    sort: ['sortOrder', 'startYear'],
+    where: { _status: { equals: 'published' } },
+  })
+  return result.docs
+}
+
+export const getNationalCommitteeTerms = async ({
+  committeeType,
+  current,
+}: {
+  committeeType?: 'advisory' | 'running'
+  current?: boolean
+}): Promise<CommitteeTerm[]> => {
+  const payload = await getClient()
+  const clauses: Where[] = [{ _status: { equals: 'published' } }, { chapter: { exists: false } }]
+  if (committeeType) clauses.push({ committeeType: { equals: committeeType } })
+  if (typeof current === 'boolean') clauses.push({ isCurrent: { equals: current } })
+  const result = await payload.find({
+    collection: 'committeeTerms',
+    depth: 2,
+    limit: 100,
+    overrideAccess: false,
+    pagination: false,
+    sort: ['-isCurrent', '-startDate'],
+    where: { and: clauses },
+  })
   return result.docs
 }
 

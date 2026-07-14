@@ -38,14 +38,14 @@ Historical migration files must not be rewritten after they have been applied. S
 
 ### 2.2 Active backlog
 
-After completion of roadmap Phase 3, the tracked backlog contains:
+After completion of roadmap Phase 4, the tracked backlog contains:
 
-- `21` completed tasks
-- `10` partially implemented tasks
-- `24` pending tasks
+- `27` completed tasks
+- `7` partially implemented tasks
+- `21` pending tasks
 - `2` superseded Stripe tasks
 
-There are `34` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
+There are `28` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
 
 ### 2.3 Work excluded from the approved launch scope
 
@@ -215,6 +215,8 @@ Exit gate:
 - institutional and legal templates contain no route-level fallback copy
 
 ## Phase 4: Chapters, History, And Governance
+
+Status: `Completed` on 2026-07-13. Evidence: [phase-4-chapters-governance-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-4-chapters-governance-verification.md).
 
 Goal: complete public chapter/governance experiences and chapter-admin ownership.
 

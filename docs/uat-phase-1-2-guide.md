@@ -21,6 +21,7 @@ This guide covers the implemented work from:
 - Remaining-roadmap Phase 1: direct-API ownership/chapter isolation, private payment proofs, legal workflow primitives, and idempotent Zelle review (automated security verification only; public transaction UI remains later scope)
 - Remaining-roadmap Phase 2: public local authentication, Google sign-in/linking, protected profile settings, and audited account anonymization
 - Remaining-roadmap Phase 3: accessible desktop/mobile navigation, shared public components, institutional/contact pages, learning search/detail, legal templates, and metadata
+- Remaining-roadmap Phase 4: searchable chapters, complete chapter detail modules, chapter requests and super-admin review, history archives, committee pages, and chapter isolation
 
 ## 2. UAT Scope
 
@@ -48,6 +49,8 @@ This guide covers the implemented work from:
 - About mission/vision/governance content, the Contact form, and private contact submissions
 - learning search, category/content-type filters, pagination, rich content, related content, and metadata
 - privacy, terms-of-use, and membership-terms templates with explicit approval status
+- chapter directory search/region filtering, localized chapter modules, authenticated requests, and super-admin approval/rejection
+- published history timelines with decade archives and committee current/history views with recaps
 
 ## 2.2 Explicitly out of scope for this UAT
 
@@ -61,8 +64,6 @@ Do not mark these as failures in this round because they are not implemented yet
 - membership purchase, renewal, or reactivation flow execution
 - newsletters sending
 - system email delivery
-- chapter request public form
-- committee/history public pages beyond admin data entry
 
 The transaction primitives behind Zelle review are implemented and automated, but they do not make the public membership/event flows or the manual-review queue part of this manual UAT round. Their evidence is in [phase-1-security-workflow-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-1-security-workflow-verification.md).
 
@@ -99,7 +100,7 @@ pnpm verify
 pnpm test:e2e
 ```
 
-The expected automated result after the remaining-roadmap Phase 3 gate is `25` integration tests and `15` browser tests passing.
+The expected automated result after the remaining-roadmap Phase 4 gate is `30` integration tests and `20` browser tests passing.
 
 For manual verification/reset delivery, configure the production-like email adapter when it becomes available in Phase 5 or use a test-only database token locally. Live Google UAT requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and an approved callback URL. Missing external credentials should be recorded as `Blocked`, not as missing application logic.
 
@@ -113,7 +114,7 @@ Use these rules during UAT:
 - for a record to appear publicly, it usually must be published
 - for a chapter to appear publicly, it must also have `chapterStatus = active`
 - for the membership page to show real pricing, at least one `membershipPlans` record must have `active = true`
-- seeded `pages` records now exist for `about`, `membership`, `chapters`, `events`, `learning`, `contact`, `privacy-policy`, `terms-of-use`, and `membership-terms`
+- seeded `pages` records now exist for `about`, `membership`, `chapters`, `events`, `learning`, `contact`, `history`, `running-committee`, `advisory-committee`, `committee-history`, `privacy-policy`, `terms-of-use`, and `membership-terms`
 - if one of those pages is unpublished or deleted, the route should now return `not-found` instead of showing fallback placeholder copy
 
 ## 5. Recommended Sample Data For UAT
@@ -191,6 +192,13 @@ Create the following records first. This will make the public-site tests easier.
 - hero title: clearly different from the currently seeded title
 - add 2 content sections
 - publish the record
+
+## 5.8 Governance content
+
+- create one published history entry with a recognizable date, image, document, and external link
+- create current running and advisory committee terms with members, roles, bios, and one event recap
+- add no more than six images to the recap gallery
+- create one older published committee term for archive testing
 
 ## 6. UAT Test Cases
 
@@ -421,7 +429,84 @@ Expected result:
 
 - inactive or draft chapter does not appear in the public list
 
-## 6.6 Events
+### UAT-CH-04: Search and region filters narrow the directory
+
+Steps:
+
+1. Create active published chapters in at least two regions.
+2. Open `/chapters` and search for one chapter by name.
+3. Clear the search and select one region.
+
+Expected result:
+
+- the name search returns only matching active chapters
+- the region filter returns only chapters in that region
+- filter values remain visible in the URL and controls
+
+### UAT-CH-05: Chapter detail modules remain chapter-local
+
+Steps:
+
+1. Add a public announcement, future event, gallery image, and current local committee to `New York Chapter`.
+2. Add different content to a second active chapter.
+3. Open both chapter detail pages.
+
+Expected result:
+
+- each page shows its own overview/contact, leadership, announcements, events, gallery, and local committee content
+- content belonging to the other chapter does not leak into either page
+
+### UAT-CH-06: Member requests a chapter and super admin reviews it
+
+Steps:
+
+1. Sign in as a verified member and open `/chapters/request`.
+2. Submit a unique chapter name, region, and motivation.
+3. Confirm the pending request appears on the same page.
+4. Sign in as a super admin and open `/chapter-requests/review`.
+5. Approve the request.
+
+Expected result:
+
+- anonymous users are redirected to sign in
+- duplicate pending requests for the same name are rejected
+- only a super admin can access the review page/API
+- approval marks the request approved and creates exactly one active published chapter linked to it
+- repeating the same approval does not create another chapter
+
+## 6.6 History And Committees
+
+### UAT-GOV-01: Published history renders in archive order
+
+Steps:
+
+1. Open `/history` with published entries spanning at least two decades.
+2. Select a decade archive filter.
+3. Open the entry's image, document, and external link.
+
+Expected result:
+
+- published entries follow their configured date/order
+- the decade filter narrows results and remains in the URL
+- media, document, and external links work
+- draft history entries remain hidden
+
+### UAT-GOV-02: Current and historical committees share one content model
+
+Steps:
+
+1. Open `/committees/running` and `/committees/advisory`.
+2. Open `/committees/current`.
+3. Open `/committees/history` and filter by committee type.
+
+Expected result:
+
+- current running and advisory terms show the correct members, roles, photos, and bios
+- current view combines the active committee types
+- history exposes older terms and filters correctly
+- recap summaries, dates, and galleries render, with at most six photos per recap
+
+## 6.7 Events
 
 ### UAT-EVT-01: Event record can be created with required operational fields
 
@@ -458,7 +543,7 @@ Expected result:
 - event title and summary render
 - detail page shows start, end, timezone, capacity, and waitlist values
 
-## 6.7 Learning Content
+## 6.8 Learning Content
 
 ### UAT-LRN-01: Published post appears in public learning list
 
@@ -503,7 +588,7 @@ Expected result:
 - draft posts never appear
 - clearing filters restores the full published list
 
-## 6.8 Announcements
+## 6.9 Announcements
 
 ### UAT-ANN-01: Published announcement appears on homepage
 
@@ -517,7 +602,7 @@ Expected result:
 - announcement appears in the homepage announcement area
 - CTA link appears if CTA fields were set
 
-## 6.9 Standard Pages
+## 6.10 Standard Pages
 
 ### UAT-PAG-01: Published page renders from CMS
 
@@ -570,7 +655,7 @@ Expected result:
 - long pages show an on-page table of contents linked to section anchors
 - published CMS edits appear without a code or layout change
 
-## 6.10 Users And Role Data
+## 6.11 Users And Role Data
 
 ### UAT-USR-01: User record can be created in admin
 
@@ -613,7 +698,7 @@ Expected result:
 - login is rejected without exposing sensitive account-state details
 - protected account routes redirect to sign in
 
-## 6.11 Authentication And Account Lifecycle
+## 6.12 Authentication And Account Lifecycle
 
 ### UAT-AUTH-01: Local signup and email verification
 
@@ -694,7 +779,7 @@ Expected result:
 - an `account.anonymized` audit entry exists
 - direct hard deletion is not available to the member
 
-## 6.12 Data-Model-Only Collections
+## 6.13 Data-Model-Only Collections
 
 These collections are implemented at schema/admin level but do not yet have complete public workflows.
 
@@ -702,15 +787,12 @@ These collections are implemented at schema/admin level but do not yet have comp
 
 Test the ability to create at least one draft or placeholder record in:
 
-- Chapter Requests
 - Memberships
 - Event Registrations
 - Waitlist Entries
 - Orders
 - Payments
 - Promotions
-- Committee Terms
-- History Entries
 - Newsletter Campaigns
 
 Expected result:
@@ -734,12 +816,13 @@ Recommended order:
 4. Institutional, contact, and legal pages
 5. Learning search, filters, detail, and metadata
 6. Membership plan
-7. Chapters
-8. Events
-9. Announcements
-10. Users and role fields
-11. Authentication and account lifecycle
-12. Data-model-only collections
+7. Chapters and chapter requests
+8. History and committees
+9. Events
+10. Announcements
+11. Users and role fields
+12. Authentication and account lifecycle
+13. Data-model-only collections
 
 ## 8. Defect Logging Template
 
@@ -777,4 +860,5 @@ This UAT round should confirm that:
 - the currently implemented public routes render real data correctly
 - the public account lifecycle is safe and usable
 - Phase 3 navigation, shared components, contact, learning, legal, metadata, responsive, and keyboard behavior meet their acceptance criteria
-- the repo is ready to continue into remaining-roadmap Phase 4
+- Phase 4 chapters, chapter requests/review, chapter isolation, history, and committees meet their acceptance criteria
+- the repo is ready to continue into remaining-roadmap Phase 5

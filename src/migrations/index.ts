@@ -4,6 +4,7 @@ import * as migration_20260714_032237_phase1_security_zelle from './20260714_032
 import * as migration_20260714_033351_phase1_required_snapshots from './20260714_033351_phase1_required_snapshots';
 import * as migration_20260714_035618 from './20260714_035618';
 import * as migration_20260714_043004 from './20260714_043004';
+import * as migration_20260714_045129 from './20260714_045129';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20260714_043004.up,
     down: migration_20260714_043004.down,
-    name: '20260714_043004'
+    name: '20260714_043004',
+  },
+  {
+    up: migration_20260714_045129.up,
+    down: migration_20260714_045129.down,
+    name: '20260714_045129'
   },
 ];

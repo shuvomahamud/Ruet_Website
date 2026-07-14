@@ -19,7 +19,7 @@ This replaces the earlier `Supabase` direction.
 The current codebase now follows these concrete implementation rules:
 
 - public informational route copy is owned by Payload `pages` records, not hardcoded route text
-- the seeded CMS slugs currently include `about`, `membership`, `chapters`, `events`, `learning`, `contact`, `privacy-policy`, `terms-of-use`, and `membership-terms`
+- the seeded CMS slugs currently include `about`, `membership`, `chapters`, `events`, `learning`, `contact`, `history`, `running-committee`, `advisory-committee`, `committee-history`, `privacy-policy`, `terms-of-use`, and `membership-terms`
 - `membershipPlans`, `chapters`, `events`, and `posts` still own the dynamic record-level content rendered inside those route templates
 - the header logo asset is loaded from [public/brand](/Users/shuvomahamud/Projects/RUET_Website/public/brand)
 - transaction collections are read-scoped but service-only for create/update/delete; state transitions share the Payload request transaction and lock the target PostgreSQL row
@@ -29,6 +29,8 @@ The current codebase now follows these concrete implementation rules:
 - Pages and posts carry reusable SEO groups; legal pages add approval state, review date, and stable section anchors
 - posts support rich content, content type, featured ordering, author, and reading-time metadata while retaining the legacy plain-body fallback
 - public contact writes pass through the validated and rate-limited `/api/contact` boundary into the private `contactSubmissions` collection
+- public chapter/history/governance reads enforce published and active visibility, while chapter-admin writes remain assigned-chapter scoped
+- chapter requests pass through authenticated, rate-limited creation and a transactional, row-locked, super-admin-only review service that provisions at most one chapter and records an audit entry
 
 ## 2. Core Architecture Principles
 
@@ -271,16 +273,20 @@ Recommended because earlier stakeholder answers allow chapter requests before su
 Key fields:
 
 - requestedName
+- requestedRegion
+- motivation
 - requester
 - status
 - notes
 - reviewedBy
 - reviewedAt
+- resultingChapter
 
 Behavior:
 
-- public users or members may request a chapter
-- only super admin can approve and publish the actual chapter record
+- authenticated members may request a chapter
+- only super admin can approve or reject a request and publish the resulting chapter record
+- terminal review decisions are transactional and idempotent; conflicting repeat decisions are rejected
 
 ### 6.4 `membershipPlans`
 

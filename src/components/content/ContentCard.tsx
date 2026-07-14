@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import { Badge } from '@/components/ui/Badge'
+import { imageSource } from '@/utilities/media-url'
 
 export const ContentCard = ({
   badge,
@@ -24,7 +25,7 @@ export const ContentCard = ({
         <Image
           alt={image.alt}
           height={image.height || 720}
-          src={image.url}
+          src={imageSource(image.url)}
           width={image.width || 1200}
         />
       </div>
