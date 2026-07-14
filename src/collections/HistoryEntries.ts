@@ -2,6 +2,14 @@ import type { CollectionConfig } from 'payload'
 
 import { adminsOnly } from '@/access/roles'
 import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import {
+  createPreviewURL,
+  editorialFields,
+  enforceEditorialWorkflow,
+} from '@/cms/editorial-workflow'
+import { revalidateCollectionPaths } from '@/cms/revalidation'
+
+const revalidation = revalidateCollectionPaths(['/history'])
 
 export const HistoryEntries: CollectionConfig = {
   slug: 'historyEntries',
@@ -12,7 +20,10 @@ export const HistoryEntries: CollectionConfig = {
     update: adminsOnly,
   },
   admin: {
-    defaultColumns: ['title', 'startYear', 'updatedAt'],
+    defaultColumns: ['title', 'startYear', 'featured', 'editorialStatus', '_status', 'updatedAt'],
+    description: 'Chronological milestones, supporting media, documents, and external records.',
+    listSearchableFields: ['title', 'summary', 'body'],
+    preview: createPreviewURL('historyEntries'),
     useAsTitle: 'title',
   },
   fields: [
@@ -78,7 +89,13 @@ export const HistoryEntries: CollectionConfig = {
         },
       ],
     },
+    ...editorialFields(),
   ],
+  hooks: {
+    afterChange: [revalidation.afterChange],
+    afterDelete: [revalidation.afterDelete],
+    beforeChange: [enforceEditorialWorkflow],
+  },
   versions: {
     drafts: {
       autosave: {

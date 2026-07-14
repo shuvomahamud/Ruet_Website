@@ -54,6 +54,7 @@ export async function generateMetadata({
   return createPageMetadata({
     canonicalPath: `/events/${slug}`,
     description: event?.summary,
+    seo: event?.seo,
     title: event?.title || 'Event',
   })
 }
@@ -106,9 +107,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
         eventID: event.id,
         eventTitle: event.title,
         quantity,
-        subtotal: (event.isPaid ? event.basePrice ?? 0 : 0) * quantity,
-        total: (event.isPaid ? event.basePrice ?? 0 : 0) * quantity,
-        unitPrice: event.isPaid ? event.basePrice ?? 0 : 0,
+        subtotal: (event.isPaid ? (event.basePrice ?? 0) : 0) * quantity,
+        total: (event.isPaid ? (event.basePrice ?? 0) : 0) * quantity,
+        unitPrice: event.isPaid ? (event.basePrice ?? 0) : 0,
       }
   const images = ended
     ? (event.galleryAfterCompletion ?? [])
@@ -162,7 +163,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                 <section className="content-section">
                   <p className="eyebrow">Event overview</p>
                   <h2>{ended ? 'Event recap' : 'About this event'}</h2>
-                  <p>{ended && event.recapSummary ? event.recapSummary : event.details || event.summary}</p>
+                  <p>
+                    {ended && event.recapSummary
+                      ? event.recapSummary
+                      : event.details || event.summary}
+                  </p>
                 </section>
 
                 <section className="content-section">
@@ -275,7 +280,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                 ) : waitlist ? (
                   <article className="surface-card event-current-state">
                     <p className="eyebrow">Your waitlist status</p>
-                    <h2>{waitlist.status === 'promoted' ? 'Seats are available' : 'Waiting for seats'}</h2>
+                    <h2>
+                      {waitlist.status === 'promoted' ? 'Seats are available' : 'Waiting for seats'}
+                    </h2>
                     <p>
                       <Badge tone={statusTone(waitlist.status)}>{waitlist.status}</Badge> for{' '}
                       {waitlist.quantity} attendee{waitlist.quantity === 1 ? '' : 's'}
@@ -301,7 +308,8 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                         Sign in
                       </Link>
                     </div>
-                  ) : registration && registration.paymentStatus !== 'failed' ? null : waitlist?.status ===
+                  ) : registration &&
+                    registration.paymentStatus !== 'failed' ? null : waitlist?.status ===
                     'waiting' ? null : (
                     <EventRegistrationForm
                       eventSlug={event.slug}

@@ -9,8 +9,9 @@ export const fallbackSiteSettings = {
   zelleInstructions:
     'Send the exact order total through Zelle, include your name in the memo, then submit the transaction ID, a screenshot, or both. Membership remains pending until an authorized reviewer approves the proof.',
   manualPaymentReviewNote:
-    'Payment proof is reviewed by authorized volunteers. No turnaround time is promised until the organization approves a review SLA.',
-  noRefundNotice: 'No-refund wording is awaiting final stakeholder and legal approval before launch.',
+    'Payment proof is reviewed manually by authorized volunteers. Review timing may vary.',
+  noRefundNotice:
+    'Zelle payments are non-refundable. Contact RUETIAN USA before paying if you have questions about an order.',
   eventPaymentTerms:
     'Paid event registration is reserved while Zelle proof is reviewed. Event payments are not automatically debited. No refunds are issued; contact the event chapter for exceptional handling.',
 }
@@ -130,7 +131,7 @@ export const fallbackFooter = {
   legalNotice:
     'RUETIAN USA is an alumni-led community serving RUET graduates in the United States.',
   legalLinks: [
-    { href: '/privacy', label: 'Privacy' },
+    { href: '/privacy-policy', label: 'Privacy policy' },
     { href: '/terms-of-use', label: 'Website terms' },
     { href: '/membership-terms', label: 'Membership terms' },
   ],
@@ -140,91 +141,4 @@ export const fallbackFooter = {
     'Receive organization news, chapter updates, event notices, and learning resources.',
   newsletterTitle: 'Stay connected',
   socialLinks: [],
-}
-
-export const fallbackPages: Record<
-  string,
-  {
-    heroDescription: string
-    heroEyebrow: string
-    heroTitle: string
-    sections: Array<{
-      body: string
-      ctaHref?: string
-      ctaLabel?: string
-      eyebrow?: string
-      title: string
-    }>
-    title: string
-  }
-> = {
-  about: {
-    heroDescription:
-      'RUETIAN USA is being structured as a professional, chapter-driven alumni association platform inspired by the information architecture of major engineering organizations.',
-    heroEyebrow: 'About RUETIAN USA',
-    heroTitle: 'A structured platform for alumni community, chapters, and continuity.',
-    sections: [
-      {
-        body: 'The approved direction is for the website to function as a public institutional site, membership platform, event platform, and chapter network.',
-        title: 'What this site is designed to support',
-      },
-      {
-        body: 'This phase establishes the public shell, dynamic content model, and Payload-managed publishing foundation that later feature phases will build on.',
-        title: 'Current implementation status',
-      },
-    ],
-    title: 'About RUETIAN USA',
-  },
-  contact: {
-    heroDescription:
-      'Formal contact workflows, chapter routing, and newsletter delivery will be expanded later. This placeholder route exists so the approved site structure already has a working contact destination.',
-    heroEyebrow: 'Contact',
-    heroTitle: 'Contact pathways are part of the site shell now.',
-    sections: [
-      {
-        body: 'Use the site settings global in Payload to manage the primary organization email and public contact copy.',
-        title: 'Admin-managed contact information',
-      },
-    ],
-    title: 'Contact',
-  },
-  'privacy-policy': {
-    heroDescription:
-      'Final legal copy remains an open item. This placeholder page is here so the legal information architecture already exists in the public site.',
-    heroEyebrow: 'Legal Placeholder',
-    heroTitle: 'Privacy policy copy is still pending stakeholder approval.',
-    sections: [
-      {
-        body: 'The final privacy policy will be added before launch once stakeholder legal language is approved.',
-        title: 'Open legal item',
-      },
-    ],
-    title: 'Privacy Policy',
-  },
-  'terms-of-use': {
-    heroDescription:
-      'Final legal copy remains an open item. This route reserves the public location and layout for the site terms.',
-    heroEyebrow: 'Legal Placeholder',
-    heroTitle: 'Terms of use are still pending stakeholder approval.',
-    sections: [
-      {
-        body: 'The final terms of use will be inserted once approved. The layout and route are already ready for that handoff.',
-        title: 'Open legal item',
-      },
-    ],
-    title: 'Terms of Use',
-  },
-  'membership-terms': {
-    heroDescription:
-      'Membership terms and final no-refund legal language remain open. This placeholder ensures the route and page template already exist.',
-    heroEyebrow: 'Legal Placeholder',
-    heroTitle: 'Membership terms are still pending final stakeholder copy.',
-    sections: [
-      {
-        body: 'The final membership legal language will be inserted before launch.',
-        title: 'Open legal item',
-      },
-    ],
-    title: 'Membership Terms',
-  },
 }

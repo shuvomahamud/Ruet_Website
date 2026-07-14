@@ -182,16 +182,18 @@ describe.sequential('chapters, history, and governance workflows', () => {
     expect(all.docs.map((chapter) => chapter.id)).not.toContain(inactiveChapter.id)
   })
 
-  it('lets a chapter admin publish assigned content and blocks cross-chapter creation and edits', async () => {
+  it('lets a chapter admin submit assigned content for administrator publication and blocks cross-chapter edits', async () => {
     announcement = await payload.create({
       collection: 'announcements',
       data: {
-        _status: 'published',
+        _status: 'draft',
         audience: 'public',
         chapter: chapterA.id,
+        editorialStatus: 'inReview',
         summary: 'Assigned chapter announcement.',
         title: `Phase 4 Announcement ${nonce}`,
       },
+      draft: true,
       overrideAccess: false,
       user: chapterAdmin,
     })
@@ -199,32 +201,35 @@ describe.sequential('chapters, history, and governance workflows', () => {
     event = await payload.create({
       collection: 'events',
       data: {
-        _status: 'published',
+        _status: 'draft',
         basePrice: 0,
         chapter: chapterA.id,
         currency: 'USD',
+        editorialStatus: 'inReview',
         endAt: new Date(start.getTime() + 3_600_000).toISOString(),
         eventMode: 'inPerson',
         isPaid: false,
         maxRegistrationQuantity: 1,
         slug: `phase4-event-${nonce}`,
         startAt: start.toISOString(),
-        status: 'published',
+        status: 'draft',
         summary: 'Assigned chapter event.',
         timezone: 'America/New_York',
         title: `Phase 4 Event ${nonce}`,
         waitlistEnabled: true,
         waitlistOfferHours: 48,
       },
+      draft: true,
       overrideAccess: false,
       user: chapterAdmin,
     })
     chapterCommittee = await payload.create({
       collection: 'committeeTerms',
       data: {
-        _status: 'published',
+        _status: 'draft',
         chapter: chapterA.id,
         committeeType: 'running',
+        editorialStatus: 'inReview',
         endDate: new Date(Date.now() + 31_536_000_000).toISOString(),
         isCurrent: true,
         members: [{ name: 'Chapter Leader', role: 'President' }],
@@ -232,8 +237,55 @@ describe.sequential('chapters, history, and governance workflows', () => {
         summary: 'Current local leadership.',
         title: `Phase 4 Local Committee ${nonce}`,
       },
+      draft: true,
       overrideAccess: false,
       user: chapterAdmin,
+    })
+
+    for (const item of [
+      { collection: 'announcements' as const, id: announcement.id },
+      { collection: 'committeeTerms' as const, id: chapterCommittee.id },
+    ]) {
+      await payload.update({
+        collection: item.collection,
+        data: { editorialStatus: 'approved' },
+        draft: true,
+        id: item.id,
+        overrideAccess: false,
+        user: superAdmin,
+      })
+    }
+    await payload.update({
+      collection: 'events',
+      data: { editorialStatus: 'approved' },
+      draft: true,
+      id: event.id,
+      overrideAccess: false,
+      user: superAdmin,
+    })
+    announcement = await payload.update({
+      collection: 'announcements',
+      data: { _status: 'published', editorialStatus: 'approved' },
+      draft: false,
+      id: announcement.id,
+      overrideAccess: false,
+      user: superAdmin,
+    })
+    event = await payload.update({
+      collection: 'events',
+      data: { _status: 'published', editorialStatus: 'approved', status: 'published' },
+      draft: false,
+      id: event.id,
+      overrideAccess: false,
+      user: superAdmin,
+    })
+    chapterCommittee = await payload.update({
+      collection: 'committeeTerms',
+      data: { _status: 'published', editorialStatus: 'approved' },
+      draft: false,
+      id: chapterCommittee.id,
+      overrideAccess: false,
+      user: superAdmin,
     })
 
     const fileData = Buffer.from(
@@ -257,12 +309,14 @@ describe.sequential('chapters, history, and governance workflows', () => {
       payload.create({
         collection: 'announcements',
         data: {
-          _status: 'published',
+          _status: 'draft',
           audience: 'public',
           chapter: chapterB.id,
+          editorialStatus: 'inReview',
           summary: 'Unauthorized.',
           title: 'Unauthorized',
         },
+        draft: true,
         overrideAccess: false,
         user: chapterAdmin,
       }),
@@ -290,6 +344,7 @@ describe.sequential('chapters, history, and governance workflows', () => {
       data: {
         _status: 'published',
         body: 'Published history body.',
+        editorialStatus: 'approved',
         sortOrder: 10,
         startYear: 1990,
         summary: 'Published milestone.',
@@ -315,6 +370,7 @@ describe.sequential('chapters, history, and governance workflows', () => {
       data: {
         _status: 'published',
         committeeType: 'advisory',
+        editorialStatus: 'approved',
         endDate: new Date(Date.now() + 31_536_000_000).toISOString(),
         eventRecaps: [{ summary: 'Six-photo-limited recap fixture.', title: 'Community program' }],
         isCurrent: true,

@@ -1,7 +1,15 @@
 import type { CollectionConfig } from 'payload'
 
 import { chapterScopedAccess, elevatedOnly, publishedOrManagedChapterAccess } from '@/access/roles'
+import {
+  createPreviewURL,
+  editorialFields,
+  enforceEditorialWorkflow,
+} from '@/cms/editorial-workflow'
+import { revalidateCollectionPaths } from '@/cms/revalidation'
 import { enforceManagedChapter } from '@/hooks/enforceManagedChapter'
+
+const revalidation = revalidateCollectionPaths(['/committees/[view]', '/chapters/[slug]'])
 
 export const CommitteeTerms: CollectionConfig = {
   slug: 'committeeTerms',
@@ -12,7 +20,17 @@ export const CommitteeTerms: CollectionConfig = {
     update: chapterScopedAccess('chapter'),
   },
   admin: {
-    defaultColumns: ['title', 'committeeType', 'chapter', 'isCurrent'],
+    defaultColumns: [
+      'title',
+      'committeeType',
+      'chapter',
+      'isCurrent',
+      'editorialStatus',
+      '_status',
+    ],
+    description: 'National and chapter leadership terms, members, roles, and program recaps.',
+    listSearchableFields: ['title', 'summary'],
+    preview: createPreviewURL('committeeTerms'),
     useAsTitle: 'title',
   },
   fields: [
@@ -106,8 +124,11 @@ export const CommitteeTerms: CollectionConfig = {
         },
       ],
     },
+    ...editorialFields(),
   ],
   hooks: {
+    afterChange: [revalidation.afterChange],
+    afterDelete: [revalidation.afterDelete],
     beforeChange: [
       enforceManagedChapter('chapter'),
       ({ data, originalDoc }) => {
@@ -118,6 +139,7 @@ export const CommitteeTerms: CollectionConfig = {
         }
         return data
       },
+      enforceEditorialWorkflow,
     ],
   },
   versions: {

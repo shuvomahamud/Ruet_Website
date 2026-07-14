@@ -27,6 +27,7 @@ This guide covers the implemented work from:
 - Remaining-roadmap Phase 7: event discovery and recaps, free/Zelle registration, transaction-safe capacity, waitlists, shared payment review, protected virtual access, and event notifications
 - Remaining-roadmap Phase 8: public/member/chapter announcements, newsletter authoring/preview/schedule/cancel/send/retry/history, communication preferences, and the complete institutional footer
 - Remaining-roadmap Phase 9: post-login member dashboard, filtered private payment/registration histories, and role/chapter-scoped operational reporting with summary CSV export
+- Remaining-roadmap Phase 10 technical checkpoint: complete homepage modules, editorial review/approval/publish workflow, secure previews and versions, content revalidation, realistic UAT seed, admin usability, SEO, sitemap, and robots behavior; final stakeholder-approved launch content remains required before phase sign-off
 
 ## 2. UAT Scope
 
@@ -65,6 +66,11 @@ This guide covers the implemented work from:
 - member dashboard membership/chapter/action state, upcoming registrations, waitlist, announcements, and recent Zelle attempts
 - private payment-attempt and event-registration filters, pagination, statuses, and ownership isolation
 - admin/super-admin organization reports and chapter-admin managed-chapter reports for membership, renewal/reactivation, approved revenue, payments, events, waitlists, and promotions
+- complete homepage modules and their populated/empty states
+- editorial draft, in-review, approval, preview, publish, and revalidation behavior for all public content types
+- public denial of drafts, review-only fields, and version history
+- realistic idempotent seed coverage for all public modules and member dashboard histories
+- SEO metadata, canonical routes, sitemap eligibility, and private-route robots exclusions
 
 ## 2.2 Explicitly out of scope for this UAT
 
@@ -72,6 +78,7 @@ Do not mark these as failures in this round because they are not implemented yet
 
 - Stripe checkout, which has been superseded by the Zelle-only payment decision
 - live Resend delivery until provider credentials and a verified sender are installed
+- final stakeholder legal text and approved organization/chapter/committee/launch content and assets; use the UAT fixtures only to validate behavior, not to approve production copy
 
 Membership and event Zelle execution now share one role-scoped review queue and are in scope. Evidence is in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md) and [phase-7-events-manual-review-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-7-events-manual-review-verification.md).
 
@@ -101,6 +108,14 @@ pnpm dev
 
 5. Sign in with the existing admin account.
 
+For a complete, repeatable non-production dataset, seed the baseline and UAT fixtures before starting the content cases:
+
+```bash
+SEED_UAT_PASSWORD='use-a-unique-12-character-or-longer-test-password' pnpm seed:uat
+```
+
+Never reuse that password outside UAT or commit a real test password. The UAT seed refuses to run in production unless a separate explicit override is provided.
+
 Before manual UAT, the automated baseline should pass:
 
 ```bash
@@ -108,7 +123,7 @@ pnpm verify
 pnpm test:e2e
 ```
 
-The expected automated result after the remaining-roadmap Phase 9 gate is `57` integration tests and `34` browser tests passing.
+The expected automated result at the Phase 10 technical checkpoint is `60` integration tests and `36` browser tests passing.
 
 For live verification/reset delivery, configure the production Resend adapter and verified sender; local/test capture remains available for safe non-production checks. Live Google UAT requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and an approved callback URL. Missing external credentials should be recorded as `Blocked`, not as missing application logic.
 
@@ -1158,6 +1173,72 @@ Expected result:
 - unmanaged chapter requests return `403`
 - standard-member report requests return `403`
 
+## 6.16 Homepage, Editorial Workflow, And Content Readiness
+
+### UAT-CMS-01: Homepage renders every managed module
+
+Steps:
+
+1. Run the baseline and UAT seeds on a non-production database.
+2. Open `/` in a signed-out browser.
+3. Inspect the hero/network panel, credibility metrics, announcements, membership, featured events, chapter spotlight, history, current committee, and learning sections.
+4. Open the linked chapter, event, history, committee, learning, and membership destinations.
+
+Expected result:
+
+- every module renders realistic published data or a deliberate empty state
+- credibility totals include only eligible published/active/upcoming records
+- no developer-handoff or foundation-stage wording is visible
+- module links open the correct canonical public destinations
+
+### UAT-CMS-02: Chapter editor submits and an administrator publishes
+
+Steps:
+
+1. Sign in to Payload as a chapter administrator and edit content belonging to an assigned chapter.
+2. Keep Payload document status as `Draft`, set Editorial status to `Draft`, and save.
+3. Change Editorial status to `In review` and save the draft.
+4. Confirm the chapter administrator cannot set `Approved` or publish.
+5. Sign in as an administrator, use Preview, add an optional review note, set Editorial status to `Approved`, save, and publish.
+6. Open the public destination in a signed-out browser.
+
+Expected result:
+
+- the editor can work only inside an assigned chapter and cannot self-approve
+- preview requires an authorized account and shows the selected draft
+- publishing is rejected until an authorized reviewer approves the record
+- the approved publication appears publicly after publish without a server restart
+
+### UAT-CMS-03: Drafts and versions never leak publicly
+
+Steps:
+
+1. Save an obvious unpublished change to each public collection type and to a versioned public global.
+2. While signed out, request its normal route and corresponding Payload API with `draft=true`.
+3. While signed out, request collection and global version endpoints.
+4. Publish one approved change and reload the normal public route.
+
+Expected result:
+
+- signed-out visitors see only the last published collection/global value
+- draft and version requests are denied and review-only fields are absent
+- the approved published change appears after revalidation
+
+### UAT-CMS-04: SEO, sitemap, and robots expose only public content
+
+Steps:
+
+1. Set an SEO title, description, canonical URL, social image, and indexing preference on representative public records.
+2. Open the public pages and inspect their document metadata.
+3. Open `/sitemap.xml` and `/robots.txt`.
+4. Compare the sitemap to published, indexable content and inspect the robots exclusions.
+
+Expected result:
+
+- representative pages expose their configured canonical and social metadata
+- drafts, `noIndex` records, admin, preview, account, dashboard, and report routes are not promoted as public search destinations
+- eligible published pages, posts, chapters, and events use canonical public URLs
+
 ## 7. Suggested UAT Execution Order
 
 Recommended order:
@@ -1179,6 +1260,7 @@ Recommended order:
 15. Delivery audits
 16. Member dashboard and account histories
 17. Admin and chapter-admin reporting reconciliation/export
+18. Homepage modules, editorial submission/review/publish, preview security, SEO, sitemap, and robots
 
 ## 8. Defect Logging Template
 
@@ -1222,4 +1304,5 @@ This UAT round should confirm that:
 - Phase 7 event discovery, registration, capacity, Zelle review, rejection/resubmission, waitlist, protected access, recap/archive, and notification behavior meet their acceptance criteria
 - Phase 8 announcement targeting/windows, newsletter workflow/preferences/history, and complete responsive footer meet their acceptance criteria
 - Phase 9 member dashboard, private histories, reconciled operational reports, and role/chapter scope meet their acceptance criteria
-- the repo is ready to continue into remaining-roadmap Phase 10
+- Phase 10 homepage, editorial workflow, draft/version isolation, realistic seeding, admin usability, SEO, sitemap, and robots behavior meet their technical acceptance criteria
+- final stakeholder legal text and approved launch content/assets are installed before Phase 10 receives sign-off and Phase 11 begins

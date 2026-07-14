@@ -39,7 +39,7 @@ export const getCachedGlobal = <T>(slug: string, fallbackValue: T) =>
         return fallbackValue
       }
     },
-    [`global-${slug}`],
+    [`global-v2-${slug}`],
     { tags: [`global_${slug}`] },
   )
 
@@ -49,23 +49,47 @@ export const getHeaderGlobal = () => getCachedGlobal<HeaderGlobal>('header', fal
 export const getFooterGlobal = () => getCachedGlobal<Footer>('footer', fallbackFooter)()
 export const getHomeGlobal = () =>
   getCachedGlobal('home', {
+    announcementSectionDescription:
+      'Stay informed about association news, chapter updates, and opportunities across the alumni network.',
+    announcementSectionTitle: 'Latest organization notices',
+    chaptersSectionDescription:
+      'Regional chapters create opportunities to meet, volunteer, learn, and stay connected.',
+    chaptersSectionTitle: 'Find your local alumni community',
+    committeesSectionDescription:
+      'Meet current running and advisory committee members serving the national organization.',
+    committeesSectionTitle: 'Volunteer leadership and continuity',
+    eventsSectionDescription:
+      'Explore in-person, virtual, and hybrid programs hosted across the alumni network.',
+    eventsSectionTitle: 'Meet, learn, and participate',
     heroDescription:
       'Connect with RUET alumni across the United States through membership, regional chapters, events, and shared professional learning.',
     heroEyebrow: 'RUET Alumni Association',
     id: 0,
     heroTitle: 'A professional, chapter-centered home for RUET alumni in the United States.',
+    historySectionDescription:
+      'Explore the people, places, and moments that shape RUET and its alumni community.',
+    historySectionTitle: 'Milestones that connect generations',
+    learningSectionDescription:
+      'Read alumni perspectives, professional development articles, and practical community resources.',
+    learningSectionTitle: 'Knowledge shared across generations',
     membershipSectionDescription:
       'Annual membership helps sustain alumni programming, regional chapters, professional development, and community connections.',
     membershipSectionTitle: 'One community, year-round connection',
+    networkPanelDescription:
+      'Discover chapters, upcoming programs, and stories from RUET alumni across the United States.',
+    networkPanelEyebrow: 'Our alumni network',
+    networkPanelTitle: 'Connected by RUET, strengthened by community.',
     primaryCtaHref: '/membership',
-    primaryCtaLabel: 'Join Membership',
+    primaryCtaLabel: 'Explore Membership',
     secondaryCtaHref: '/chapters',
-    secondaryCtaLabel: 'Explore Chapters',
+    secondaryCtaLabel: 'Find a Chapter',
+    statsSectionEyebrow: 'Our community at a glance',
+    statsSectionTitle: 'A growing alumni network built for participation',
     stats: [
-      { label: 'Members', value: '0+' },
-      { label: 'Chapters', value: '0' },
-      { label: 'Upcoming Events', value: '0' },
-      { label: 'Years of Community', value: '0' },
+      { label: 'Active members', value: '0' },
+      { label: 'Active chapters', value: '0' },
+      { label: 'Upcoming events', value: '0' },
+      { label: 'Published resources', value: '0' },
     ],
   })() as Promise<Home>
 
@@ -282,9 +306,7 @@ export const getActiveChapters = async (limit = 6): Promise<Chapter[]> => {
     overrideAccess: false,
     sort: 'name',
     where: {
-      chapterStatus: {
-        equals: 'active',
-      },
+      and: [{ _status: { equals: 'published' } }, { chapterStatus: { equals: 'active' } }],
     },
   })
 
@@ -344,12 +366,11 @@ export const getActiveChapterBySlug = async (slug: string): Promise<Chapter | nu
     limit: 1,
     overrideAccess: false,
     where: {
-      slug: {
-        equals: slug,
-      },
-      chapterStatus: {
-        equals: 'active',
-      },
+      and: [
+        { _status: { equals: 'published' } },
+        { slug: { equals: slug } },
+        { chapterStatus: { equals: 'active' } },
+      ],
     },
   })
 
@@ -437,10 +458,7 @@ export const getUpcomingEvents = async (limit = 6): Promise<Event[]> => {
   return result.docs
 }
 
-export const getPublishedEventBySlug = async (
-  slug: string,
-  user?: User,
-): Promise<Event | null> => {
+export const getPublishedEventBySlug = async (slug: string, user?: User): Promise<Event | null> => {
   const payload = await getClient()
   const result = await payload.find({
     collection: 'events',
@@ -624,17 +642,17 @@ export const getPageStats = async () => {
     payload.count({
       collection: 'chapters',
       where: {
-        chapterStatus: {
-          equals: 'active',
-        },
+        and: [{ _status: { equals: 'published' } }, { chapterStatus: { equals: 'active' } }],
       },
     }),
     payload.count({
       collection: 'events',
       where: {
-        _status: {
-          equals: 'published',
-        },
+        and: [
+          { _status: { equals: 'published' } },
+          { status: { equals: 'published' } },
+          { endAt: { greater_than_equal: new Date().toISOString() } },
+        ],
       },
     }),
     payload.count({

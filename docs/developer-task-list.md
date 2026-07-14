@@ -91,8 +91,8 @@ The authoritative gated sequence is maintained in [remaining-implementation-road
 - Phase 6: membership, promotions, and Zelle payments — completed
 - Phase 7: events, registration, waitlists, and shared manual review — completed
 - Phase 8: announcements, newsletters, footer completion, and preferences — completed
-- Phase 9: member dashboard, history, and reporting
-- Phase 10: homepage, publishing workflow, seeds, and admin usability
+- Phase 9: member dashboard, history, and reporting — completed
+- Phase 10: homepage, publishing workflow, seeds, and admin usability — technical implementation complete; final approved content remains required
 - Phase 11: full validation, launch hardening, and deployment readiness
 
 ## 6.1 Sequencing decision
@@ -125,7 +125,8 @@ Strict status answer:
 - roadmap Phase 6 additionally completes `F-01`, `F-02`, and `F-04` through `F-06`
 - roadmap Phase 7 additionally completes `H-01` through `H-03`, `H-05` through `H-07`, `I-01`, `I-02`, and `J-02`
 - roadmap Phase 8 additionally completes `D-02`, `J-03`, and `J-04`
-- `E-01` and `L-01` remain partial, so later completed work is intentionally non-contiguous
+- roadmap Phase 9 additionally completes `K-01`, `K-02`, and `K-03`
+- roadmap Phase 10 technically completes `L-01` and `L-02`; `E-01` remains partial until final approved legal, organization, chapter, committee, and launch content/assets are installed
 
 Fully completed tasks:
 
@@ -174,18 +175,18 @@ Fully completed tasks:
 - `J-02`
 - `J-03`
 - `J-04`
+- `K-01`
+- `K-02`
+- `K-03`
+- `L-01`
+- `L-02`
 
 Partially implemented tasks already started in code:
 
 - `E-01`
-- `L-01`
 
 Pending tasks:
 
-- `K-01`
-- `K-02`
-- `K-03`
-- `L-02`
 - `M-01`
 - `M-02`
 - `M-03`
@@ -811,6 +812,8 @@ Acceptance criteria:
 
 - homepage sections render dynamic content correctly
 - the page feels structurally aligned with the ASME-inspired design direction
+
+Verification update (2026-07-14): the technical homepage is complete with CMS-managed hero/network content, credibility metrics, active announcements, membership, featured events, chapter spotlight, history, current committee, and learning modules plus page-level SEO. `E-01` remains `Partial` only until stakeholder-approved organization, chapter, committee, launch, and legal content/assets replace the realistic UAT fixtures. See [phase-10-content-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-10-content-readiness-verification.md).
 
 ### Task E-02: About, mission, and contact pages
 
@@ -1724,6 +1727,8 @@ Acceptance criteria:
 - editors can save draft content
 - reviewers can publish approved content
 
+Verification update (2026-07-14): completed across every public collection and public global with versions, draft isolation, chapter-editor submission, elevated review/approval, secure previews, publish enforcement, and path/tag revalidation. Anonymous draft and version access is denied. See [phase-10-content-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-10-content-readiness-verification.md).
+
 ### Task L-02: Seed content and admin usability pass
 
 Objective:
@@ -1753,6 +1758,8 @@ Dependencies:
 Acceptance criteria:
 
 - admin users can understand and manage the content model without developer intervention for routine updates
+
+Verification update (2026-07-14): completed with functional admin groupings, editorial status/default columns, contextual labels/help, safe link validation, preview actions, the repeatable CMS baseline seed, and an idempotent realistic UAT seed covering public modules, users, membership/payment history, registrations, and waitlists. See [phase-10-content-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-10-content-readiness-verification.md).
 
 ## 7.13 QA, Security, And Launch Preparation
 

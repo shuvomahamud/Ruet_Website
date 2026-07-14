@@ -47,11 +47,11 @@ J-01,Transactional email foundation,Completed
 J-02,System-triggered emails,Completed
 J-03,Admin announcements,Completed
 J-04,Scheduled newsletters,Completed
-K-01,Member dashboard,Pending
-K-02,Payment and registration history views,Pending
-K-03,Admin reporting views,Pending
-L-01,Draft review and publish workflow,Partial
-L-02,Seed content and admin usability pass,Pending
+K-01,Member dashboard,Completed
+K-02,Payment and registration history views,Completed
+K-03,Admin reporting views,Completed
+L-01,Draft review and publish workflow,Completed
+L-02,Seed content and admin usability pass,Completed
 M-01,End-to-end flow validation,Pending
 M-02,Access control and security validation,Pending
 M-03,Performance and responsive QA,Pending

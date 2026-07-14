@@ -5,6 +5,7 @@ import { defaultMainNavigation } from '../src/constants/site'
 
 type SeedPage = {
   _status: 'published'
+  editorialStatus: 'approved'
   heroDescription: string
   heroEyebrow: string
   heroTitle: string
@@ -33,6 +34,7 @@ const now = new Date().toISOString()
 const pages: SeedPage[] = [
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'RUETIAN USA brings graduates together through membership, chapters, events, learning, and a shared commitment to alumni continuity.',
     heroEyebrow: 'About RUETIAN USA',
@@ -79,6 +81,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription: 'Join a nationwide alumni community sustained by one clear annual membership.',
     heroEyebrow: 'Membership',
     heroTitle: 'Stay connected to RUET and to one another.',
@@ -106,6 +109,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'Find regional alumni communities and discover opportunities to participate close to home.',
     heroEyebrow: 'Chapters',
@@ -137,6 +141,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'Browse gatherings, professional programs, family activities, and chapter-led events across the alumni network.',
     heroEyebrow: 'Events',
@@ -165,6 +170,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'Explore alumni perspectives, professional development articles, and practical resources shared across the community.',
     heroEyebrow: 'Learning & Development',
@@ -189,6 +195,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'Explore milestones, memories, documents, and community stories preserved across generations.',
     heroEyebrow: 'Our story',
@@ -213,6 +220,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'Meet the volunteers responsible for current programs, operations, and organizational stewardship.',
     heroEyebrow: 'Leadership',
@@ -229,6 +237,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'Meet the alumni advisors who contribute experience, guidance, and institutional perspective.',
     heroEyebrow: 'Leadership',
@@ -245,6 +254,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'Review current and past leadership terms, member roles, and programs completed during each term.',
     heroEyebrow: 'Institutional archive',
@@ -261,6 +271,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'Send a question or request and it will be routed to the appropriate RUETIAN USA volunteer.',
     heroEyebrow: 'Contact',
@@ -289,6 +300,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'This structured policy template is ready for stakeholder-approved privacy language before public launch.',
     heroEyebrow: 'Legal',
@@ -333,6 +345,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'This structured terms template is ready for stakeholder-approved website terms before public launch.',
     heroEyebrow: 'Legal',
@@ -377,6 +390,7 @@ const pages: SeedPage[] = [
   },
   {
     _status: 'published',
+    editorialStatus: 'approved',
     heroDescription:
       'This structured template is ready for stakeholder-approved membership and payment terms before enrollment opens.',
     heroEyebrow: 'Legal',
@@ -436,6 +450,7 @@ for (const page of pages) {
   if (existing.docs[0]) {
     await payload.update({
       collection: 'pages',
+      context: { editorialWorkflowBypass: true },
       data: { ...page, publishedAt: existing.docs[0].publishedAt || now },
       draft: false,
       id: existing.docs[0].id,
@@ -447,6 +462,7 @@ for (const page of pages) {
 
   await payload.create({
     collection: 'pages',
+    context: { editorialWorkflowBypass: true },
     data: { ...page, publishedAt: now },
     draft: false,
     overrideAccess: true,
@@ -465,6 +481,7 @@ await payload.updateGlobal({
       { link: { href: '/login', label: 'Sign In' } },
     ],
   },
+  draft: false,
   overrideAccess: true,
 })
 
@@ -507,28 +524,59 @@ await payload.updateGlobal({
     ],
     legalNotice:
       'RUETIAN USA is an alumni-led community serving RUET graduates in the United States.',
+    legalLinks: [
+      { href: '/privacy-policy', label: 'Privacy policy' },
+      { href: '/terms-of-use', label: 'Website terms' },
+      { href: '/membership-terms', label: 'Membership terms' },
+    ],
     newsletterSummary:
       'Receive organization news, chapter updates, event notices, and learning resources.',
     newsletterTitle: 'Stay connected',
   },
+  draft: false,
   overrideAccess: true,
 })
 
 await payload.updateGlobal({
   slug: 'home',
   data: {
+    announcementSectionDescription:
+      'Stay informed about association news, chapter updates, and opportunities across the alumni network.',
+    announcementSectionTitle: 'Latest organization notices',
+    chaptersSectionDescription:
+      'Regional chapters create opportunities to meet, volunteer, learn, and stay connected.',
+    chaptersSectionTitle: 'Find your local alumni community',
+    committeesSectionDescription:
+      'Meet current running and advisory committee members serving the national organization.',
+    committeesSectionTitle: 'Volunteer leadership and continuity',
+    eventsSectionDescription:
+      'Explore in-person, virtual, and hybrid programs hosted across the alumni network.',
+    eventsSectionTitle: 'Meet, learn, and participate',
     heroDescription:
       'Connect with RUET alumni across the United States through membership, regional chapters, events, and shared professional learning.',
     heroEyebrow: 'RUET Alumni Association',
     heroTitle: 'A professional, chapter-centered home for RUET alumni in the United States.',
+    historySectionDescription:
+      'Explore the people, places, and moments that shape RUET and its alumni community.',
+    historySectionTitle: 'Milestones that connect generations',
+    learningSectionDescription:
+      'Read alumni perspectives, professional development articles, and practical community resources.',
+    learningSectionTitle: 'Knowledge shared across generations',
     membershipSectionDescription:
       'Annual membership helps sustain alumni programming, regional chapters, professional development, and community connections.',
     membershipSectionTitle: 'One community, year-round connection',
+    networkPanelDescription:
+      'Discover chapters, upcoming programs, and stories from RUET alumni across the United States.',
+    networkPanelEyebrow: 'Our alumni network',
+    networkPanelTitle: 'Connected by RUET, strengthened by community.',
     primaryCtaHref: '/membership',
     primaryCtaLabel: 'Explore Membership',
     secondaryCtaHref: '/chapters',
     secondaryCtaLabel: 'Find a Chapter',
+    statsSectionEyebrow: 'Our community at a glance',
+    statsSectionTitle: 'A growing alumni network built for participation',
   },
+  draft: false,
   overrideAccess: true,
 })
 
@@ -541,8 +589,9 @@ await payload.updateGlobal({
       'Membership, chapters, events, and learning opportunities for the RUET alumni community.',
     organizationName: 'RUETIAN USA',
     manualPaymentReviewNote:
-      'Payment proof is reviewed by authorized volunteers. No turnaround time is promised until the organization approves a review SLA.',
-    noRefundNotice: 'No-refund wording is awaiting final stakeholder and legal approval before launch.',
+      'Payment proof is reviewed manually by authorized volunteers. Review timing may vary.',
+    noRefundNotice:
+      'Zelle payments are non-refundable. Contact RUETIAN USA before paying if you have questions about an order.',
     primaryEmail: 'info@ruetianusa.org',
     tagline: 'RUET alumni community in the United States',
     utilityMessage: 'Connecting RUET alumni across the United States',
@@ -550,6 +599,7 @@ await payload.updateGlobal({
       'Send the exact order total through Zelle, include your name in the memo, then submit the transaction ID, a screenshot, or both. Membership remains pending until an authorized reviewer approves the proof.',
     zelleRecipientName: 'RUETIAN USA',
   },
+  draft: false,
   overrideAccess: true,
 })
 
@@ -601,7 +651,7 @@ const membershipPlanData = {
   slug: 'annual-membership',
   sortOrder: 0,
   termsSummary:
-    'Zelle payments are reviewed manually. Final membership and no-refund language must be approved before public launch.',
+    'Membership activates after the annual Zelle payment is manually approved. Payments are non-refundable and renewal is never automatic.',
   title: 'Annual RUETIAN USA Membership',
 }
 if (activePlans.docs[0]) {
@@ -629,9 +679,12 @@ await payload.updateGlobal({
     siteName: 'RUETIAN USA',
     titleSuffix: ' | RUETIAN USA',
   },
+  draft: false,
   overrideAccess: true,
 })
 
-console.log('CMS pages, navigation, membership, footer, home, contact, and SEO defaults are seeded.')
+console.log(
+  'CMS pages, navigation, membership, footer, home, contact, and SEO defaults are seeded.',
+)
 await payload.destroy()
 process.exit(0)

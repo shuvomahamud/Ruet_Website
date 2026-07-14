@@ -10,12 +10,15 @@ export const navigationLinkField = (): Field => ({
       name: 'label',
       type: 'text',
       required: true,
-      validate: validateSafeHref,
     },
     {
       name: 'href',
       type: 'text',
+      admin: {
+        description: 'Use an internal path or an HTTP(S), email, or phone destination.',
+      },
       required: true,
+      validate: validateSafeHref,
     },
     {
       name: 'description',

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 
 import { ContactPage } from '@/components/content/ContactPage'
 import { InstitutionalPage } from '@/components/content/InstitutionalPage'
@@ -14,6 +14,11 @@ import { createPageMetadata } from '@/utilities/metadata'
 import { getHomeGlobal, getPublishedPageBySlug, getSiteSettings } from '@/utilities/payload-public'
 
 const legalSlugs = new Set(['privacy-policy', 'terms-of-use', 'membership-terms'])
+const committeeRoutes: Record<string, string> = {
+  'advisory-committee': '/committees/advisory',
+  'committee-history': '/committees/history',
+  'running-committee': '/committees/running',
+}
 
 export async function generateMetadata({
   params,
@@ -21,6 +26,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
+  if (committeeRoutes[slug]) permanentRedirect(committeeRoutes[slug])
   const page = await getPublishedPageBySlug(slug)
   if (!page) return {}
   return createPageMetadata({

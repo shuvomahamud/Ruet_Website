@@ -1,7 +1,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
-import { buildConfig } from 'payload'
+import { buildConfig, type CollectionConfig, type GlobalConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
@@ -45,6 +45,22 @@ import { SiteSettings } from './globals/SiteSettings'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const withCollectionGroup = (collection: CollectionConfig, group: string): CollectionConfig => ({
+  ...collection,
+  admin: {
+    ...collection.admin,
+    group,
+  },
+})
+
+const withGlobalGroup = (global: GlobalConfig, group = 'Website'): GlobalConfig => ({
+  ...global,
+  admin: {
+    ...global.admin,
+    group,
+  },
+})
+
 export default buildConfig({
   admin: {
     meta: {
@@ -57,36 +73,38 @@ export default buildConfig({
     },
   },
   collections: [
-    Users,
-    OAuthSessions,
-    Media,
-    PaymentProofs,
-    Categories,
-    ContactSubmissions,
-    EmailDeliveries,
-    Pages,
-    Posts,
-    Announcements,
-    Chapters,
-    ChapterRequests,
-    MembershipPlans,
-    Memberships,
-    Events,
-    EventRegistrations,
-    WaitlistEntries,
-    Orders,
-    Payments,
-    AuditLogs,
-    Promotions,
-    CommitteeTerms,
-    HistoryEntries,
-    NewsletterCampaigns,
+    withCollectionGroup(Users, 'Accounts & access'),
+    withCollectionGroup(OAuthSessions, 'Accounts & access'),
+    withCollectionGroup(Media, 'Content'),
+    withCollectionGroup(PaymentProofs, 'Commerce'),
+    withCollectionGroup(Categories, 'Content'),
+    withCollectionGroup(ContactSubmissions, 'Communications'),
+    withCollectionGroup(EmailDeliveries, 'Operations'),
+    withCollectionGroup(Pages, 'Content'),
+    withCollectionGroup(Posts, 'Content'),
+    withCollectionGroup(Announcements, 'Communications'),
+    withCollectionGroup(Chapters, 'Community'),
+    withCollectionGroup(ChapterRequests, 'Community'),
+    withCollectionGroup(MembershipPlans, 'Membership'),
+    withCollectionGroup(Memberships, 'Membership'),
+    withCollectionGroup(Events, 'Events'),
+    withCollectionGroup(EventRegistrations, 'Events'),
+    withCollectionGroup(WaitlistEntries, 'Events'),
+    withCollectionGroup(Orders, 'Commerce'),
+    withCollectionGroup(Payments, 'Commerce'),
+    withCollectionGroup(AuditLogs, 'Operations'),
+    withCollectionGroup(Promotions, 'Commerce'),
+    withCollectionGroup(CommitteeTerms, 'Community'),
+    withCollectionGroup(HistoryEntries, 'Content'),
+    withCollectionGroup(NewsletterCampaigns, 'Communications'),
   ],
   editor: lexicalEditor(),
   email: createEmailAdapter(),
   cors: [env.NEXT_PUBLIC_SITE_URL],
   csrf: [env.NEXT_PUBLIC_SITE_URL],
-  globals: [SiteSettings, Header, Footer, Home, SeoDefaults],
+  globals: [SiteSettings, Header, Footer, Home, SeoDefaults].map((global) =>
+    withGlobalGroup(global),
+  ),
   jobs: {
     access: {
       cancel: ({ req }) => getRole(req.user) === 'superAdmin',
@@ -107,12 +125,7 @@ export default buildConfig({
     deleteJobOnComplete: false,
     enableConcurrencyControl: true,
     processingOrder: 'createdAt',
-    tasks: [
-      deliverEmailTask,
-      eventLifecycleTask,
-      membershipLifecycleTask,
-      newsletterLifecycleTask,
-    ],
+    tasks: [deliverEmailTask, eventLifecycleTask, membershipLifecycleTask, newsletterLifecycleTask],
   },
   secret: env.PAYLOAD_SECRET,
   serverURL: env.NEXT_PUBLIC_SITE_URL,

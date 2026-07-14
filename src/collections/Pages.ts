@@ -3,7 +3,15 @@ import { slugField } from 'payload'
 
 import { adminsOnly } from '@/access/roles'
 import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import {
+  createPreviewURL,
+  editorialFields,
+  enforceEditorialWorkflow,
+} from '@/cms/editorial-workflow'
+import { revalidateCollectionPaths } from '@/cms/revalidation'
 import { seoFields } from '@/fields/seo'
+
+const revalidation = revalidateCollectionPaths(['/[slug]'])
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -14,7 +22,10 @@ export const Pages: CollectionConfig = {
     update: adminsOnly,
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    defaultColumns: ['title', 'slug', 'editorialStatus', '_status', 'updatedAt'],
+    description: 'Institutional, informational, contact, and legal pages shown on the public site.',
+    listSearchableFields: ['title', 'slug', 'summary'],
+    preview: createPreviewURL('pages'),
     useAsTitle: 'title',
   },
   fields: [
@@ -118,7 +129,13 @@ export const Pages: CollectionConfig = {
       position: undefined,
     }),
     seoFields(),
+    ...editorialFields(),
   ],
+  hooks: {
+    afterChange: [revalidation.afterChange],
+    afterDelete: [revalidation.afterDelete],
+    beforeChange: [enforceEditorialWorkflow],
+  },
   versions: {
     drafts: {
       autosave: {

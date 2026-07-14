@@ -1,15 +1,20 @@
 import type { GlobalConfig } from 'payload'
 
-import { anyone } from '@/access/anyone'
+import { publishedGlobalRead } from '@/access/authenticatedOrPublished'
 import { adminsOnly } from '@/access/roles'
 import { navigationLinkField } from '@/fields/navigationLink'
 import { defaultMainNavigation } from '@/constants/site'
+import { revalidateGlobal } from '@/cms/revalidation'
 
 export const Header: GlobalConfig = {
   slug: 'header',
   access: {
-    read: anyone,
+    read: publishedGlobalRead,
+    readVersions: adminsOnly,
     update: adminsOnly,
+  },
+  admin: {
+    description: 'Utility links, primary navigation, menus, and the header action.',
   },
   fields: [
     {
@@ -79,4 +84,10 @@ export const Header: GlobalConfig = {
       required: true,
     },
   ],
+  hooks: {
+    afterChange: [revalidateGlobal('header')],
+  },
+  versions: {
+    drafts: { autosave: { interval: 500 }, schedulePublish: true },
+  },
 }

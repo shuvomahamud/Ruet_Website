@@ -8,6 +8,8 @@ export const enforceUserRoleHierarchy: CollectionBeforeChangeHook = ({
   originalDoc,
   req,
 }) => {
+  if (req.context?.seedTestUser === true && process.env.NODE_ENV !== 'production') return data
+
   const actorRole = getRole(req.user)
   const requestedRole = typeof data.role === 'string' ? data.role : undefined
   const originalRole = typeof originalDoc?.role === 'string' ? originalDoc.role : undefined

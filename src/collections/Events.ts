@@ -3,10 +3,19 @@ import { slugField } from 'payload'
 
 import { eventVirtualLinkReadAccess } from '@/access/events'
 import { chapterScopedAccess, elevatedOnly, publishedOrManagedChapterAccess } from '@/access/roles'
+import {
+  createPreviewURL,
+  editorialFields,
+  enforceEditorialWorkflow,
+} from '@/cms/editorial-workflow'
+import { revalidateCollectionPaths } from '@/cms/revalidation'
 import { validateNonNegativeMoney, validatePositiveInteger, validateUSD } from '@/domain/validation'
+import { seoFields } from '@/fields/seo'
 import { enforceManagedChapter } from '@/hooks/enforceManagedChapter'
 import { AppError } from '@/utilities/errors'
 import { getRelationshipID } from '@/utilities/relationships'
+
+const revalidation = revalidateCollectionPaths(['/events', '/events/[slug]', '/chapters/[slug]'])
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -17,7 +26,10 @@ export const Events: CollectionConfig = {
     update: chapterScopedAccess('chapter'),
   },
   admin: {
-    defaultColumns: ['title', 'chapter', 'status', 'startAt'],
+    defaultColumns: ['title', 'chapter', 'status', 'editorialStatus', '_status', 'startAt'],
+    description: 'Chapter programs, registration rules, capacity, pricing, and post-event recaps.',
+    listSearchableFields: ['title', 'slug', 'summary', 'venue'],
+    preview: createPreviewURL('events'),
     useAsTitle: 'title',
   },
   fields: [
@@ -139,7 +151,8 @@ export const Events: CollectionConfig = {
       name: 'registrationOpensAt',
       type: 'date',
       admin: {
-        description: 'Optional. If empty, registration is available as soon as the event is published.',
+        description:
+          'Optional. If empty, registration is available as soon as the event is published.',
       },
     },
     {
@@ -190,8 +203,12 @@ export const Events: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    seoFields(),
+    ...editorialFields(),
   ],
   hooks: {
+    afterChange: [revalidation.afterChange],
+    afterDelete: [revalidation.afterDelete],
     beforeChange: [
       enforceManagedChapter('chapter'),
       async ({ data, originalDoc, req }) => {
@@ -267,6 +284,7 @@ export const Events: CollectionConfig = {
 
         return data
       },
+      enforceEditorialWorkflow,
     ],
   },
   versions: {

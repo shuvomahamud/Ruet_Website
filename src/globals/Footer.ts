@@ -1,15 +1,20 @@
 import type { GlobalConfig } from 'payload'
 
-import { anyone } from '@/access/anyone'
+import { publishedGlobalRead } from '@/access/authenticatedOrPublished'
 import { adminsOnly } from '@/access/roles'
 import { navigationLinkField } from '@/fields/navigationLink'
 import { validateSafeHref } from '@/utilities/links'
+import { revalidateGlobal } from '@/cms/revalidation'
 
 export const Footer: GlobalConfig = {
   slug: 'footer',
   access: {
-    read: anyone,
+    read: publishedGlobalRead,
+    readVersions: adminsOnly,
     update: adminsOnly,
+  },
+  admin: {
+    description: 'Footer link groups, legal destinations, newsletter action, and social links.',
   },
   fields: [
     {
@@ -74,7 +79,7 @@ export const Footer: GlobalConfig = {
       name: 'legalLinks',
       type: 'array',
       defaultValue: [
-        { href: '/privacy', label: 'Privacy' },
+        { href: '/privacy-policy', label: 'Privacy policy' },
         { href: '/terms-of-use', label: 'Website terms' },
         { href: '/membership-terms', label: 'Membership terms' },
       ],
@@ -98,4 +103,10 @@ export const Footer: GlobalConfig = {
         'RUETIAN USA is an alumni-led community serving RUET graduates in the United States.',
     },
   ],
+  hooks: {
+    afterChange: [revalidateGlobal('footer')],
+  },
+  versions: {
+    drafts: { autosave: { interval: 500 }, schedulePublish: true },
+  },
 }

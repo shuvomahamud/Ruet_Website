@@ -64,7 +64,7 @@ export const MembershipPlans: CollectionConfig = {
       name: 'termsSummary',
       type: 'textarea',
       defaultValue:
-        'Membership payments are reviewed manually. Final membership and no-refund terms must be approved before launch.',
+        'Membership activates after the annual Zelle payment is manually approved. Payments are non-refundable and renewal is never automatic.',
       required: true,
     },
     {

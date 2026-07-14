@@ -34,7 +34,7 @@ export async function generateMetadata({
   return createPageMetadata({
     canonicalPath: `/chapters/${slug}`,
     description: chapter?.summary,
-    seo: { image: chapter?.heroImage },
+    seo: chapter?.seo || { image: chapter?.heroImage },
     title: chapter?.name || 'Chapter',
   })
 }

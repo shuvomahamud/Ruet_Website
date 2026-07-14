@@ -38,14 +38,14 @@ Historical migration files must not be rewritten after they have been applied. S
 
 ### 2.2 Active backlog
 
-After completion of roadmap Phase 9, the tracked backlog contains:
+After the Phase 10 technical implementation checkpoint, the tracked backlog contains:
 
-- `48` completed tasks
-- `2` partially implemented tasks
-- `5` pending tasks
+- `50` completed tasks
+- `1` partially implemented task
+- `4` pending tasks
 - `2` superseded Stripe tasks
 
-There are `7` active remaining tasks. Each one has exactly one completion-owner phase in the traceability matrix below.
+There are `5` active remaining tasks. `E-01` is waiting only for approved stakeholder content; the four Phase 11 tasks remain gated behind Phase 10 completion. Each active task has exactly one completion-owner phase in the traceability matrix below.
 
 ### 2.3 Work excluded from the approved launch scope
 
@@ -417,6 +417,8 @@ Exit gate:
 - admins and chapter admins see only the reporting scope allowed by their roles
 
 ## Phase 10: Homepage, Publishing Workflow, Seed Content, And Content Readiness
+
+Status: technical implementation completed on 2026-07-14; phase exit remains open for the required stakeholder content listed below. Evidence: [phase-10-content-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-10-content-readiness-verification.md).
 
 Goal: close the remaining public/CMS tasks using realistic data and eliminate foundation-stage content.
 

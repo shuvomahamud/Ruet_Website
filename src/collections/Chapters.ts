@@ -7,6 +7,15 @@ import {
   publishedOrManagedChapterDocumentAccess,
   superAdminsOnly,
 } from '@/access/roles'
+import {
+  createPreviewURL,
+  editorialFields,
+  enforceEditorialWorkflow,
+} from '@/cms/editorial-workflow'
+import { revalidateCollectionPaths } from '@/cms/revalidation'
+import { seoFields } from '@/fields/seo'
+
+const revalidation = revalidateCollectionPaths(['/chapters', '/chapters/[slug]'])
 
 export const Chapters: CollectionConfig = {
   slug: 'chapters',
@@ -17,7 +26,10 @@ export const Chapters: CollectionConfig = {
     update: managedChapterAccessByDocumentID,
   },
   admin: {
-    defaultColumns: ['name', 'chapterStatus', 'updatedAt'],
+    defaultColumns: ['name', 'chapterStatus', 'editorialStatus', '_status', 'updatedAt'],
+    description: 'Regional chapter profiles, contacts, administrators, and public visibility.',
+    listSearchableFields: ['name', 'slug', 'regionOrState', 'summary'],
+    preview: createPreviewURL('chapters'),
     useAsTitle: 'name',
   },
   fields: [
@@ -78,7 +90,14 @@ export const Chapters: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
     },
+    seoFields(),
+    ...editorialFields(),
   ],
+  hooks: {
+    afterChange: [revalidation.afterChange],
+    afterDelete: [revalidation.afterDelete],
+    beforeChange: [enforceEditorialWorkflow],
+  },
   versions: {
     drafts: {
       autosave: {

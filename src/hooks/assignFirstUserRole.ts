@@ -4,6 +4,7 @@ import { isAdmin } from '@/access/roles'
 
 export const assignFirstUserRole: CollectionBeforeChangeHook = async ({ data, operation, req }) => {
   if (operation !== 'create') return data
+  if (req.context?.seedTestUser === true && process.env.NODE_ENV !== 'production') return data
 
   const usersCount = await req.payload.count({
     collection: 'users',

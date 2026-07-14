@@ -37,11 +37,7 @@ describe.sequential('announcements, newsletter campaigns, and communication pref
   const requestFor = (user?: User): Promise<PayloadRequest> =>
     createLocalReq(user ? { user } : {}, payload)
 
-  const createUser = async (
-    label: string,
-    chapter: Chapter,
-    allowNewsletters = true,
-  ) =>
+  const createUser = async (label: string, chapter: Chapter, allowNewsletters = true) =>
     payload.create({
       collection: 'users',
       data: {
@@ -318,11 +314,13 @@ describe.sequential('announcements, newsletter campaigns, and communication pref
       payload.create({
         collection: 'announcements',
         data: {
-          _status: 'published',
+          _status: 'draft',
           audience: 'public',
+          editorialStatus: 'inReview',
           summary: 'A site-wide notice is not chapter-admin scope.',
           title: `Disallowed site notice ${nonce}`,
         },
+        draft: true,
         overrideAccess: false,
         user: chapterAdmin,
       }),
@@ -330,12 +328,14 @@ describe.sequential('announcements, newsletter campaigns, and communication pref
     const owned = await payload.create({
       collection: 'announcements',
       data: {
-        _status: 'published',
+        _status: 'draft',
         audience: 'public',
         chapter: chapterA.id,
+        editorialStatus: 'inReview',
         summary: 'Assigned chapter notice.',
         title: `Owned chapter notice ${nonce}`,
       },
+      draft: true,
       overrideAccess: false,
       user: chapterAdmin,
     })
@@ -344,12 +344,14 @@ describe.sequential('announcements, newsletter campaigns, and communication pref
       payload.create({
         collection: 'announcements',
         data: {
-          _status: 'published',
+          _status: 'draft',
           audience: 'public',
           chapter: chapterB.id,
+          editorialStatus: 'inReview',
           summary: 'Wrong chapter notice.',
           title: `Wrong chapter notice ${nonce}`,
         },
+        draft: true,
         overrideAccess: false,
         user: chapterAdmin,
       }),
@@ -406,7 +408,10 @@ describe.sequential('announcements, newsletter campaigns, and communication pref
       req: await requestFor(admin),
     })
     expect(cancelled.campaign.status).toBe('cancelled')
-    expect((await cancelNewsletterCampaign({ campaignID: draft.id, req: await requestFor(admin) })).idempotent).toBe(true)
+    expect(
+      (await cancelNewsletterCampaign({ campaignID: draft.id, req: await requestFor(admin) }))
+        .idempotent,
+    ).toBe(true)
   })
 
   it('dispatches a due member campaign once and records preference suppression and history', async () => {
@@ -441,7 +446,8 @@ describe.sequential('announcements, newsletter campaigns, and communication pref
       where: { campaign: { equals: draft.id } },
     })
     const optedIn = deliveries.docs.find(
-      (item) => item.user === memberA.id || (typeof item.user === 'object' && item.user?.id === memberA.id),
+      (item) =>
+        item.user === memberA.id || (typeof item.user === 'object' && item.user?.id === memberA.id),
     )
     const optedOut = deliveries.docs.find(
       (item) =>
@@ -454,7 +460,9 @@ describe.sequential('announcements, newsletter campaigns, and communication pref
     expect(optedOut?.jobId).toBeFalsy()
     expect(
       deliveries.docs.some(
-        (item) => item.user === memberB.id || (typeof item.user === 'object' && item.user?.id === memberB.id),
+        (item) =>
+          item.user === memberB.id ||
+          (typeof item.user === 'object' && item.user?.id === memberB.id),
       ),
     ).toBe(false)
 
@@ -473,7 +481,9 @@ describe.sequential('announcements, newsletter campaigns, and communication pref
 
   it('repairs a delivery audit whose initial job enqueue failed', async () => {
     const draft = await campaign('Recover initial queue failure')
-    const queue = vi.spyOn(payload.jobs, 'queue').mockRejectedValueOnce(new Error('Queue unavailable'))
+    const queue = vi
+      .spyOn(payload.jobs, 'queue')
+      .mockRejectedValueOnce(new Error('Queue unavailable'))
     const first = await sendNewsletterCampaign({
       campaignID: draft.id,
       req: await requestFor(admin),
@@ -488,10 +498,7 @@ describe.sequential('announcements, newsletter campaigns, and communication pref
       limit: 1,
       overrideAccess: true,
       where: {
-        and: [
-          { campaign: { equals: draft.id } },
-          { status: { equals: 'failed' } },
-        ],
+        and: [{ campaign: { equals: draft.id } }, { status: { equals: 'failed' } }],
       },
     })
     expect(failed.docs[0]?.jobId).toBeFalsy()

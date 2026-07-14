@@ -245,6 +245,8 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Regional chapter profiles, contacts, administrators, and public visibility.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "chapters".
  */
@@ -263,6 +265,25 @@ export interface Chapter {
   chapterAdmins?: (number | User)[] | null;
   contactEmail?: string | null;
   heroImage?: (number | null) | Media;
+  /**
+   * Optional page-level overrides. Site SEO defaults are used when these are empty.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    image?: (number | null) | Media;
+    noIndex?: boolean | null;
+  };
+  /**
+   * Draft: still being edited. In review: ready for an administrator. Approved: may be published.
+   */
+  editorialStatus?: ('draft' | 'inReview' | 'approved') | null;
+  /**
+   * Internal note for the editor and reviewer. This is never exposed publicly.
+   */
+  reviewNote?: string | null;
+  reviewedBy?: (number | null) | User;
+  reviewedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -416,6 +437,8 @@ export interface NewsletterCampaign {
   createdAt: string;
 }
 /**
+ * Institutional, informational, contact, and legal pages shown on the public site.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
@@ -458,11 +481,23 @@ export interface Page {
     image?: (number | null) | Media;
     noIndex?: boolean | null;
   };
+  /**
+   * Draft: still being edited. In review: ready for an administrator. Approved: may be published.
+   */
+  editorialStatus?: ('draft' | 'inReview' | 'approved') | null;
+  /**
+   * Internal note for the editor and reviewer. This is never exposed publicly.
+   */
+  reviewNote?: string | null;
+  reviewedBy?: (number | null) | User;
+  reviewedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Articles, resources, and organization news for the learning hub.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
@@ -510,11 +545,23 @@ export interface Post {
     image?: (number | null) | Media;
     noIndex?: boolean | null;
   };
+  /**
+   * Draft: still being edited. In review: ready for an administrator. Approved: may be published.
+   */
+  editorialStatus?: ('draft' | 'inReview' | 'approved') | null;
+  /**
+   * Internal note for the editor and reviewer. This is never exposed publicly.
+   */
+  reviewNote?: string | null;
+  reviewedBy?: (number | null) | User;
+  reviewedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Date-windowed public and member notices for the organization or a chapter.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "announcements".
  */
@@ -531,6 +578,16 @@ export interface Announcement {
   activeFrom?: string | null;
   activeTo?: string | null;
   publishedAt?: string | null;
+  /**
+   * Draft: still being edited. In review: ready for an administrator. Approved: may be published.
+   */
+  editorialStatus?: ('draft' | 'inReview' | 'approved') | null;
+  /**
+   * Internal note for the editor and reviewer. This is never exposed publicly.
+   */
+  reviewNote?: string | null;
+  reviewedBy?: (number | null) | User;
+  reviewedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -629,6 +686,8 @@ export interface Membership {
   createdAt: string;
 }
 /**
+ * Chapter programs, registration rules, capacity, pricing, and post-event recaps.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events".
  */
@@ -676,6 +735,25 @@ export interface Event {
    */
   recapSummary?: string | null;
   publishedAt?: string | null;
+  /**
+   * Optional page-level overrides. Site SEO defaults are used when these are empty.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    image?: (number | null) | Media;
+    noIndex?: boolean | null;
+  };
+  /**
+   * Draft: still being edited. In review: ready for an administrator. Approved: may be published.
+   */
+  editorialStatus?: ('draft' | 'inReview' | 'approved') | null;
+  /**
+   * Internal note for the editor and reviewer. This is never exposed publicly.
+   */
+  reviewNote?: string | null;
+  reviewedBy?: (number | null) | User;
+  reviewedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -819,6 +897,8 @@ export interface AuditLog {
   createdAt: string;
 }
 /**
+ * National and chapter leadership terms, members, roles, and program recaps.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "committeeTerms".
  */
@@ -849,11 +929,23 @@ export interface CommitteeTerm {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Draft: still being edited. In review: ready for an administrator. Approved: may be published.
+   */
+  editorialStatus?: ('draft' | 'inReview' | 'approved') | null;
+  /**
+   * Internal note for the editor and reviewer. This is never exposed publicly.
+   */
+  reviewNote?: string | null;
+  reviewedBy?: (number | null) | User;
+  reviewedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Chronological milestones, supporting media, documents, and external records.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "historyEntries".
  */
@@ -875,6 +967,16 @@ export interface HistoryEntry {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Draft: still being edited. In review: ready for an administrator. Approved: may be published.
+   */
+  editorialStatus?: ('draft' | 'inReview' | 'approved') | null;
+  /**
+   * Internal note for the editor and reviewer. This is never exposed publicly.
+   */
+  reviewNote?: string | null;
+  reviewedBy?: (number | null) | User;
+  reviewedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -1352,6 +1454,10 @@ export interface PagesSelect<T extends boolean = true> {
         image?: T;
         noIndex?: T;
       };
+  editorialStatus?: T;
+  reviewNote?: T;
+  reviewedBy?: T;
+  reviewedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1382,6 +1488,10 @@ export interface PostsSelect<T extends boolean = true> {
         image?: T;
         noIndex?: T;
       };
+  editorialStatus?: T;
+  reviewNote?: T;
+  reviewedBy?: T;
+  reviewedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1402,6 +1512,10 @@ export interface AnnouncementsSelect<T extends boolean = true> {
   activeFrom?: T;
   activeTo?: T;
   publishedAt?: T;
+  editorialStatus?: T;
+  reviewNote?: T;
+  reviewedBy?: T;
+  reviewedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1421,6 +1535,18 @@ export interface ChaptersSelect<T extends boolean = true> {
   chapterAdmins?: T;
   contactEmail?: T;
   heroImage?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        noIndex?: T;
+      };
+  editorialStatus?: T;
+  reviewNote?: T;
+  reviewedBy?: T;
+  reviewedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1536,6 +1662,18 @@ export interface EventsSelect<T extends boolean = true> {
   galleryAfterCompletion?: T;
   recapSummary?: T;
   publishedAt?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        noIndex?: T;
+      };
+  editorialStatus?: T;
+  reviewNote?: T;
+  reviewedBy?: T;
+  reviewedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1694,6 +1832,10 @@ export interface CommitteeTermsSelect<T extends boolean = true> {
         photoGallery?: T;
         id?: T;
       };
+  editorialStatus?: T;
+  reviewNote?: T;
+  reviewedBy?: T;
+  reviewedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1719,6 +1861,10 @@ export interface HistoryEntriesSelect<T extends boolean = true> {
         href?: T;
         id?: T;
       };
+  editorialStatus?: T;
+  reviewNote?: T;
+  reviewedBy?: T;
+  reviewedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1822,6 +1968,8 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * Organization identity, contact details, and public Zelle payment instructions.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "siteSettings".
  */
@@ -1845,10 +1993,13 @@ export interface SiteSetting {
   manualPaymentReviewNote: string;
   noRefundNotice: string;
   eventPaymentTerms: string;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
+ * Utility links, primary navigation, menus, and the header action.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
@@ -1858,6 +2009,9 @@ export interface Header {
     | {
         link: {
           label: string;
+          /**
+           * Use an internal path or an HTTP(S), email, or phone destination.
+           */
           href: string;
           description?: string | null;
         };
@@ -1868,6 +2022,9 @@ export interface Header {
     | {
         link: {
           label: string;
+          /**
+           * Use an internal path or an HTTP(S), email, or phone destination.
+           */
           href: string;
           description?: string | null;
         };
@@ -1878,6 +2035,9 @@ export interface Header {
           | {
               link: {
                 label: string;
+                /**
+                 * Use an internal path or an HTTP(S), email, or phone destination.
+                 */
                 href: string;
                 description?: string | null;
               };
@@ -1896,10 +2056,13 @@ export interface Header {
     | null;
   primaryCtaLabel: string;
   primaryCtaHref: string;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
+ * Footer link groups, legal destinations, newsletter action, and social links.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "footer".
  */
@@ -1912,6 +2075,9 @@ export interface Footer {
           | {
               link: {
                 label: string;
+                /**
+                 * Use an internal path or an HTTP(S), email, or phone destination.
+                 */
                 href: string;
                 description?: string | null;
               };
@@ -1940,10 +2106,13 @@ export interface Footer {
       }[]
     | null;
   legalNotice?: string | null;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
+ * Homepage copy and section labels. Published records populate each content module.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home".
  */
@@ -1951,11 +2120,16 @@ export interface Home {
   id: number;
   heroEyebrow?: string | null;
   heroTitle: string;
-  heroDescription?: string | null;
-  primaryCtaLabel?: string | null;
-  primaryCtaHref?: string | null;
-  secondaryCtaLabel?: string | null;
-  secondaryCtaHref?: string | null;
+  heroDescription: string;
+  primaryCtaLabel: string;
+  primaryCtaHref: string;
+  secondaryCtaLabel: string;
+  secondaryCtaHref: string;
+  networkPanelEyebrow: string;
+  networkPanelTitle: string;
+  networkPanelDescription: string;
+  statsSectionEyebrow?: string | null;
+  statsSectionTitle?: string | null;
   stats?:
     | {
         label: string;
@@ -1963,12 +2137,36 @@ export interface Home {
         id?: string | null;
       }[]
     | null;
+  announcementSectionTitle?: string | null;
+  announcementSectionDescription?: string | null;
   membershipSectionTitle?: string | null;
   membershipSectionDescription?: string | null;
+  chaptersSectionTitle?: string | null;
+  chaptersSectionDescription?: string | null;
+  eventsSectionTitle?: string | null;
+  eventsSectionDescription?: string | null;
+  historySectionTitle?: string | null;
+  historySectionDescription?: string | null;
+  committeesSectionTitle?: string | null;
+  committeesSectionDescription?: string | null;
+  learningSectionTitle?: string | null;
+  learningSectionDescription?: string | null;
+  /**
+   * Optional page-level overrides. Site SEO defaults are used when these are empty.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    image?: (number | null) | Media;
+    noIndex?: boolean | null;
+  };
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
+ * Default search and social metadata used when a page has no override.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "seoDefaults".
  */
@@ -1982,6 +2180,7 @@ export interface SeoDefault {
    * Optional social handle, including the leading @.
    */
   socialHandle?: string | null;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2023,6 +2222,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   manualPaymentReviewNote?: T;
   noRefundNotice?: T;
   eventPaymentTerms?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2079,6 +2279,7 @@ export interface HeaderSelect<T extends boolean = true> {
       };
   primaryCtaLabel?: T;
   primaryCtaHref?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2125,6 +2326,7 @@ export interface FooterSelect<T extends boolean = true> {
         id?: T;
       };
   legalNotice?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2141,6 +2343,11 @@ export interface HomeSelect<T extends boolean = true> {
   primaryCtaHref?: T;
   secondaryCtaLabel?: T;
   secondaryCtaHref?: T;
+  networkPanelEyebrow?: T;
+  networkPanelTitle?: T;
+  networkPanelDescription?: T;
+  statsSectionEyebrow?: T;
+  statsSectionTitle?: T;
   stats?:
     | T
     | {
@@ -2148,8 +2355,29 @@ export interface HomeSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  announcementSectionTitle?: T;
+  announcementSectionDescription?: T;
   membershipSectionTitle?: T;
   membershipSectionDescription?: T;
+  chaptersSectionTitle?: T;
+  chaptersSectionDescription?: T;
+  eventsSectionTitle?: T;
+  eventsSectionDescription?: T;
+  historySectionTitle?: T;
+  historySectionDescription?: T;
+  committeesSectionTitle?: T;
+  committeesSectionDescription?: T;
+  learningSectionTitle?: T;
+  learningSectionDescription?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        noIndex?: T;
+      };
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2164,6 +2392,7 @@ export interface SeoDefaultsSelect<T extends boolean = true> {
   defaultDescription?: T;
   defaultImage?: T;
   socialHandle?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2276,7 +2505,7 @@ export interface TaskSchedulePublish {
           relationTo: 'historyEntries';
           value: number | HistoryEntry;
         } | null);
-    global?: string | null;
+    global?: ('siteSettings' | 'header' | 'footer' | 'home' | 'seoDefaults') | null;
     user?: (number | null) | User;
   };
   output?: unknown;

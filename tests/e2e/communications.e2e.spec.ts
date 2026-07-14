@@ -249,18 +249,16 @@ test.describe.serial('Announcements, newsletters, and footer experience', () => 
       'href',
       '/communications/preferences',
     )
-    await expect(footer.getByRole('link', { name: 'Privacy', exact: true })).toHaveAttribute(
-      'href',
-      '/privacy',
-    )
+    await expect(
+      footer.getByRole('link', { name: 'Privacy policy', exact: true }),
+    ).toHaveAttribute('href', '/privacy-policy')
     await expect(footer.getByRole('link', { name: 'Website terms' })).toHaveAttribute(
       'href',
       '/terms-of-use',
     )
-    await expect(footer.getByRole('link', { name: 'Membership terms' })).toHaveAttribute(
-      'href',
-      '/membership-terms',
-    )
+    await expect(
+      footer.getByRole('link', { name: 'Membership terms', exact: true }),
+    ).toHaveAttribute('href', '/membership-terms')
     await expect(footer.getByRole('link', { name: 'Announcements' })).toHaveAttribute(
       'href',
       '/announcements',

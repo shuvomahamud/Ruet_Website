@@ -78,6 +78,7 @@ export const reviewChapterRequest = async ({ decision, notes, req, requestID }: 
         data: {
           _status: 'published',
           chapterStatus: 'active',
+          editorialStatus: 'approved',
           name: request.requestedName,
           regionOrState: request.requestedRegion,
           slug: collision.docs.length ? `${baseSlug}-${request.id}` : baseSlug,

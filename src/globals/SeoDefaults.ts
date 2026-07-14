@@ -1,13 +1,18 @@
 import type { GlobalConfig } from 'payload'
 
-import { anyone } from '@/access/anyone'
+import { publishedGlobalRead } from '@/access/authenticatedOrPublished'
 import { adminsOnly } from '@/access/roles'
+import { revalidateGlobal } from '@/cms/revalidation'
 
 export const SeoDefaults: GlobalConfig = {
   slug: 'seoDefaults',
   access: {
-    read: anyone,
+    read: publishedGlobalRead,
+    readVersions: adminsOnly,
     update: adminsOnly,
+  },
+  admin: {
+    description: 'Default search and social metadata used when a page has no override.',
   },
   fields: [
     {
@@ -39,4 +44,10 @@ export const SeoDefaults: GlobalConfig = {
       },
     },
   ],
+  hooks: {
+    afterChange: [revalidateGlobal('seoDefaults')],
+  },
+  versions: {
+    drafts: { autosave: { interval: 500 }, schedulePublish: true },
+  },
 }

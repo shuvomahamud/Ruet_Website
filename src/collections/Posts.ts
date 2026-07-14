@@ -3,7 +3,15 @@ import { slugField } from 'payload'
 
 import { adminsOnly } from '@/access/roles'
 import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import {
+  createPreviewURL,
+  editorialFields,
+  enforceEditorialWorkflow,
+} from '@/cms/editorial-workflow'
+import { revalidateCollectionPaths } from '@/cms/revalidation'
 import { seoFields } from '@/fields/seo'
+
+const revalidation = revalidateCollectionPaths(['/learning', '/learning/[slug]'])
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -14,7 +22,10 @@ export const Posts: CollectionConfig = {
     update: adminsOnly,
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'publishedAt', 'updatedAt'],
+    defaultColumns: ['title', 'contentType', 'editorialStatus', '_status', 'publishedAt'],
+    description: 'Articles, resources, and organization news for the learning hub.',
+    listSearchableFields: ['title', 'slug', 'excerpt', 'authorName'],
+    preview: createPreviewURL('posts'),
     useAsTitle: 'title',
   },
   fields: [
@@ -86,7 +97,13 @@ export const Posts: CollectionConfig = {
       position: undefined,
     }),
     seoFields(),
+    ...editorialFields(),
   ],
+  hooks: {
+    afterChange: [revalidation.afterChange],
+    afterDelete: [revalidation.afterDelete],
+    beforeChange: [enforceEditorialWorkflow],
+  },
   versions: {
     drafts: {
       autosave: {

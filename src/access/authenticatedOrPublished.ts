@@ -13,3 +13,12 @@ export const authenticatedOrPublished: Access = ({ req: { user } }) => {
     },
   }
 }
+
+/** Public visitors may read only the published global value, never drafts or version history. */
+export const publishedGlobalRead: Access = ({ req }) => {
+  if (isAdmin(req.user)) return true
+
+  const queryDraft = req.query?.draft
+  const urlDraft = new URL(req.url ?? '/', 'http://payload.local').searchParams.get('draft')
+  return !['1', 'true'].includes(String(queryDraft ?? urlDraft ?? '').toLowerCase())
+}

@@ -24,6 +24,8 @@ The current implementation now adds these resolved delivery details:
 - the complete annual membership lifecycle now includes one database-enforced active plan, CMS benefits/FAQs/policies, profile-gated Zelle checkout, promotion validation and immutable snapshots, chapter-first review, approval/rejection/resubmission notices, scheduled renewal/grace/expiration processing, and pay-to-reactivate; verification is recorded in [phase-6-membership-zelle-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-6-membership-zelle-verification.md)
 - event operations now include the public filtered catalog and recap archive, free and Zelle-paid registration, transaction-safe capacity, quantity-aware waitlists and expiring offers, protected virtual access, chapter-scoped galleries, a shared manual-payment queue, and deduplicated event/payment notices; verification is recorded in [phase-7-events-manual-review-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-7-events-manual-review-verification.md)
 - organization communications now include date-windowed public/member and chapter announcements, admin-authored newsletter preview/schedule/cancel/send/retry/history, audience/preference-aware deduplicated delivery, and a complete responsive footer with preference/contact/legal destinations; verification is recorded in [phase-8-communications-footer-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-8-communications-footer-verification.md)
+- the member account experience now includes an actionable dashboard, owner-scoped payment and registration histories, and organization/chapter-scoped operational reports with privacy-safe CSV export; verification is recorded in [phase-9-dashboard-reporting-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-9-dashboard-reporting-verification.md)
+- the Phase 10 technical content system now includes every required homepage module, secure draft/review/approval/publish behavior, versioned public globals, previews and revalidation, realistic idempotent UAT data, editor-oriented admin configuration, page-level SEO, sitemap, and robots controls; final stakeholder content remains the phase exit dependency recorded in [phase-10-content-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-10-content-readiness-verification.md)
 
 ## Reviewed Inputs
 
@@ -250,11 +252,20 @@ The website still needs finalized content for:
 - membership terms / agreement
 - payment and no-refund wording
 
-### 2. Expected SLA for manual approval
+### 2. Approved launch content and assets
+
+The technically complete CMS and homepage still require stakeholder-approved production content for:
+
+- organization, mission, history, and launch messaging
+- chapter descriptions, contacts, leadership, and media
+- running/advisory committee terms, member details, recaps, and media
+- homepage, learning, event, announcement, brand, and social assets
+
+### 3. Expected SLA for manual approval
 
 The payment proof workflow is defined, but the expected review window is still open. The product should not promise a turnaround time until this is confirmed.
 
-### 3. Media and storage policy
+### 4. Media and storage policy
 
 There is no finalized policy yet for:
 
@@ -265,7 +276,7 @@ There is no finalized policy yet for:
 
 ## Implementation Direction
 
-Engineering and design can proceed immediately with the current baseline if they treat the three items above as open policy decisions rather than blockers for schema and interface design.
+Engineering and design can proceed with the current baseline, but Phase 10 cannot close and Phase 11 cannot begin until the legal and approved launch content above are supplied and installed. The SLA and media/storage policy remain Phase 11 launch inputs.
 
 The main implementation posture should be:
 

@@ -269,7 +269,11 @@ test.describe.serial('Events, waitlists, and Zelle experience', () => {
     await expect(page.getByText(freeEvent.title)).toHaveCount(0)
     await page.goto('/events?view=archive')
     await expect(page.getByText(archiveEvent.title)).toBeVisible()
-    await page.getByRole('link', { name: 'View recap' }).click()
+    await page
+      .locator('article')
+      .filter({ hasText: archiveEvent.title })
+      .getByRole('link', { name: 'View recap' })
+      .click()
     await expect(page.getByText('E2E alumni archive recap and outcomes.')).toBeVisible()
   })
 

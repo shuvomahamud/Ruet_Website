@@ -1,13 +1,18 @@
 import type { GlobalConfig } from 'payload'
 
-import { anyone } from '@/access/anyone'
+import { publishedGlobalRead } from '@/access/authenticatedOrPublished'
 import { adminsOnly } from '@/access/roles'
+import { revalidateGlobal } from '@/cms/revalidation'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'siteSettings',
   access: {
-    read: anyone,
+    read: publishedGlobalRead,
+    readVersions: adminsOnly,
     update: adminsOnly,
+  },
+  admin: {
+    description: 'Organization identity, contact details, and public Zelle payment instructions.',
   },
   fields: [
     {
@@ -78,14 +83,14 @@ export const SiteSettings: GlobalConfig = {
       name: 'manualPaymentReviewNote',
       type: 'textarea',
       defaultValue:
-        'Payment proof is reviewed by authorized volunteers. No turnaround time is promised until the organization approves a review SLA.',
+        'Payment proof is reviewed manually by authorized volunteers. Review timing may vary.',
       required: true,
     },
     {
       name: 'noRefundNotice',
       type: 'textarea',
       defaultValue:
-        'No-refund wording is awaiting final stakeholder and legal approval before launch.',
+        'Zelle payments are non-refundable. Contact RUETIAN USA before paying if you have questions about an order.',
       required: true,
     },
     {
@@ -96,5 +101,11 @@ export const SiteSettings: GlobalConfig = {
       required: true,
     },
   ],
+  hooks: {
+    afterChange: [revalidateGlobal('siteSettings')],
+  },
+  versions: {
+    drafts: { autosave: { interval: 500 }, schedulePublish: true },
+  },
   label: 'Site Settings',
 }

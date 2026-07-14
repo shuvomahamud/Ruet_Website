@@ -57,6 +57,8 @@ export const denyAll: Access = () => false
 
 export const adminFieldOnly: FieldAccess = ({ req: { user } }) => isAdmin(user)
 
+export const elevatedFieldOnly: FieldAccess = ({ req: { user } }) => isElevated(user)
+
 export const serverFieldOnly: FieldAccess = () => false
 
 export const publicSignupFieldAccess: FieldAccess = ({ req }) =>

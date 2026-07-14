@@ -150,6 +150,43 @@ test.describe.serial('Public experience', () => {
     await expect(aboutTrigger).toBeFocused()
   })
 
+  test('renders every required homepage module', async ({ page }) => {
+    await page.goto('/')
+
+    for (const heading of [
+      'A growing alumni network built for participation',
+      'Latest organization notices',
+      'One community, year-round connection',
+      'Meet, learn, and participate',
+      'Find your local alumni community',
+      'Milestones that connect generations',
+      'Volunteer leadership and continuity',
+      'Knowledge shared across generations',
+    ]) {
+      await expect(page.getByRole('heading', { name: heading })).toBeVisible()
+    }
+    await expect(page.getByText('Annual membership', { exact: true })).toBeVisible()
+  })
+
+  test('publishes crawl controls and keeps previews out of public access', async ({ page }) => {
+    const robots = await page.request.get('/robots.txt')
+    expect(robots.ok()).toBe(true)
+    expect(await robots.text()).toContain('Disallow: /preview/')
+
+    const sitemap = await page.request.get('/sitemap.xml')
+    expect(sitemap.ok()).toBe(true)
+    expect(await sitemap.text()).toContain('<loc>http://localhost:3000/</loc>')
+
+    const draftGlobal = await page.request.get('/api/globals/home?draft=true')
+    expect(draftGlobal.status()).toBe(403)
+    const globalVersions = await page.request.get('/api/globals/home/versions')
+    expect(globalVersions.status()).toBe(403)
+
+    await page.goto('/preview/pages/999999')
+    await expect(page).toHaveURL(/\/login\?returnTo=/)
+    await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible()
+  })
+
   test('traps and restores focus in the mobile navigation drawer', async ({ page }) => {
     await page.setViewportSize({ height: 844, width: 390 })
     await page.goto('/')

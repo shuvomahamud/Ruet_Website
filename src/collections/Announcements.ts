@@ -1,13 +1,18 @@
 import type { CollectionConfig } from 'payload'
 
 import { announcementReadAccess } from '@/access/announcements'
+import { chapterScopedAccess, elevatedOnly } from '@/access/roles'
 import {
-  chapterScopedAccess,
-  elevatedOnly,
-} from '@/access/roles'
+  createPreviewURL,
+  editorialFields,
+  enforceEditorialWorkflow,
+} from '@/cms/editorial-workflow'
+import { revalidateCollectionPaths } from '@/cms/revalidation'
 import { enforceManagedChapter } from '@/hooks/enforceManagedChapter'
 import { validateAnnouncement } from '@/hooks/validateAnnouncement'
 import { validateSafeHref } from '@/utilities/links'
+
+const revalidation = revalidateCollectionPaths(['/announcements'])
 
 export const Announcements: CollectionConfig = {
   slug: 'announcements',
@@ -18,7 +23,10 @@ export const Announcements: CollectionConfig = {
     update: chapterScopedAccess('chapter'),
   },
   admin: {
-    defaultColumns: ['title', 'chapter', 'audience', 'updatedAt'],
+    defaultColumns: ['title', 'chapter', 'audience', 'editorialStatus', '_status', 'updatedAt'],
+    description: 'Date-windowed public and member notices for the organization or a chapter.',
+    listSearchableFields: ['title', 'summary'],
+    preview: createPreviewURL('announcements'),
     useAsTitle: 'title',
   },
   fields: [
@@ -83,9 +91,16 @@ export const Announcements: CollectionConfig = {
       name: 'publishedAt',
       type: 'date',
     },
+    ...editorialFields(),
   ],
   hooks: {
-    beforeChange: [enforceManagedChapter('chapter'), validateAnnouncement],
+    afterChange: [revalidation.afterChange],
+    afterDelete: [revalidation.afterDelete],
+    beforeChange: [
+      enforceManagedChapter('chapter'),
+      validateAnnouncement,
+      enforceEditorialWorkflow,
+    ],
   },
   versions: {
     drafts: {

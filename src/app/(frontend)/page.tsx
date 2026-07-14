@@ -3,19 +3,23 @@ import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 
 import { authenticateRequest } from '@/auth/current-user'
-import { CollectionCard } from '@/components/content/CollectionCard'
 import { AnnouncementFeed } from '@/components/communications/AnnouncementFeed'
+import { CollectionCard } from '@/components/content/CollectionCard'
 import { SiteFooter } from '@/components/site/SiteFooter'
 import { SiteHeader } from '@/components/site/SiteHeader'
+import { Badge } from '@/components/ui/Badge'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
+import { formatDateTime } from '@/utilities/date-time'
 import { formatCurrency } from '@/utilities/formatters'
 import { createPageMetadata } from '@/utilities/metadata'
 import {
   getActiveAnnouncements,
   getActiveChapters,
+  getActiveHistoryEntries,
   getActiveMembershipPlan,
   getHomeGlobal,
+  getNationalCommitteeTerms,
   getPageStats,
   getPublishedPosts,
   getUpcomingEvents,
@@ -29,37 +33,47 @@ export async function generateMetadata(): Promise<Metadata> {
   return createPageMetadata({
     canonicalPath: '/',
     description: home.heroDescription,
+    seo: home.seo,
     title: home.heroTitle || 'RUETIAN USA',
   })
 }
 
 export default async function HomePage() {
   const user = await authenticateRequest(await headers())
-  const [home, stats, announcements, chapters, events, posts, plan] = await Promise.all([
-    getHomeGlobal(),
-    getPageStats(),
-    getActiveAnnouncements({ limit: 3, scope: 'home', user: user ?? undefined }),
-    getActiveChapters(3),
-    getUpcomingEvents(3),
-    getPublishedPosts(3),
-    getActiveMembershipPlan(),
-  ])
+  const [home, stats, announcements, chapters, events, history, committees, posts, plan] =
+    await Promise.all([
+      getHomeGlobal(),
+      getPageStats(),
+      getActiveAnnouncements({ limit: 3, scope: 'home', user: user ?? undefined }),
+      getActiveChapters(3),
+      getUpcomingEvents(3),
+      getActiveHistoryEntries(3),
+      getNationalCommitteeTerms({ current: true }),
+      getPublishedPosts(3),
+      getActiveMembershipPlan(),
+    ])
 
+  const configuredStats = home.stats ?? []
   const statItems = [
     {
-      label: 'Members',
-      value: stats.activeMembers > 0 ? `${stats.activeMembers}+` : home.stats?.[0]?.value,
+      label: configuredStats[0]?.label || 'Active members',
+      value:
+        stats.activeMembers > 0 ? String(stats.activeMembers) : configuredStats[0]?.value || '0',
     },
     {
-      label: 'Chapters',
-      value: stats.chapters > 0 ? String(stats.chapters) : home.stats?.[1]?.value,
+      label: configuredStats[1]?.label || 'Active chapters',
+      value: stats.chapters > 0 ? String(stats.chapters) : configuredStats[1]?.value || '0',
     },
     {
-      label: 'Upcoming Events',
-      value: stats.events > 0 ? String(stats.events) : home.stats?.[2]?.value,
+      label: configuredStats[2]?.label || 'Upcoming events',
+      value: stats.events > 0 ? String(stats.events) : configuredStats[2]?.value || '0',
     },
-    { label: 'Published Updates', value: stats.posts > 0 ? String(stats.posts) : '0' },
+    {
+      label: configuredStats[3]?.label || 'Published resources',
+      value: stats.posts > 0 ? String(stats.posts) : configuredStats[3]?.value || '0',
+    },
   ]
+  const spotlight = chapters[0]
 
   return (
     <>
@@ -78,75 +92,85 @@ export default async function HomePage() {
                     className="button button--primary"
                     href={home.primaryCtaHref || '/membership'}
                   >
-                    {home.primaryCtaLabel || 'Join Membership'}
+                    {home.primaryCtaLabel || 'Explore Membership'}
                   </Link>
                   <Link
                     className="button button--secondary"
                     href={home.secondaryCtaHref || '/chapters'}
                   >
-                    {home.secondaryCtaLabel || 'Explore Chapters'}
+                    {home.secondaryCtaLabel || 'Find a Chapter'}
                   </Link>
                 </div>
               </div>
 
               <aside className="hero__panel">
-                <p className="hero__panel-label">Our alumni network</p>
-                <h2>Connected by RUET, strengthened by community.</h2>
-                <p>
-                  Discover members, chapters, upcoming programs, and stories from RUET alumni across
-                  the United States.
-                </p>
-                <dl className="hero__meta">
-                  {statItems.map((item) => (
-                    <div key={item.label}>
-                      <dt>{item.label}</dt>
-                      <dd>{item.value || '0'}</dd>
-                    </div>
-                  ))}
-                </dl>
+                <p className="hero__panel-label">{home.networkPanelEyebrow}</p>
+                <h2>{home.networkPanelTitle}</h2>
+                <p>{home.networkPanelDescription}</p>
+                <Link className="surface-card__link" href="/about">
+                  Learn about RUETIAN USA
+                </Link>
               </aside>
             </div>
           </Container>
         </section>
 
-        {announcements.length ? (
-          <section className="page-section page-section--alt">
-            <Container>
-              <SectionHeading
-                eyebrow="Announcements"
-                title="Latest organization notices"
-                description="Stay informed about association news, chapter updates, and opportunities across the alumni network."
-              />
+        <section aria-labelledby="homepage-stats-title" className="credibility-band">
+          <Container>
+            <div className="credibility-band__heading">
+              <p className="eyebrow">{home.statsSectionEyebrow}</p>
+              <h2 id="homepage-stats-title">{home.statsSectionTitle}</h2>
+            </div>
+            <dl className="credibility-band__stats">
+              {statItems.map((item) => (
+                <div key={item.label}>
+                  <dd>{item.value}</dd>
+                  <dt>{item.label}</dt>
+                </div>
+              ))}
+            </dl>
+          </Container>
+        </section>
+
+        <section className="page-section page-section--alt">
+          <Container>
+            <SectionHeading
+              eyebrow="Announcements"
+              title={home.announcementSectionTitle || 'Latest organization notices'}
+              description={home.announcementSectionDescription || undefined}
+            />
+            {announcements.length ? (
               <AnnouncementFeed announcements={announcements} />
-            </Container>
-          </section>
-        ) : null}
+            ) : (
+              <article className="surface-card surface-card--empty">
+                <h3>All caught up</h3>
+                <p>There are no active organization notices at this time.</p>
+              </article>
+            )}
+          </Container>
+        </section>
 
         <section className="page-section">
           <Container>
             <SectionHeading
               eyebrow="Membership"
               title={home.membershipSectionTitle || 'One community, year-round connection'}
-              description={
-                home.membershipSectionDescription ||
-                'Annual membership supports alumni programs, local chapters, learning, and community connections.'
-              }
+              description={home.membershipSectionDescription || undefined}
             />
-
             <div className="membership-highlight">
               <div className="surface-card surface-card--feature">
-                <p className="surface-card__label">Launch plan</p>
-                <h3>{plan?.title || 'Annual Membership'}</h3>
+                <p className="surface-card__label">Annual membership</p>
+                <h3>{plan?.title || 'RUETIAN USA Membership'}</h3>
                 <p>
                   {plan?.publicSummary ||
-                    'One annual membership connecting RUET alumni across chapters, careers, and communities.'}
+                    'Connect with alumni across chapters, careers, service, and community programs.'}
                 </p>
                 <strong className="membership-highlight__price">
                   {plan ? formatCurrency(plan.annualPrice ?? 50, plan.currency || 'USD') : '$50.00'}
                   <span> / year</span>
                 </strong>
                 <Link className="button button--primary" href="/membership">
-                  View membership page
+                  Explore membership
                 </Link>
               </div>
             </div>
@@ -156,26 +180,26 @@ export default async function HomePage() {
         <section className="page-section page-section--alt">
           <Container>
             <SectionHeading
-              eyebrow="Chapters"
-              title="Find your local alumni community"
-              description="Regional chapters create opportunities to meet, volunteer, learn, and stay connected."
+              eyebrow="Featured events"
+              title={home.eventsSectionTitle || 'Meet, learn, and participate'}
+              description={home.eventsSectionDescription || undefined}
+              action={{ href: '/events', label: 'View all events' }}
             />
-
             <div className="card-grid">
-              {chapters.length ? (
-                chapters.map((chapter) => (
+              {events.length ? (
+                events.map((event) => (
                   <CollectionCard
-                    description={chapter.summary}
-                    href={`/chapters/${chapter.slug}`}
-                    key={chapter.id}
-                    meta={chapter.regionOrState || 'RUETIAN USA Chapter'}
-                    title={chapter.name}
+                    description={event.summary}
+                    href={`/events/${event.slug}`}
+                    key={event.id}
+                    meta={`${formatDateTime(event.startAt, { timeZone: event.timezone })} · ${event.eventMode}`}
+                    title={event.title}
                   />
                 ))
               ) : (
                 <article className="surface-card surface-card--empty">
-                  <h3>No active chapters yet</h3>
-                  <p>New regional chapters will appear here as they become active.</p>
+                  <h3>No upcoming events</h3>
+                  <p>Browse the event archive or check back for the next alumni program.</p>
                 </article>
               )}
             </div>
@@ -185,26 +209,107 @@ export default async function HomePage() {
         <section className="page-section">
           <Container>
             <SectionHeading
-              eyebrow="Events"
-              title="Meet, learn, and participate"
-              description="Explore in-person, virtual, and hybrid programs hosted across the alumni network."
+              eyebrow="Chapter spotlight"
+              title={home.chaptersSectionTitle || 'Find your local alumni community'}
+              description={home.chaptersSectionDescription || undefined}
+              action={{ href: '/chapters', label: 'Explore all chapters' }}
             />
-
-            <div className="card-grid">
-              {events.length ? (
-                events.map((event) => (
+            {spotlight ? (
+              <div className="homepage-spotlight">
+                <article className="surface-card surface-card--feature">
+                  <Badge tone="green">Active chapter</Badge>
+                  <p className="surface-card__label">
+                    {spotlight.regionOrState || 'United States'}
+                  </p>
+                  <h3>{spotlight.name}</h3>
+                  <p>{spotlight.description || spotlight.summary}</p>
+                  <Link className="button button--primary" href={`/chapters/${spotlight.slug}`}>
+                    Visit chapter
+                  </Link>
+                </article>
+                {chapters.slice(1).map((chapter) => (
                   <CollectionCard
-                    description={event.summary}
-                    href={`/events/${event.slug}`}
-                    key={event.id}
-                    meta={`${event.eventMode || 'event'} • ${event.timezone || 'timezone not set'}`}
-                    title={event.title}
+                    description={chapter.summary}
+                    href={`/chapters/${chapter.slug}`}
+                    key={chapter.id}
+                    meta={chapter.regionOrState || 'RUETIAN USA Chapter'}
+                    title={chapter.name}
+                  />
+                ))}
+              </div>
+            ) : (
+              <article className="surface-card surface-card--empty">
+                <h3>Connect with the national community</h3>
+                <p>Explore chapter formation or propose a community in your region.</p>
+                <Link className="surface-card__link" href="/chapters/request">
+                  Request a chapter
+                </Link>
+              </article>
+            )}
+          </Container>
+        </section>
+
+        <section className="page-section page-section--alt">
+          <Container>
+            <SectionHeading
+              eyebrow="Our history"
+              title={home.historySectionTitle || 'Milestones that connect generations'}
+              description={home.historySectionDescription || undefined}
+              action={{ href: '/history', label: 'Explore the timeline' }}
+            />
+            <div className="card-grid">
+              {history.length ? (
+                history.map((entry) => (
+                  <CollectionCard
+                    description={entry.summary}
+                    href="/history"
+                    key={entry.id}
+                    meta={
+                      entry.endYear
+                        ? `${entry.startYear}–${entry.endYear}`
+                        : String(entry.startYear)
+                    }
+                    title={entry.title}
                   />
                 ))
               ) : (
                 <article className="surface-card surface-card--empty">
-                  <h3>No published events yet</h3>
-                  <p>Upcoming alumni programs will be shared here when registration opens.</p>
+                  <h3>Explore the living archive</h3>
+                  <p>RUET milestones and alumni memories are organized in the history timeline.</p>
+                </article>
+              )}
+            </div>
+          </Container>
+        </section>
+
+        <section className="page-section">
+          <Container>
+            <SectionHeading
+              eyebrow="Committees"
+              title={home.committeesSectionTitle || 'Volunteer leadership and continuity'}
+              description={home.committeesSectionDescription || undefined}
+              action={{ href: '/committees/running', label: 'Meet our leadership' }}
+            />
+            <div className="card-grid">
+              {committees.length ? (
+                committees
+                  .slice(0, 3)
+                  .map((term) => (
+                    <CollectionCard
+                      description={
+                        term.summary ||
+                        `${term.members?.length || 0} volunteer leaders serving this term.`
+                      }
+                      href={`/committees/${term.committeeType}`}
+                      key={term.id}
+                      meta={`${term.committeeType} committee · ${term.members?.length || 0} members`}
+                      title={term.title}
+                    />
+                  ))
+              ) : (
+                <article className="surface-card surface-card--empty">
+                  <h3>Leadership records</h3>
+                  <p>View current and historical running and advisory committee terms.</p>
                 </article>
               )}
             </div>
@@ -215,10 +320,10 @@ export default async function HomePage() {
           <Container>
             <SectionHeading
               eyebrow="Learning"
-              title="Knowledge shared across generations"
-              description="Read alumni perspectives, professional development articles, and practical community resources."
+              title={home.learningSectionTitle || 'Knowledge shared across generations'}
+              description={home.learningSectionDescription || undefined}
+              action={{ href: '/learning', label: 'Visit the learning hub' }}
             />
-
             <div className="card-grid">
               {posts.length ? (
                 posts.map((post) => (
@@ -226,14 +331,17 @@ export default async function HomePage() {
                     description={post.excerpt}
                     href={`/learning/${post.slug}`}
                     key={post.id}
-                    meta="Learning & Development"
+                    meta={post.contentType || 'Article'}
                     title={post.title}
                   />
                 ))
               ) : (
                 <article className="surface-card surface-card--empty">
-                  <h3>No published articles yet</h3>
-                  <p>New articles and community resources will be shared here.</p>
+                  <h3>Explore learning resources</h3>
+                  <p>
+                    Professional knowledge and alumni perspectives are collected in the learning
+                    hub.
+                  </p>
                 </article>
               )}
             </div>
