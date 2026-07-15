@@ -91,6 +91,18 @@ export const SiteSettings: GlobalConfig = {
       required: true,
     },
     {
+      name: 'paymentProofRetentionDays',
+      type: 'number',
+      admin: {
+        description:
+          'Finalized payment-proof files are permanently deleted after this many days. Payment, order, and audit records remain.',
+      },
+      defaultValue: 180,
+      max: 3650,
+      min: 30,
+      required: true,
+    },
+    {
       name: 'noRefundNotice',
       type: 'textarea',
       defaultValue: STANDARD_NO_REFUND_NOTICE,

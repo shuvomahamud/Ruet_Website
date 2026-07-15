@@ -11,6 +11,7 @@ import type {
   Promotion,
   User,
 } from '@/payload-types'
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MEGABYTES } from '@/storage/config'
 import { AppError } from '@/utilities/errors'
 import { getRelationshipID } from '@/utilities/relationships'
 
@@ -51,13 +52,7 @@ const pendingMembershipStatuses: Membership['status'][] = [
   'pending_payment',
   'pending_manual_approval',
 ]
-const acceptedProofTypes = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'application/pdf',
-])
-const MAX_PROOF_BYTES = 8 * 1024 * 1024
+const acceptedProofTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
 
 const money = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
 
@@ -105,10 +100,7 @@ const hasCurrentMembership = async (payload: Payload, userID: number, req?: Payl
     pagination: false,
     req,
     where: {
-      and: [
-        { user: { equals: userID } },
-        { status: { in: ['active', 'grace_period'] } },
-      ],
+      and: [{ user: { equals: userID } }, { status: { in: ['active', 'grace_period'] } }],
     },
   })
   return result.docs.length > 0
@@ -170,10 +162,7 @@ const assertPromotionCapacity = async (
     overrideAccess: true,
     req,
     where: {
-      and: [
-        { promotion: { equals: promotion.id } },
-        { status: { in: ['pending', 'paid'] } },
-      ],
+      and: [{ promotion: { equals: promotion.id } }, { status: { in: ['pending', 'paid'] } }],
     },
   })
   if (usage.totalDocs >= promotion.usageLimit) {
@@ -257,11 +246,17 @@ const validateProof = (proofFile: File | undefined, transactionId: string | unde
       status: 400,
     })
   }
-  if (proofFile && (!acceptedProofTypes.has(proofFile.mimetype) || proofFile.size > MAX_PROOF_BYTES)) {
-    throw new AppError('Payment proof must be a JPG, PNG, WebP, or PDF no larger than 8 MB.', {
-      code: 'INVALID_PAYMENT_PROOF',
-      status: 400,
-    })
+  if (
+    proofFile &&
+    (!acceptedProofTypes.has(proofFile.mimetype) || proofFile.size > MAX_UPLOAD_BYTES)
+  ) {
+    throw new AppError(
+      `Payment proof must be a JPG, PNG, WebP, or PDF no larger than ${MAX_UPLOAD_MEGABYTES} MB.`,
+      {
+        code: 'INVALID_PAYMENT_PROOF',
+        status: 400,
+      },
+    )
   }
 }
 
@@ -301,7 +296,9 @@ const resolvePreviousMembership = (
   memberships: Membership[],
   intent: Exclude<MembershipIntent, 'resubmit'>,
 ) => {
-  const pending = memberships.find((membership) => pendingMembershipStatuses.includes(membership.status))
+  const pending = memberships.find((membership) =>
+    pendingMembershipStatuses.includes(membership.status),
+  )
   if (pending) {
     throw new AppError('A membership payment is already pending.', {
       code: 'MEMBERSHIP_PAYMENT_ALREADY_PENDING',
@@ -311,10 +308,13 @@ const resolvePreviousMembership = (
   const latest = memberships[0]
   if (intent === 'join') {
     if (latest) {
-      throw new AppError('Use renewal, reactivation, or resubmission for your existing membership.', {
-        code: 'MEMBERSHIP_ALREADY_EXISTS',
-        status: 409,
-      })
+      throw new AppError(
+        'Use renewal, reactivation, or resubmission for your existing membership.',
+        {
+          code: 'MEMBERSHIP_ALREADY_EXISTS',
+          status: 409,
+        },
+      )
     }
     return undefined
   }

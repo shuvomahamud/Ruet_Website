@@ -40,7 +40,7 @@ Completed task disposition:
 - Successful retries clear the error and retain one provider message identity.
 - `transactional`, `reminders`, `waitlist`, and `newsletters` queues accept immediate or future `waitUntil` jobs.
 - Job queue/run/cancel endpoints require a super admin when access is not overridden by trusted server code.
-- Persistent hosts may opt into one in-process worker; external schedulers can run `pnpm jobs:run` to handle schedules and drain all queues.
+- Persistent hosts may opt into one in-process worker; the Vercel deployment uses Supabase Cron to invoke the authenticated all-queue HTTP runner.
 - Worker setup, monitoring, recovery, security, and production verification are documented in [email-and-jobs-operations.md](/Users/shuvomahamud/Projects/RUET_Website/docs/email-and-jobs-operations.md).
 
 ## Data And Migration Verification
@@ -97,7 +97,7 @@ Production delivery verification still requires:
 
 - a Resend sending API key
 - a verified sender domain and from address
-- the production hosting choice that determines in-process versus external-scheduler job execution
+- activation of the prepared Supabase Cron job after the final public HTTPS URL exists
 - an operational owner and alert destination for final delivery failures
 
 These inputs are deployment configuration, not missing Phase 5 application code. Until supplied, local and automated environments remain safely on capture transport.

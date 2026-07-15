@@ -31,16 +31,19 @@ import { Payments } from './collections/Payments'
 import { PaymentProofs } from './collections/PaymentProofs'
 import { Posts } from './collections/Posts'
 import { Promotions } from './collections/Promotions'
+import { RateLimitBuckets } from './collections/RateLimitBuckets'
 import { WaitlistEntries } from './collections/WaitlistEntries'
 import { deliverEmailTask } from './jobs/deliver-email'
 import { eventLifecycleTask } from './jobs/event-lifecycle'
 import { membershipLifecycleTask } from './jobs/membership-lifecycle'
 import { newsletterLifecycleTask } from './jobs/newsletter-lifecycle'
+import { paymentProofRetentionTask } from './jobs/payment-proof-retention'
 import { Footer } from './globals/Footer'
 import { Header } from './globals/Header'
 import { Home } from './globals/Home'
 import { SeoDefaults } from './globals/SeoDefaults'
 import { SiteSettings } from './globals/SiteSettings'
+import { MAX_UPLOAD_BYTES, storagePlugins } from './storage/config'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -97,6 +100,7 @@ export default buildConfig({
     withCollectionGroup(CommitteeTerms, 'Community'),
     withCollectionGroup(HistoryEntries, 'Content'),
     withCollectionGroup(NewsletterCampaigns, 'Communications'),
+    RateLimitBuckets,
   ],
   editor: lexicalEditor(),
   email: createEmailAdapter(),
@@ -125,7 +129,13 @@ export default buildConfig({
     deleteJobOnComplete: false,
     enableConcurrencyControl: true,
     processingOrder: 'createdAt',
-    tasks: [deliverEmailTask, eventLifecycleTask, membershipLifecycleTask, newsletterLifecycleTask],
+    tasks: [
+      deliverEmailTask,
+      eventLifecycleTask,
+      membershipLifecycleTask,
+      newsletterLifecycleTask,
+      paymentProofRetentionTask,
+    ],
   },
   secret: env.PAYLOAD_SECRET,
   serverURL: env.NEXT_PUBLIC_SITE_URL,
@@ -134,10 +144,23 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
+      allowExitOnIdle: true,
+      connectionTimeoutMillis: 10_000,
       connectionString: env.DATABASE_URL,
+      idleTimeoutMillis: 10_000,
+      max: env.DATABASE_POOL_MAX,
     },
     push: false,
   }),
   sharp,
-  plugins: [],
+  upload: {
+    abortOnLimit: true,
+    limits: {
+      fileSize: MAX_UPLOAD_BYTES,
+      files: 1,
+    },
+    responseOnLimit: 'The uploaded file exceeds the 4 MB limit.',
+    safeFileNames: true,
+  },
+  plugins: storagePlugins,
 })

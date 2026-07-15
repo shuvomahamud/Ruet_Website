@@ -346,6 +346,7 @@ for (const page of pages) {
 await payload.updateGlobal({
   slug: 'header',
   data: {
+    _status: 'published',
     mainLinks: defaultMainNavigation,
     primaryCtaHref: '/membership',
     primaryCtaLabel: 'Join Membership',
@@ -361,6 +362,7 @@ await payload.updateGlobal({
 await payload.updateGlobal({
   slug: 'footer',
   data: {
+    _status: 'published',
     groups: [
       {
         links: [
@@ -417,6 +419,7 @@ await payload.updateGlobal({
 await payload.updateGlobal({
   slug: 'home',
   data: {
+    _status: 'published',
     announcementSectionDescription:
       'Stay informed about association news, chapter updates, and opportunities across the alumni network.',
     announcementSectionTitle: 'Latest organization notices',
@@ -460,6 +463,7 @@ await payload.updateGlobal({
 await payload.updateGlobal({
   slug: 'siteSettings',
   data: {
+    _status: 'published',
     chapterSupportEmail: 'chapters@example.test',
     contactResponseNote:
       'Send us a message and the appropriate RUETIAN USA volunteer will follow up when available.',
@@ -470,6 +474,7 @@ await payload.updateGlobal({
     manualPaymentReviewNote: STANDARD_MANUAL_REVIEW_NOTE,
     mailingAddress: '123 Sample Alumni Way\nNew York, NY 10001\nUnited States',
     noRefundNotice: STANDARD_NO_REFUND_NOTICE,
+    paymentProofRetentionDays: 180,
     primaryEmail: 'info@ruetianusa.org',
     primaryPhone: '+1 (212) 555-0126',
     tagline: 'RUET alumni community in the United States',
@@ -552,6 +557,7 @@ if (activePlans.docs[0]) {
 await payload.updateGlobal({
   slug: 'seoDefaults',
   data: {
+    _status: 'published',
     defaultDescription:
       'RUETIAN USA connects RUET alumni across the United States through membership, chapters, events, and professional learning.',
     siteName: 'RUETIAN USA',

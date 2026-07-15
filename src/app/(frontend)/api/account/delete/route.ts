@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    enforceRateLimit({
+    await enforceRateLimit({
       key: rateLimitKey('account-delete', getRequestAddress(request), String(user.id)),
       limit: 5,
       windowMs: 15 * 60 * 1000,

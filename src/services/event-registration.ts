@@ -14,6 +14,7 @@ import type {
   User,
   WaitlistEntry,
 } from '@/payload-types'
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MEGABYTES } from '@/storage/config'
 import { AppError } from '@/utilities/errors'
 import { getRelationshipID } from '@/utilities/relationships'
 
@@ -67,13 +68,7 @@ type SubmissionInput = {
   transactionId?: string
 }
 
-const acceptedProofTypes = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'application/pdf',
-])
-const MAX_PROOF_BYTES = 8 * 1024 * 1024
+const acceptedProofTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
 const money = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
 
 const assertQuantity = (event: Event, quantity: number): void => {
@@ -112,7 +107,11 @@ const assertPublicRegistrationEvent = (event: Event, now = new Date()): void => 
   }
 }
 
-const getChapter = async (payload: Payload, event: Event, req?: PayloadRequest): Promise<Chapter> => {
+const getChapter = async (
+  payload: Payload,
+  event: Event,
+  req?: PayloadRequest,
+): Promise<Chapter> => {
   if (typeof event.chapter === 'object') return event.chapter
   return payload.findByID({
     collection: 'chapters',
@@ -138,10 +137,7 @@ const getReservedSeats = async (
       pagination: false,
       req,
       where: {
-        and: [
-          { event: { equals: eventID } },
-          { status: { in: ['pending', 'confirmed'] } },
-        ],
+        and: [{ event: { equals: eventID } }, { status: { in: ['pending', 'confirmed'] } }],
       },
     }),
     payload.find({
@@ -294,10 +290,7 @@ const assertPromotionCapacity = async (
     overrideAccess: true,
     req,
     where: {
-      and: [
-        { promotion: { equals: promotion.id } },
-        { status: { in: ['pending', 'paid'] } },
-      ],
+      and: [{ promotion: { equals: promotion.id } }, { status: { in: ['pending', 'paid'] } }],
     },
   })
   if (usage.totalDocs >= promotion.usageLimit) {
@@ -368,11 +361,17 @@ const validateProof = (proofFile: File | undefined, transactionId: string | unde
       status: 400,
     })
   }
-  if (proofFile && (!acceptedProofTypes.has(proofFile.mimetype) || proofFile.size > MAX_PROOF_BYTES)) {
-    throw new AppError('Payment proof must be a JPG, PNG, WebP, or PDF no larger than 8 MB.', {
-      code: 'INVALID_PAYMENT_PROOF',
-      status: 400,
-    })
+  if (
+    proofFile &&
+    (!acceptedProofTypes.has(proofFile.mimetype) || proofFile.size > MAX_UPLOAD_BYTES)
+  ) {
+    throw new AppError(
+      `Payment proof must be a JPG, PNG, WebP, or PDF no larger than ${MAX_UPLOAD_MEGABYTES} MB.`,
+      {
+        code: 'INVALID_PAYMENT_PROOF',
+        status: 400,
+      },
+    )
   }
 }
 
@@ -500,7 +499,8 @@ const processWaitlistLocked = async (
 
   if (!event.waitlistEnabled || new Date(event.endAt) <= now) return []
   const reserved = await getReservedSeats(req.payload, event.id, now, req)
-  let available = event.capacity === null || event.capacity === undefined ? Infinity : event.capacity - reserved
+  let available =
+    event.capacity === null || event.capacity === undefined ? Infinity : event.capacity - reserved
   if (available <= 0) return []
   const waiting = await req.payload.find({
     collection: 'waitlistEntries',
@@ -661,7 +661,11 @@ const resubmitEventPayment = async ({
   transactionId?: string
 }): Promise<EventRegistrationResult> => {
   const registration = await activeRegistration(req, event.id, Number(req.user!.id))
-  if (!registration || registration.status !== 'pending' || registration.paymentStatus !== 'failed') {
+  if (
+    !registration ||
+    registration.status !== 'pending' ||
+    registration.paymentStatus !== 'failed'
+  ) {
     throw new AppError('No rejected event payment is available to resubmit.', {
       code: 'NO_FAILED_EVENT_PAYMENT',
       status: 409,
@@ -676,10 +680,7 @@ const resubmitEventPayment = async ({
     pagination: false,
     req,
     where: {
-      and: [
-        { eventRegistration: { equals: registration.id } },
-        { status: { equals: 'pending' } },
-      ],
+      and: [{ eventRegistration: { equals: registration.id } }, { status: { equals: 'pending' } }],
     },
   })
   const order = orders.docs[0]
@@ -747,7 +748,10 @@ export const submitEventRegistration = async ({
   if (!req.user?.id) throw new AppError('Sign in to continue.', { status: 401 })
   if (['register', 'accept_offer', 'resubmit'].includes(intent) && (proofFile || transactionId)) {
     // Validate uploads before opening a transaction; free registrations simply ignore absent proof.
-    if (proofFile && (!acceptedProofTypes.has(proofFile.mimetype) || proofFile.size > MAX_PROOF_BYTES)) {
+    if (
+      proofFile &&
+      (!acceptedProofTypes.has(proofFile.mimetype) || proofFile.size > MAX_UPLOAD_BYTES)
+    ) {
       validateProof(proofFile, transactionId)
     }
   }

@@ -1,12 +1,13 @@
 # RUETIAN USA Website
 
-Foundation scaffold for the RUETIAN USA website.
+RUETIAN USA membership, chapter, event, learning, and administration website.
 
 Current stack:
 
 - `Next.js`
 - `Payload CMS`
-- local `PostgreSQL`
+- local `PostgreSQL` for development
+- Supabase Postgres, private Supabase Storage, and Supabase Cron for production
 - `pnpm`
 
 ## Current implementation status
@@ -91,13 +92,13 @@ On first visit to `/admin`, Payload will prompt you to create the initial admin 
 
 ## What you still need to provide later
 
-You do not need these values for Task A, but they will be required for later tasks:
+The remaining production integrations require:
 
-- Google OAuth credentials
-- final Zelle recipient details and payment instructions
+- optional Google OAuth credentials, if Google sign-in will be enabled
+- final Zelle recipient details and payment instructions to replace samples
 - email provider credentials
-- production storage provider configuration
-- final legal page copy
+- Supabase Storage bucket and server-side S3-protocol credentials
+- stakeholder review of the installed standard legal policies
 
 ## Helpful commands
 
@@ -112,7 +113,13 @@ pnpm db:migrate
 pnpm generate:types
 pnpm generate:importmap
 pnpm seed:cms-pages
+pnpm audit:sample
+pnpm supabase:cron:status
 ```
+
+Production uploads use private Supabase Storage. Setup and rotation instructions are in [supabase-storage-operations.md](/Users/shuvomahamud/Projects/RUET_Website/docs/supabase-storage-operations.md).
+
+Vercel deployment, environment, migration, cron, monitoring, backup, and rollback instructions are in [vercel-supabase-launch-runbook.md](/Users/shuvomahamud/Projects/RUET_Website/docs/vercel-supabase-launch-runbook.md).
 
 ## Reproducible verification
 

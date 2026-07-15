@@ -11,16 +11,15 @@ import {
 import { membershipCheckoutSchema } from '@/membership/schema'
 import { submitMembershipCheckout } from '@/services/membership-checkout'
 import { queueMembershipSubmissionNotice } from '@/services/membership-notifications'
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MEGABYTES } from '@/storage/config'
 import { AppError } from '@/utilities/errors'
-
-const MAX_PROOF_BYTES = 8 * 1024 * 1024
 
 export async function POST(request: Request) {
   const user = await authenticateRequest(request.headers)
   if (!user) return Response.json({ message: 'Sign in to continue.' }, { status: 401 })
 
   try {
-    enforceRateLimit({
+    await enforceRateLimit({
       key: rateLimitKey('membership-checkout', String(user.id)),
       limit: 10,
       windowMs: 60 * 60 * 1000,
@@ -50,8 +49,11 @@ export async function POST(request: Request) {
     const upload = form.get('proof')
     let proofFile: PayloadFile | undefined
     if (upload instanceof File && upload.size > 0) {
-      if (upload.size > MAX_PROOF_BYTES) {
-        return Response.json({ message: 'Payment proof cannot exceed 8 MB.' }, { status: 400 })
+      if (upload.size > MAX_UPLOAD_BYTES) {
+        return Response.json(
+          { message: `Payment proof cannot exceed ${MAX_UPLOAD_MEGABYTES} MB.` },
+          { status: 400 },
+        )
       }
       proofFile = {
         data: Buffer.from(await upload.arrayBuffer()),
@@ -68,7 +70,10 @@ export async function POST(request: Request) {
     try {
       await queueMembershipSubmissionNotice(payload, result)
     } catch (error) {
-      payload.logger.error({ err: error, msg: 'Membership submission notification could not queue.' })
+      payload.logger.error({
+        err: error,
+        msg: 'Membership submission notification could not queue.',
+      })
     }
     return Response.json(
       {
@@ -87,7 +92,9 @@ export async function POST(request: Request) {
     return Response.json(
       {
         message:
-          error instanceof AppError ? error.message : 'The membership payment could not be submitted.',
+          error instanceof AppError
+            ? error.message
+            : 'The membership payment could not be submitted.',
       },
       { status },
     )

@@ -21,12 +21,12 @@ export async function POST(request: Request) {
       )
     }
 
-    enforceRateLimit({
+    await enforceRateLimit({
       key: rateLimitKey('signup-ip', getRequestAddress(request)),
       limit: 5,
       windowMs: 15 * 60 * 1000,
     })
-    enforceRateLimit({
+    await enforceRateLimit({
       key: rateLimitKey('signup-email', input.data.email),
       limit: 3,
       windowMs: 60 * 60 * 1000,

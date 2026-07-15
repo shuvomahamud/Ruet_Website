@@ -1,10 +1,4 @@
-import type {
-  Chapter,
-  Membership,
-  MembershipPlan,
-  Promotion,
-  User,
-} from '@/payload-types'
+import type { Chapter, Membership, MembershipPlan, Promotion, User } from '@/payload-types'
 import { createLocalReq, type File, type Payload, type PayloadRequest } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
@@ -15,6 +9,7 @@ import {
 } from '@/services/membership-checkout'
 import { processMembershipLifecycle } from '@/services/membership-lifecycle'
 import { reviewZellePayment } from '@/services/payment-review'
+import { MAX_UPLOAD_BYTES } from '@/storage/config'
 import { getRelationshipID } from '@/utilities/relationships'
 import { getTestPayload } from '../helpers/payload'
 
@@ -340,6 +335,31 @@ describe.sequential('annual membership and Zelle checkout lifecycle', () => {
     expect(proofOnly.payment.proofImage).toBeTruthy()
     expect(proofOnly.payment.proofTransactionId).toBeNull()
 
+    const unrelatedReader = await createUser('unrelated-proof-reader')
+    const [ownerProofs, unrelatedProofs] = await Promise.all([
+      payload.find({
+        collection: 'paymentProofs',
+        overrideAccess: false,
+        user: proofOnlyUser,
+        where: { id: { equals: proofOnly.proof!.id } },
+      }),
+      payload.find({
+        collection: 'paymentProofs',
+        overrideAccess: false,
+        user: unrelatedReader,
+        where: { id: { equals: proofOnly.proof!.id } },
+      }),
+    ])
+    expect(ownerProofs.totalDocs).toBe(1)
+    expect(unrelatedProofs.totalDocs).toBe(0)
+    await expect(
+      payload.find({
+        collection: 'paymentProofs',
+        overrideAccess: false,
+        where: { id: { equals: proofOnly.proof!.id } },
+      }),
+    ).rejects.toThrow()
+
     const combinedUser = await createUser('combined')
     const combined = await checkout(combinedUser, {
       intent: 'join',
@@ -353,6 +373,18 @@ describe.sequential('annual membership and Zelle checkout lifecycle', () => {
     await expect(
       submitMembershipCheckout({ intent: 'join', req: await requestFor(missingUser) }),
     ).rejects.toMatchObject({ code: 'PAYMENT_PROOF_REQUIRED' })
+
+    const oversizedUser = await createUser('oversized-proof')
+    await expect(
+      submitMembershipCheckout({
+        intent: 'join',
+        proofFile: {
+          ...png(`oversized-${nonce}.png`),
+          size: MAX_UPLOAD_BYTES + 1,
+        },
+        req: await requestFor(oversizedUser),
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_PAYMENT_PROOF' })
   })
 
   it('preserves configurable price and grace snapshots after plan changes', async () => {

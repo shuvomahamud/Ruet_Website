@@ -51,6 +51,7 @@ export const Media: CollectionConfig = {
   ],
   upload: {
     mimeTypes: ['image/*', 'application/pdf'],
+    pasteURL: false,
   },
   hooks: {
     beforeChange: [prepareOwnedMedia],

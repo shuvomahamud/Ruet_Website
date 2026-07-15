@@ -535,12 +535,11 @@ Where useful, the public UI should support previewing structured blocks consiste
 
 ## 8. Open Design-Adjacent Items
 
-These still depend on stakeholder or policy closure:
+This still depends on stakeholder or policy closure:
 
 - expected SLA wording for manual payment approval
-- production media/storage policy
 
-These are not blockers for page design, but they affect final copy and operational messaging.
+This is not a blocker for page design, but it affects final copy and operational messaging. The production media design now uses private Supabase Storage with Payload-proxied access.
 
 ## 9. Final Direction
 

@@ -13,6 +13,9 @@ import * as migration_20260714_070100_phase_8_footer_content_backfill from './20
 import * as migration_20260714_080505_phase_10_content_readiness from './20260714_080505_phase_10_content_readiness'
 import * as migration_20260714_115909_phase_10_legal_policies from './20260714_115909_phase_10_legal_policies'
 import * as migration_20260714_120435_phase_10_signup_policy_versions from './20260714_120435_phase_10_signup_policy_versions'
+import * as migration_20260714_124641_phase_11_launch from './20260714_124641_phase_11_launch'
+import * as migration_20260714_125832_phase_11_payment_proof_retention from './20260714_125832_phase_11_payment_proof_retention'
+import * as migration_20260714_152945_phase_11_supabase_storage_prefix from './20260714_152945_phase_11_supabase_storage_prefix'
 
 export const migrations = [
   {
@@ -89,5 +92,20 @@ export const migrations = [
     up: migration_20260714_120435_phase_10_signup_policy_versions.up,
     down: migration_20260714_120435_phase_10_signup_policy_versions.down,
     name: '20260714_120435_phase_10_signup_policy_versions',
+  },
+  {
+    up: migration_20260714_124641_phase_11_launch.up,
+    down: migration_20260714_124641_phase_11_launch.down,
+    name: '20260714_124641_phase_11_launch',
+  },
+  {
+    up: migration_20260714_125832_phase_11_payment_proof_retention.up,
+    down: migration_20260714_125832_phase_11_payment_proof_retention.down,
+    name: '20260714_125832_phase_11_payment_proof_retention',
+  },
+  {
+    up: migration_20260714_152945_phase_11_supabase_storage_prefix.up,
+    down: migration_20260714_152945_phase_11_supabase_storage_prefix.down,
+    name: '20260714_152945_phase_11_supabase_storage_prefix',
   },
 ]

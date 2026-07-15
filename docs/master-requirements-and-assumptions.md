@@ -469,13 +469,9 @@ These assumptions were introduced to unblock planning and should be reviewed dur
 
 ## 13. Remaining Open Items
 
-Only these items remain open:
+Only the expected SLA for manual payment approval remains open.
 
-1. Expected SLA for manual payment approval.
-2. Media and storage policy:
-   - production storage backend
-   - file size limits
-   - retention and archival rules
+The media policy is now fixed: private Supabase Storage in production, a 4 MiB upload ceiling, collection-specific MIME validation, Payload-proxied access, and configurable payment-proof cleanup defaulting to 180 days after a final decision.
 
 ## 14. Final Implementation Position
 

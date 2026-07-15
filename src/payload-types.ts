@@ -91,6 +91,7 @@ export interface Config {
     committeeTerms: CommitteeTerm;
     historyEntries: HistoryEntry;
     newsletterCampaigns: NewsletterCampaign;
+    rateLimitBuckets: RateLimitBucket;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -123,6 +124,7 @@ export interface Config {
     committeeTerms: CommitteeTermsSelect<false> | CommitteeTermsSelect<true>;
     historyEntries: HistoryEntriesSelect<false> | HistoryEntriesSelect<true>;
     newsletterCampaigns: NewsletterCampaignsSelect<false> | NewsletterCampaignsSelect<true>;
+    rateLimitBuckets: RateLimitBucketsSelect<false> | RateLimitBucketsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -160,6 +162,7 @@ export interface Config {
       eventLifecycle: EventLifecycleJobInput;
       membershipLifecycle: MembershipLifecycleJobInput;
       newsletterLifecycle: NewsletterLifecycleJobInput;
+      paymentProofRetention: PaymentProofRetentionJobInput;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -308,6 +311,7 @@ export interface Media {
   alt: string;
   caption?: string | null;
   credit?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -343,6 +347,7 @@ export interface PaymentProof {
   owner: number | User;
   chapter?: (number | null) | Chapter;
   description?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -999,6 +1004,16 @@ export interface HistoryEntry {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rateLimitBuckets".
+ */
+export interface RateLimitBucket {
+  id: number;
+  key: string;
+  count: number;
+  resetAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -1072,6 +1087,7 @@ export interface PayloadJob {
           | 'eventLifecycle'
           | 'membershipLifecycle'
           | 'newsletterLifecycle'
+          | 'paymentProofRetention'
           | 'schedulePublish';
         taskID: string;
         input?:
@@ -1106,7 +1122,15 @@ export interface PayloadJob {
       }[]
     | null;
   taskSlug?:
-    | ('inline' | 'deliverEmail' | 'eventLifecycle' | 'membershipLifecycle' | 'newsletterLifecycle' | 'schedulePublish')
+    | (
+        | 'inline'
+        | 'deliverEmail'
+        | 'eventLifecycle'
+        | 'membershipLifecycle'
+        | 'newsletterLifecycle'
+        | 'paymentProofRetention'
+        | 'schedulePublish'
+      )
     | null;
   queue?: string | null;
   waitUntil?: string | null;
@@ -1229,6 +1253,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'newsletterCampaigns';
         value: number | NewsletterCampaign;
+      } | null)
+    | ({
+        relationTo: 'rateLimitBuckets';
+        value: number | RateLimitBucket;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1351,6 +1379,7 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
   credit?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1371,6 +1400,7 @@ export interface PaymentProofsSelect<T extends boolean = true> {
   owner?: T;
   chapter?: T;
   description?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1916,6 +1946,15 @@ export interface NewsletterCampaignsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rateLimitBuckets_select".
+ */
+export interface RateLimitBucketsSelect<T extends boolean = true> {
+  key?: T;
+  count?: T;
+  resetAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -2011,6 +2050,10 @@ export interface SiteSetting {
   zelleRecipient?: string | null;
   zelleInstructions: string;
   manualPaymentReviewNote: string;
+  /**
+   * Finalized payment-proof files are permanently deleted after this many days. Payment, order, and audit records remain.
+   */
+  paymentProofRetentionDays: number;
   noRefundNotice: string;
   eventPaymentTerms: string;
   _status?: ('draft' | 'published') | null;
@@ -2240,6 +2283,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   zelleRecipient?: T;
   zelleInstructions?: T;
   manualPaymentReviewNote?: T;
+  paymentProofRetentionDays?: T;
   noRefundNotice?: T;
   eventPaymentTerms?: T;
   _status?: T;
@@ -2486,6 +2530,18 @@ export interface NewsletterLifecycleJobInput {
     failedCampaigns: number;
     processedCampaigns: number;
     sentCampaigns: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PaymentProofRetentionJobInput".
+ */
+export interface PaymentProofRetentionJobInput {
+  input?: unknown;
+  output: {
+    deleted: number;
+    eligible: number;
+    retentionDays: number;
   };
 }
 /**

@@ -1,11 +1,8 @@
 import { createHash } from 'node:crypto'
 
-type Bucket = {
-  count: number
-  resetAt: number
-}
-
-const buckets = new Map<string, Bucket>()
+import { sql, type PostgresAdapter } from '@payloadcms/db-postgres'
+import config from '@payload-config'
+import { getPayload } from 'payload'
 
 export class RateLimitError extends Error {
   retryAfterSeconds: number
@@ -35,25 +32,48 @@ export const enforceRateLimit = ({
   key: string
   limit: number
   windowMs: number
-}): void => {
+}): Promise<void> => {
+  return enforceDatabaseRateLimit({ key, limit, windowMs })
+}
+
+const enforceDatabaseRateLimit = async ({
+  key,
+  limit,
+  windowMs,
+}: {
+  key: string
+  limit: number
+  windowMs: number
+}): Promise<void> => {
   const now = Date.now()
-  const existing = buckets.get(key)
+  const nowDate = new Date(now)
+  const nextReset = new Date(now + windowMs)
+  const payload = await getPayload({ config })
+  const database = payload.db as unknown as PostgresAdapter
+  const result = await database.drizzle.execute(sql`
+    INSERT INTO "rate_limit_buckets" ("key", "count", "reset_at")
+    VALUES (${key}, 1, ${nextReset})
+    ON CONFLICT ("key") DO UPDATE SET
+      "count" = CASE
+        WHEN "rate_limit_buckets"."reset_at" <= ${nowDate} THEN 1
+        ELSE "rate_limit_buckets"."count" + 1
+      END,
+      "reset_at" = CASE
+        WHEN "rate_limit_buckets"."reset_at" <= ${nowDate} THEN ${nextReset}
+        ELSE "rate_limit_buckets"."reset_at"
+      END
+    RETURNING "count", "reset_at"
+  `)
+  const row = result.rows[0] as { count?: number | string; reset_at?: Date | string } | undefined
 
-  if (!existing || existing.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + windowMs })
-    return
+  if (!row?.count || !row.reset_at) {
+    throw new Error('The rate-limit counter could not be updated.')
   }
 
-  if (existing.count >= limit) {
-    throw new RateLimitError(Math.max(1, Math.ceil((existing.resetAt - now) / 1000)))
-  }
-
-  existing.count += 1
-
-  if (buckets.size > 2_000) {
-    for (const [bucketKey, bucket] of buckets) {
-      if (bucket.resetAt <= now) buckets.delete(bucketKey)
-    }
+  const count = Number(row.count)
+  const resetAt = new Date(row.reset_at).getTime()
+  if (count > limit) {
+    throw new RateLimitError(Math.max(1, Math.ceil((resetAt - now) / 1000)))
   }
 }
 

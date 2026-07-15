@@ -157,9 +157,13 @@ export const MembershipCheckoutForm = ({
         </label>
         <label>
           Screenshot or PDF proof <span>(optional if transaction ID is provided)</span>
-          <input accept="image/jpeg,image/png,image/webp,application/pdf" name="proof" type="file" />
+          <input
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            name="proof"
+            type="file"
+          />
         </label>
-        <p className="form-help">JPG, PNG, WebP, or PDF; maximum 8 MB.</p>
+        <p className="form-help">JPG, PNG, WebP, or PDF; maximum 4 MB.</p>
         <p className="membership-terms-note">
           {noRefundNotice} This form records a manual payment attempt. It does not debit your
           account and does not activate membership before approval. See the{' '}

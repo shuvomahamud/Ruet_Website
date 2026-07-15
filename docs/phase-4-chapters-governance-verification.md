@@ -101,6 +101,6 @@ Phase 4-specific coverage verifies:
 
 - real chapter directory, leadership, contact, announcement, event, gallery, committee, and history content
 - stakeholder decisions about which chapter requests should be approved in production
-- production media storage and retention policy, already tracked as a launch input
+- live Supabase Storage credentials and bucket smoke testing, tracked as a Phase 11 deployment input
 
 The application and admin schema can accept these inputs without further Phase 4 engineering work.

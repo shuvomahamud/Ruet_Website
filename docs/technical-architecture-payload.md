@@ -127,17 +127,22 @@ Production email delivery is owned by roadmap Phase 5. Production Google verific
   - newsletter sends
   - approval-status emails
 - each queued delivery has a database uniqueness key, exclusive concurrency key, retry/backoff policy, and provider idempotency header
-- persistent hosts may run one in-process worker; serverless hosts invoke `pnpm jobs:run` from an external scheduler
+- persistent hosts may run one in-process worker; the Vercel deployment uses Supabase Cron to invoke the authenticated HTTP job runner
 
 ### 3.7 File handling
 
-Payload upload collections should manage media records, but the long-term production storage backend is still an open policy item.
+Payload upload collections manage media records. Local development uses disk storage; Vercel uses one private Supabase Storage bucket through Supabase's S3-compatible server endpoint.
 
-The implementation should therefore:
+The implementation:
 
-- keep storage adapter choice configurable
-- avoid hard-coding a provider-specific media strategy
-- support images, PDFs, and payment-proof uploads
+- keeps Payload access control in front of stored objects
+- separates editorial files under `media/` and private Zelle evidence under `payment-proofs/`
+- accepts images and PDFs according to collection-specific MIME rules
+- rejects uploads over 4 MiB
+- deletes finalized payment-proof binaries after the configurable retention period, defaulting to 180 days
+- keeps financial and audit metadata after proof-file deletion
+
+Operational setup is documented in [supabase-storage-operations.md](/Users/shuvomahamud/Projects/RUET_Website/docs/supabase-storage-operations.md).
 
 ## 4. High-Level System Layout
 
@@ -689,9 +694,8 @@ Admins may still need internal notes or manual exception handling, but that shou
 
 ## 12. Remaining Open Items
 
-These are policy decisions, not architecture blockers:
+This policy decision is not an architecture blocker:
 
 - expected SLA for manual approval
-- production media storage policy
 
-The implementation should leave these configurable and avoid baking assumptions into irreversible schema decisions.
+The review note remains admin-editable. The production media policy is implemented with private Supabase Storage and documented in the storage operations runbook.

@@ -22,7 +22,7 @@ Completed tasks:
 - Authenticated join requires a complete alumni profile and active primary chapter.
 - Promotion codes are normalized and evaluated on the server for active dates, membership scope, member-only eligibility, type/value, and usage limit.
 - Site Settings owns the Zelle recipient name, email/phone, instructions, manual-review wording, and no-refund notice.
-- Checkout accepts a transaction ID, a JPG/PNG/WebP/PDF proof up to 8 MB, or both.
+- Checkout accepts a transaction ID, a JPG/PNG/WebP/PDF proof up to 4 MB, or both.
 - Members see pending, active, grace, expired, failed-attempt, order, price, term, and payment-attempt history on a private status route.
 - Active/grace members renew through a new annual Zelle attempt; expired members receive a pay-to-reactivate path; failed attempts receive a resubmit path that creates a new immutable payment.
 - Chapter admins review only their managed chapter's pending proofs. Admins and super admins retain organization-wide access. Rejections require a reason.

@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const input = emailSchema.safeParse(await request.json())
     if (!input.success) return Response.json({ message: genericMessage })
 
-    enforceRateLimit({
+    await enforceRateLimit({
       key: rateLimitKey('forgot', getRequestAddress(request), input.data.email),
       limit: 4,
       windowMs: 30 * 60 * 1000,

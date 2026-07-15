@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       )
     }
 
-    enforceRateLimit({
+    await enforceRateLimit({
       key: rateLimitKey('google-start', getRequestAddress(request)),
       limit: 12,
       windowMs: 10 * 60 * 1000,

@@ -256,18 +256,19 @@ The technically complete CMS and homepage still require stakeholder-approved pro
 
 The payment proof workflow is defined, but the expected review window is still open. The product should not promise a turnaround time until this is confirmed.
 
-### 3. Media and storage policy
+## Resolved Media And Storage Policy
 
-There is no finalized policy yet for:
+The policy is finalized for implementation:
 
-- production media storage backend
-- file retention rules
-- image/document size limits
-- archival and cleanup rules
+- production files use one private Supabase Storage bucket
+- Payload's authenticated proxy preserves collection access control
+- uploads are limited to 4 MiB with collection-specific MIME validation
+- finalized payment-proof binaries are retained for an admin-configurable period, defaulting to 180 days, and then deleted by a scheduled job
+- financial, reviewer, and audit metadata remains after the proof file is removed
 
 ## Implementation Direction
 
-The standard Privacy Policy, Terms of Use, Membership Agreement, Zelle terms, and no-refund language are installed as policy version `2026-07-14`, with acceptance evidence for new paid attempts. Phase 10 still cannot close and Phase 11 cannot begin until the approved launch content above is supplied and installed. The SLA and media/storage policy remain Phase 11 launch inputs.
+The standard Privacy Policy, Terms of Use, Membership Agreement, Zelle terms, and no-refund language are installed as policy version `2026-07-14`, with acceptance evidence for new paid attempts. Phase 10 still cannot close until approved launch content replaces the samples. The manual-review SLA remains a launch input; Supabase Storage is selected and now requires its bucket and server access credentials for live verification.
 
 The main implementation posture should be:
 

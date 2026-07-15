@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   if (!user) return Response.json({ message: 'Sign in to continue.' }, { status: 401 })
 
   try {
-    enforceRateLimit({
+    await enforceRateLimit({
       key: rateLimitKey('chapter-request', String(user.id)),
       limit: 3,
       windowMs: 24 * 60 * 60 * 1000,

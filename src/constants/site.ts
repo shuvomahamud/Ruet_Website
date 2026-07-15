@@ -3,6 +3,7 @@ export const fallbackSiteSettings = {
     'Membership, chapters, events, and learning opportunities for the RUET alumni community.',
   id: 0,
   organizationName: 'RUETIAN USA',
+  paymentProofRetentionDays: 180,
   primaryEmail: 'info@ruetianusa.org',
   tagline: 'RUET alumni community in the United States',
   utilityMessage: 'Connecting RUET alumni across the United States',

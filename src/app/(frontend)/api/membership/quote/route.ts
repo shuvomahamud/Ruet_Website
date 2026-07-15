@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   if (!user) return Response.json({ message: 'Sign in to continue.' }, { status: 401 })
 
   try {
-    enforceRateLimit({
+    await enforceRateLimit({
       key: rateLimitKey('membership-quote', String(user.id)),
       limit: 30,
       windowMs: 60 * 60 * 1000,
@@ -35,7 +35,9 @@ export async function POST(request: Request) {
     return Response.json(
       {
         message:
-          error instanceof AppError ? error.message : 'The membership total could not be calculated.',
+          error instanceof AppError
+            ? error.message
+            : 'The membership total could not be calculated.',
       },
       { status },
     )

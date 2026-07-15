@@ -9,18 +9,20 @@ import {
   RateLimitError,
 } from '@/auth/rate-limit'
 import { eventRegistrationSchema } from '@/events/schema'
-import { queueEventSubmissionNotices, queueWaitlistPromotionNotices } from '@/services/event-notifications'
+import {
+  queueEventSubmissionNotices,
+  queueWaitlistPromotionNotices,
+} from '@/services/event-notifications'
 import { submitEventRegistration } from '@/services/event-registration'
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MEGABYTES } from '@/storage/config'
 import { AppError } from '@/utilities/errors'
-
-const MAX_PROOF_BYTES = 8 * 1024 * 1024
 
 export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const user = await authenticateRequest(request.headers)
   if (!user) return Response.json({ message: 'Sign in to continue.' }, { status: 401 })
 
   try {
-    enforceRateLimit({
+    await enforceRateLimit({
       key: rateLimitKey('event-registration', String(user.id)),
       limit: 20,
       windowMs: 60 * 60 * 1000,
@@ -43,8 +45,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const upload = form.get('proof')
     let proofFile: PayloadFile | undefined
     if (upload instanceof File && upload.size > 0) {
-      if (upload.size > MAX_PROOF_BYTES) {
-        return Response.json({ message: 'Payment proof cannot exceed 8 MB.' }, { status: 400 })
+      if (upload.size > MAX_UPLOAD_BYTES) {
+        return Response.json(
+          { message: `Payment proof cannot exceed ${MAX_UPLOAD_MEGABYTES} MB.` },
+          { status: 400 },
+        )
       }
       proofFile = {
         data: Buffer.from(await upload.arrayBuffer()),
@@ -119,7 +124,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     return Response.json(
       {
         message:
-          error instanceof AppError ? error.message : 'The event registration could not be submitted.',
+          error instanceof AppError
+            ? error.message
+            : 'The event registration could not be submitted.',
       },
       { status },
     )

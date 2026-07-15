@@ -6,7 +6,33 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
+const securityHeaders = [
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+  { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), geolocation=(), microphone=()' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+]
+
 const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        headers: securityHeaders,
+        source: '/:path*',
+      },
+      {
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, no-store',
+          },
+        ],
+        source: '/api/paymentProofs/file/:path*',
+      },
+    ]
+  },
   images: {
     localPatterns: [
       {
@@ -17,6 +43,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  poweredByHeader: false,
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],

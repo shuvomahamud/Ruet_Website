@@ -52,7 +52,7 @@ K-02,Payment and registration history views,Completed
 K-03,Admin reporting views,Completed
 L-01,Draft review and publish workflow,Completed
 L-02,Seed content and admin usability pass,Completed
-M-01,End-to-end flow validation,Pending
-M-02,Access control and security validation,Pending
-M-03,Performance and responsive QA,Pending
-M-04,Launch configuration and operational checklist,Pending
+M-01,End-to-end flow validation,Partial
+M-02,Access control and security validation,Partial
+M-03,Performance and responsive QA,Partial
+M-04,Launch configuration and operational checklist,Partial

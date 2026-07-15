@@ -37,5 +37,6 @@ export const PaymentProofs: CollectionConfig = {
   },
   upload: {
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
+    pasteURL: false,
   },
 }

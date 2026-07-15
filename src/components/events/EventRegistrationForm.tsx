@@ -209,15 +209,21 @@ export const EventRegistrationForm = ({
           </label>
           <label>
             Screenshot or PDF proof <span>(optional if transaction ID is provided)</span>
-            <input accept="image/jpeg,image/png,image/webp,application/pdf" name="proof" type="file" />
+            <input
+              accept="image/jpeg,image/png,image/webp,application/pdf"
+              name="proof"
+              type="file"
+            />
           </label>
-          <p className="form-help">JPG, PNG, WebP, or PDF; maximum 8 MB.</p>
+          <p className="form-help">JPG, PNG, WebP, or PDF; maximum 4 MB.</p>
           <p className="membership-terms-note">{paymentTerms}</p>
           <label className="check-field">
             <input name="paymentTermsAccepted" required type="checkbox" />
             <span>
               I agree to the{' '}
-              <Link href="/terms-of-use#payments-and-events">Zelle payment and no-refund terms</Link>
+              <Link href="/terms-of-use#payments-and-events">
+                Zelle payment and no-refund terms
+              </Link>
               .
             </span>
           </label>

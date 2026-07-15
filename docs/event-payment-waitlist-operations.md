@@ -56,14 +56,14 @@ Members join or accept a waitlist offer from the public event detail page.
 - A paid offer creates the pending Zelle transaction on acceptance.
 - Expiry releases capacity and evaluates the queue again.
 
-The lifecycle task is scheduled every 15 minutes on the `waitlist` queue. Production must run either:
+The lifecycle task is scheduled every 15 minutes on the `waitlist` queue. Supabase Cron normally invokes the authenticated all-queue application runner. For manual recovery, run:
 
 ```bash
 nvm use
 pnpm jobs:run
 ```
 
-from an external scheduler, or one designated persistent Payload job runner as described in [email-and-jobs-operations.md](/Users/shuvomahamud/Projects/RUET_Website/docs/email-and-jobs-operations.md). Do not run overlapping unmanaged workers.
+as described in [email-and-jobs-operations.md](/Users/shuvomahamud/Projects/RUET_Website/docs/email-and-jobs-operations.md). Do not add overlapping unmanaged workers.
 
 ## Monitoring
 

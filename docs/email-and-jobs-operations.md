@@ -69,12 +69,12 @@ The `deliverEmail` task has three retries with exponential backoff, exclusive de
 
 Available queues:
 
-| Queue           | Intended work                                                         |
-| --------------- | --------------------------------------------------------------------- |
-| `transactional` | Immediate required account and transaction messages                   |
-| `reminders`     | Scheduled membership and operational reminders                        |
+| Queue           | Intended work                                                           |
+| --------------- | ----------------------------------------------------------------------- |
+| `transactional` | Immediate required account and transaction messages                     |
+| `reminders`     | Scheduled membership and operational reminders                          |
 | `waitlist`      | Waitlist-related delivery after an idempotent state transition succeeds |
-| `newsletters`   | Scheduled optional newsletter delivery                                |
+| `newsletters`   | Scheduled optional newsletter delivery                                  |
 
 Callers may supply `scheduledFor` to persist a future `waitUntil` time. Event lifecycle code completes its idempotent seat-allocation transition separately, then queues email with a stable key; retrying email never repeats the transition.
 
@@ -84,7 +84,20 @@ The `newsletterLifecycle` schedule runs every minute on the `newsletters` queue.
 
 ## Running Jobs
 
-### External scheduler or one-off execution
+### Supabase scheduler
+
+Supabase Cron invokes `GET /api/cron/jobs` every five minutes with `Authorization: Bearer $CRON_SECRET`. The route handles schedules, drains all queues in bounded batches, and removes expired persistent rate-limit rows. Keep `JOBS_AUTORUN=false` on Vercel.
+
+The job URL and bearer credential are stored encrypted in Supabase Vault. Configure or inspect the scheduler after the public deployment URL exists:
+
+```bash
+pnpm supabase:cron:configure
+pnpm supabase:cron:status
+```
+
+No login-triggered runner is needed. Login and other user-facing requests must remain independent of background queue health.
+
+### External worker or one-off execution
 
 Run due scheduled jobs and then drain all queues:
 
@@ -93,7 +106,7 @@ nvm use
 pnpm jobs:run
 ```
 
-This is the recommended production pattern for serverless or horizontally scaled deployments. Configure the hosting scheduler to run the command at least once per minute, and prevent overlapping invocations at the infrastructure level.
+This command is appropriate for a designated external worker or manual recovery. The authenticated HTTP route called by Supabase is the normal serverless execution path.
 
 ### Persistent Node process
 
@@ -134,6 +147,6 @@ Before launch:
 3. Set `EMAIL_TRANSPORT=resend`.
 4. Send a production-like test to an approved mailbox.
 5. Confirm the delivery audit contains provider and message IDs but no message body or secret.
-6. Confirm the scheduler runs all four queues and the one-minute newsletter lifecycle at the selected interval.
+6. Confirm the scheduler runs all four queues and processes the one-minute newsletter lifecycle within the five-minute polling interval.
 7. Trigger one controlled retry and confirm only one email is received.
 8. Configure alerts for final job failures and an operational owner for remediation.

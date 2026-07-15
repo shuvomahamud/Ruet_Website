@@ -184,13 +184,14 @@ Fully completed tasks:
 Partially implemented tasks already started in code:
 
 - `E-01`
-
-Pending tasks:
-
 - `M-01`
 - `M-02`
 - `M-03`
 - `M-04`
+
+Pending tasks:
+
+- none
 
 Superseded tasks:
 
@@ -1794,6 +1795,8 @@ Acceptance criteria:
 
 - no launch-blocking defects remain in the core flows
 
+Verification update (2026-07-14): automated integration coverage passes all 68 scenarios, including authentication, Zelle membership/event payment, chapter requests, waitlists, lifecycle jobs, account deletion, and direct workflow access. Final role-based browser UAT and named acceptance remain open. See [phase-11-launch-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-11-launch-readiness-verification.md).
+
 ### Task M-02: Access control and security validation
 
 Objective:
@@ -1821,6 +1824,8 @@ Acceptance criteria:
 
 - role boundaries hold under direct-route and UI access tests
 
+Verification update (2026-07-14): persistent rate limits, secret scanning, private proof access, upload limits, workflow authorization, and negative direct-API tests pass. Live production-provider and final role-based browser security checks remain open. See [phase-11-launch-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-11-launch-readiness-verification.md).
+
 ### Task M-03: Performance and responsive QA
 
 Objective:
@@ -1846,6 +1851,8 @@ Dependencies:
 Acceptance criteria:
 
 - the site is usable and visually coherent on mobile and desktop
+
+Verification update (2026-07-14): automated desktop/mobile Axe coverage passes the public route matrix, and Lighthouse passes the configured performance, accessibility, best-practices, SEO, and layout-shift assertions. Final manual device, keyboard, and production-network QA remain open. See [phase-11-launch-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-11-launch-readiness-verification.md).
 
 ### Task M-04: Launch configuration and operational checklist
 
@@ -1873,6 +1880,8 @@ Dependencies:
 Acceptance criteria:
 
 - a developer can follow the documented checklist to deploy the application safely
+
+Verification update (2026-07-14): Supabase runtime/migration connectivity, private Storage, migration/restore rehearsal, authenticated cron/health routes, Supabase Cron extensions and Vault-backed setup, production validation, exact Vercel build, and deployment/rollback documentation are complete. Vercel login/project linkage, activation against the final HTTPS URL, real email/Google configuration, final content, owners, and UAT sign-off remain open. See [vercel-supabase-launch-runbook.md](/Users/shuvomahamud/Projects/RUET_Website/docs/vercel-supabase-launch-runbook.md).
 
 ## 8. Suggested Implementation Order
 
@@ -1914,10 +1923,11 @@ These tasks should wait until data model and access rules are stable:
 
 ## 10. Known Open Inputs That May Affect Later Tasks
 
-These items are still open and may require small follow-up changes later:
+This item is still open and may require a small copy change later:
 
 - expected SLA language for manual payment approval
-- final production media/storage policy
+
+The production media policy is fixed: one private Supabase Storage bucket, a 4 MiB upload limit, collection-specific MIME validation, Payload-proxied access, and configurable finalized-proof retention that defaults to 180 days.
 
 This payment decision should also be preserved:
 

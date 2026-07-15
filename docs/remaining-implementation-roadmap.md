@@ -41,11 +41,11 @@ Historical migration files must not be rewritten after they have been applied. S
 After the Phase 10 technical implementation checkpoint, the tracked backlog contains:
 
 - `50` completed tasks
-- `1` partially implemented task
-- `4` pending tasks
+- `5` partially implemented tasks
+- `0` pending tasks
 - `2` superseded Stripe tasks
 
-There are `5` active remaining tasks. `E-01` is waiting only for approved stakeholder content; the four Phase 11 tasks remain gated behind Phase 10 completion. Each active task has exactly one completion-owner phase in the traceability matrix below.
+There are `5` active remaining tasks. `E-01` is waiting for approved stakeholder content; the four Phase 11 tasks have completed substantial repository-side verification but remain partial until production integrations, manual UAT, operations, and sign-off are proven. Each active task has exactly one completion-owner phase in the traceability matrix below.
 
 ### 2.3 Work excluded from the approved launch scope
 
@@ -456,9 +456,11 @@ Required external input before phase completion for launch content:
 
 ## Phase 11: Full QA, Security, Performance, And Launch
 
+Status: `In progress` on 2026-07-14. Repository hardening and the exact Vercel build pass; production integrations, final content, UAT sign-off, and live deployment verification remain open. Evidence: [phase-11-launch-readiness-verification.md](/Users/shuvomahamud/Projects/RUET_Website/docs/phase-11-launch-readiness-verification.md).
+
 Goal: validate the complete product and produce a deployable, supportable release.
 
-Tasks completed in this phase:
+Tasks owned by this phase:
 
 - `M-01` End-to-end flow validation
 - `M-02` Access-control and security validation
@@ -472,7 +474,7 @@ Work:
 - security tests for authorization bypass, IDOR, upload validation, session handling, CSRF, rate limiting, sensitive-field exposure, and secret leakage
 - performance checks for public routes, images, fonts, database queries, caching, and layout shift
 - clean-database and existing-database migration rehearsals with backup/restore tests
-- production storage adapter, retention, size/type limits, and cleanup policy
+- private Supabase Storage adapter, 180-day default proof retention, 4 MiB size limit, MIME validation, and scheduled cleanup
 - production email, jobs, domain, DNS, TLS, environment, logging, monitoring, alerting, and error-reporting configuration
 - administrator bootstrap, least-privilege roles, operational runbooks, incident handling, and rollback procedure
 - final UAT defect closure and launch sign-off
@@ -489,7 +491,7 @@ Required external inputs:
 
 - production hosting and database targets
 - domain/DNS access
-- final media storage and retention policy
+- Supabase Storage bucket, S3-protocol endpoint, region, and server access-key pair
 - production email credentials
 - final manual-payment SLA decision
 - named launch administrators and operational owners
