@@ -158,7 +158,8 @@ describe.sequential('member account lifecycle', () => {
       collection: 'users',
       data: { email },
       disableEmail: true,
-      overrideAccess: true,
+      overrideAccess: false,
+      req: { url: 'http://payload.local/api/users/forgot-password' },
     })
     expect(token).toBeTruthy()
     await expect(

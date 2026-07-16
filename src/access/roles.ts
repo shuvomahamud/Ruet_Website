@@ -80,7 +80,15 @@ export const publicUserCreateAccess: Access = ({ req }) => {
   return isFirstUserRegistration || req.context?.publicSignupValidated === true
 }
 
-export const adminsOrSelf: Access = ({ req: { user } }) => {
+export const adminsOrSelf: Access = ({ req }) => {
+  const { user } = req
+
+  if (
+    new URL(req.url ?? '/', 'http://payload.local').pathname.endsWith('/users/forgot-password')
+  ) {
+    return true
+  }
+
   if (!isActiveAccount(user)) return false
   if (getRole(user) === 'superAdmin') return true
   if (getRole(user) === 'admin') {
