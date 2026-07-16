@@ -145,8 +145,27 @@ main {
 }
 
 .site-header__utility-nav {
+  align-items: center;
   display: flex;
   gap: 18px;
+}
+
+.site-header__utility-action {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.site-header__utility-action:hover {
+  color: var(--color-blue-700);
+}
+
+.site-header__utility-action:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
 .site-header__utility a:hover,

@@ -83,6 +83,9 @@ test.describe.serial('Member authentication', () => {
     await page.getByRole('button', { name: 'Sign in' }).click()
     await expect(page).toHaveURL(/\/dashboard/)
     await expect(page.getByRole('heading', { name: /^Welcome/ })).toBeVisible()
+    const utilityNavigation = page.getByRole('navigation', { name: 'Utility navigation' })
+    await expect(utilityNavigation.getByRole('button', { name: 'Sign out' })).toBeVisible()
+    await expect(utilityNavigation.getByRole('link', { name: 'Sign In' })).toHaveCount(0)
     await page.getByRole('link', { name: 'Profile & security' }).click()
     await expect(page.getByRole('heading', { name: 'Account settings' })).toBeVisible()
 
@@ -90,7 +93,10 @@ test.describe.serial('Member authentication', () => {
     await page.getByRole('button', { name: 'Save profile' }).click()
     await expect(page.getByText('Profile saved.')).toBeVisible()
 
-    await page.getByRole('button', { name: 'Sign out' }).click()
+    await page
+      .getByRole('navigation', { name: 'Utility navigation' })
+      .getByRole('button', { name: 'Sign out' })
+      .click()
     await expect(page).toHaveURL(/\/login/)
     await page.goto('/account/settings')
     await expect(page).toHaveURL(/\/login\?returnTo=/)

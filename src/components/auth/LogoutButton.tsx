@@ -3,7 +3,11 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-export const LogoutButton = () => {
+export const LogoutButton = ({
+  className = 'button button--secondary',
+}: {
+  className?: string
+}) => {
   const router = useRouter()
   const [submitting, setSubmitting] = useState(false)
 
@@ -20,12 +24,7 @@ export const LogoutButton = () => {
   }
 
   return (
-    <button
-      className="button button--secondary"
-      disabled={submitting}
-      onClick={logout}
-      type="button"
-    >
+    <button className={className} disabled={submitting} onClick={logout} type="button">
       {submitting ? 'Signing out…' : 'Sign out'}
     </button>
   )

@@ -1,6 +1,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { headers } from 'next/headers'
 
+import { authenticateRequest } from '@/auth/current-user'
+import { LogoutButton } from '@/components/auth/LogoutButton'
 import { Container } from '@/components/ui/Container'
 import { fallbackHeader, fallbackSiteSettings } from '@/constants/site'
 import { getSiteLogoPath } from '@/utilities/site-logo'
@@ -8,10 +11,13 @@ import { getHeaderGlobal, getSiteSettings } from '@/utilities/payload-public'
 import { PrimaryNavigation } from './PrimaryNavigation'
 
 export const SiteHeader = async () => {
-  const [header, logoPath, siteSettings] = await Promise.all([
+  const [header, logoPath, siteSettings, user] = await Promise.all([
     getHeaderGlobal(),
     getSiteLogoPath(),
     getSiteSettings(),
+    headers()
+      .then(authenticateRequest)
+      .catch(() => null),
   ])
 
   const utilityLinks = header.utilityLinks?.length
@@ -37,18 +43,34 @@ export const SiteHeader = async () => {
               {siteSettings.utilityMessage || fallbackSiteSettings.utilityMessage}
             </span>
             <nav aria-label="Utility navigation" className="site-header__utility-nav">
-              {utilityLinks.map((item, index) => (
-                <Link
-                  href={
-                    item.link?.label === 'Sign In' && item.link?.href === '/admin'
-                      ? '/login'
-                      : item.link?.href || '#'
-                  }
-                  key={`${item.link?.href}-${index}`}
-                >
-                  {item.link?.label}
-                </Link>
-              ))}
+              {utilityLinks.map((item, index) => {
+                const isSignInLink =
+                  item.link?.href === '/login' ||
+                  item.link?.href === '/admin' ||
+                  item.link?.label?.toLowerCase() === 'sign in'
+
+                if (isSignInLink && user) {
+                  return (
+                    <LogoutButton
+                      className="site-header__utility-action"
+                      key={`${item.link?.href}-${index}`}
+                    />
+                  )
+                }
+
+                return (
+                  <Link
+                    href={
+                      isSignInLink && item.link?.href === '/admin'
+                        ? '/login'
+                        : item.link?.href || '#'
+                    }
+                    key={`${item.link?.href}-${index}`}
+                  >
+                    {item.link?.label}
+                  </Link>
+                )
+              })}
             </nav>
           </div>
         </Container>
