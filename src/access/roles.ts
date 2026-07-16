@@ -70,6 +70,9 @@ export const publicContactCreateAccess: Access = ({ req }) =>
 export const eventWorkflowCreateAccess: Access = ({ req }) =>
   isAdmin(req.user) || req.context?.eventWorkflowValidated === true
 
+export const isUsersForgotPasswordRequest = (url: string | undefined): boolean =>
+  new URL(url ?? '/', 'http://payload.local').pathname.endsWith('/users/forgot-password')
+
 export const publicUserCreateAccess: Access = ({ req }) => {
   if (isAdmin(req.user)) return true
 
@@ -83,11 +86,7 @@ export const publicUserCreateAccess: Access = ({ req }) => {
 export const adminsOrSelf: Access = ({ req }) => {
   const { user } = req
 
-  if (
-    new URL(req.url ?? '/', 'http://payload.local').pathname.endsWith('/users/forgot-password')
-  ) {
-    return true
-  }
+  if (isUsersForgotPasswordRequest(req.url)) return true
 
   if (!isActiveAccount(user)) return false
   if (getRole(user) === 'superAdmin') return true

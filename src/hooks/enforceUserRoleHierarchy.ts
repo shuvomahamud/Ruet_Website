@@ -1,7 +1,7 @@
 import type { CollectionBeforeChangeHook } from 'payload'
 import { Forbidden } from 'payload'
 
-import { getRole } from '@/access/roles'
+import { getRole, isUsersForgotPasswordRequest } from '@/access/roles'
 
 export const enforceUserRoleHierarchy: CollectionBeforeChangeHook = ({
   data,
@@ -9,6 +9,7 @@ export const enforceUserRoleHierarchy: CollectionBeforeChangeHook = ({
   req,
 }) => {
   if (req.context?.seedTestUser === true && process.env.NODE_ENV !== 'production') return data
+  if (isUsersForgotPasswordRequest(req.url)) return data
 
   const actorRole = getRole(req.user)
   const requestedRole = typeof data.role === 'string' ? data.role : undefined
