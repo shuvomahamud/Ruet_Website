@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { headers } from 'next/headers'
 
+import { isElevated } from '@/access/roles'
 import { authenticateRequest } from '@/auth/current-user'
 import { LogoutButton } from '@/components/auth/LogoutButton'
 import { Container } from '@/components/ui/Container'
@@ -33,6 +34,7 @@ export const SiteHeader = async () => {
   })
   const ctaHref = header.primaryCtaHref || fallbackHeader.primaryCtaHref
   const ctaLabel = header.primaryCtaLabel || fallbackHeader.primaryCtaLabel
+  const canReviewPayments = isElevated(user)
 
   return (
     <header className="site-header">
@@ -49,14 +51,7 @@ export const SiteHeader = async () => {
                   item.link?.href === '/admin' ||
                   item.link?.label?.toLowerCase() === 'sign in'
 
-                if (isSignInLink && user) {
-                  return (
-                    <LogoutButton
-                      className="site-header__utility-action"
-                      key={`${item.link?.href}-${index}`}
-                    />
-                  )
-                }
+                if (isSignInLink && user) return null
 
                 return (
                   <Link
@@ -71,6 +66,9 @@ export const SiteHeader = async () => {
                   </Link>
                 )
               })}
+              {user ? <Link href="/dashboard">Dashboard</Link> : null}
+              {canReviewPayments ? <Link href="/payments/review">Payment review</Link> : null}
+              {user ? <LogoutButton className="site-header__utility-action" /> : null}
             </nav>
           </div>
         </Container>

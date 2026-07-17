@@ -297,6 +297,11 @@ test.describe.serial('Member dashboard, private histories, and reporting scope',
 
   test('limits chapter-admin report pages and direct APIs to managed chapters', async ({ page }) => {
     await signIn(page, chapterAdmin)
+    await expect(
+      page
+        .getByRole('navigation', { name: 'Utility navigation' })
+        .getByRole('link', { name: 'Payment review' }),
+    ).toBeVisible()
     await page.goto('/reports')
     await expect(page.getByRole('heading', { name: 'Operational reports' })).toBeVisible()
     await expect(page.getByText('All managed chapters')).toBeVisible()

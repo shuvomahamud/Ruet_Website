@@ -84,8 +84,10 @@ test.describe.serial('Member authentication', () => {
     await expect(page).toHaveURL(/\/dashboard/)
     await expect(page.getByRole('heading', { name: /^Welcome/ })).toBeVisible()
     const utilityNavigation = page.getByRole('navigation', { name: 'Utility navigation' })
+    await expect(utilityNavigation.getByRole('link', { name: 'Dashboard' })).toBeVisible()
     await expect(utilityNavigation.getByRole('button', { name: 'Sign out' })).toBeVisible()
     await expect(utilityNavigation.getByRole('link', { name: 'Sign In' })).toHaveCount(0)
+    await expect(utilityNavigation.getByRole('link', { name: 'Payment review' })).toHaveCount(0)
     await page.getByRole('link', { name: 'Profile & security' }).click()
     await expect(page.getByRole('heading', { name: 'Account settings' })).toBeVisible()
 
