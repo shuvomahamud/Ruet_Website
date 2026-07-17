@@ -45,7 +45,7 @@ test.describe.serial('Member authentication', () => {
     await page.getByLabel('Password', { exact: true }).fill(password)
     await page.getByLabel('Confirm password').fill(password)
     await page.getByLabel('RUET department').fill('CSE')
-    await page.getByLabel('Graduation year').fill('2015')
+    await page.getByLabel('Roll number').fill(`E2E-${Date.now()}`)
     await page.getByLabel('Primary chapter').selectOption({ label: chapterName })
     await page.getByLabel('City').fill('New York')
     await page.getByLabel('State').fill('NY')
@@ -80,6 +80,15 @@ test.describe.serial('Member authentication', () => {
     await page.getByRole('link', { name: 'Sign in' }).last().click()
     await page.getByLabel('Email address').fill(email)
     await page.getByLabel('Password').fill(password)
+    await page.getByRole('button', { name: 'Sign in' }).click()
+    await expect(page.getByText(/awaiting administrator approval/)).toBeVisible()
+
+    await payload.update({
+      collection: 'users',
+      data: { accountStatus: 'active' },
+      id: user!.id,
+      overrideAccess: true,
+    })
     await page.getByRole('button', { name: 'Sign in' }).click()
     await expect(page).toHaveURL(/\/dashboard/)
     await expect(page.getByRole('heading', { name: /^Welcome/ })).toBeVisible()

@@ -13,6 +13,7 @@ import {
 import { googleSessionStrategy } from '@/auth/google-session-strategy'
 import { assignFirstUserRole } from '@/hooks/assignFirstUserRole'
 import { deriveProfileStatus } from '@/hooks/deriveProfileStatus'
+import { normalizeRollNumber } from '@/hooks/normalizeRollNumber'
 import { activeAccountHooks } from '@/hooks/enforceActiveAccount'
 import { enforceUserRoleHierarchy } from '@/hooks/enforceUserRoleHierarchy'
 import { validateUserChapter } from '@/hooks/validateUserChapter'
@@ -30,7 +31,10 @@ export const Users: CollectionConfig = {
     update: adminsOrSelf,
   },
   admin: {
-    defaultColumns: ['email', 'role', 'accountStatus', 'updatedAt'],
+    components: {
+      beforeListTable: ['@/components/admin/UserBulkActions#UserBulkActions'],
+    },
+    defaultColumns: ['email', 'rollNumber', 'role', 'accountStatus', 'updatedAt'],
     useAsTitle: 'email',
   },
   auth: {
@@ -102,7 +106,7 @@ export const Users: CollectionConfig = {
         create: adminFieldOnly,
         update: adminFieldOnly,
       },
-      defaultValue: 'active',
+      defaultValue: 'pending',
       options: [
         { label: 'Pending', value: 'pending' },
         { label: 'Active', value: 'active' },
@@ -174,8 +178,13 @@ export const Users: CollectionConfig = {
       type: 'text',
     },
     {
-      name: 'graduationYear',
-      type: 'number',
+      name: 'rollNumber',
+      type: 'text',
+      admin: {
+        description: 'RUET roll number. Spaces are removed and letters are stored uppercase.',
+      },
+      index: true,
+      unique: true,
     },
     {
       name: 'alumniReference',
@@ -295,6 +304,7 @@ export const Users: CollectionConfig = {
     beforeOperation: [validateResetPassword],
     beforeChange: [
       assignFirstUserRole,
+      normalizeRollNumber,
       validateUserPassword,
       enforceUserRoleHierarchy,
       validateUserChapter,

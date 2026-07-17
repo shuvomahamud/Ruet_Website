@@ -29,6 +29,12 @@ const findByEmail = async (payload: Payload, email: string) => {
 
 const requireActive = (user: User): User => {
   if (user.accountStatus !== 'active') {
+    if (user.accountStatus === 'pending') {
+      throw new AppError('Your account is awaiting administrator approval.', {
+        code: 'ACCOUNT_PENDING',
+        status: 403,
+      })
+    }
     throw new AppError('This account is not available.', {
       code: 'ACCOUNT_UNAVAILABLE',
       status: 403,
@@ -93,12 +99,12 @@ export const resolveGoogleAccount = async ({
     })
   }
 
-  const user = await payload.create({
+  await payload.create({
     collection: 'users',
     context: { systemGeneratedPassword: true },
     data: {
       _verified: true,
-      accountStatus: 'active',
+      accountStatus: 'pending',
       authMethods: ['google'],
       email: identity.email,
       firstName: identity.firstName,
@@ -111,5 +117,8 @@ export const resolveGoogleAccount = async ({
     overrideAccess: true,
   })
 
-  return { linked: false, user }
+  throw new AppError('Your account was created and is awaiting administrator approval.', {
+    code: 'ACCOUNT_PENDING',
+    status: 403,
+  })
 }

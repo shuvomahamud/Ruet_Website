@@ -207,7 +207,10 @@ export interface User {
   managedChapters?: (number | Chapter)[] | null;
   phoneNumber?: string | null;
   ruetDepartment?: string | null;
-  graduationYear?: number | null;
+  /**
+   * RUET roll number. Spaces are removed and letters are stored uppercase.
+   */
+  rollNumber?: string | null;
   alumniReference?: string | null;
   city?: string | null;
   state?: string | null;
@@ -678,13 +681,14 @@ export interface Membership {
     | 'failed_manual_payment'
     | 'cancelled_by_admin'
     | 'suspended';
+  membershipSource?: ('memberCheckout' | 'adminBulk') | null;
   membershipKind: 'join' | 'renewal' | 'reactivation';
   previousMembership?: (number | null) | Membership;
   startedAt?: string | null;
   renewalAt?: string | null;
   expiresAt?: string | null;
   graceEndsAt?: string | null;
-  paymentMethod: 'zelle';
+  paymentMethod: 'zelle' | 'adminBulk';
   chapterAttribution?: (number | null) | Chapter;
   chapterNameSnapshot?: string | null;
   planTitleSnapshot: string;
@@ -809,7 +813,7 @@ export interface Order {
   discountTotal?: number | null;
   total: number;
   currency: string;
-  paymentMethod: 'zelle';
+  paymentMethod: 'zelle' | 'adminBulk';
   membership?: (number | null) | Membership;
   eventRegistration?: (number | null) | EventRegistration;
   promotion?: (number | null) | Promotion;
@@ -863,7 +867,7 @@ export interface Payment {
   id: number;
   user: number | User;
   order: number | Order;
-  paymentSource: 'zelle';
+  paymentSource: 'zelle' | 'adminBulk';
   status: 'pending' | 'approved' | 'failed';
   proofImage?: (number | null) | PaymentProof;
   proofTransactionId?: string | null;
@@ -1316,7 +1320,7 @@ export interface UsersSelect<T extends boolean = true> {
   managedChapters?: T;
   phoneNumber?: T;
   ruetDepartment?: T;
-  graduationYear?: T;
+  rollNumber?: T;
   alumniReference?: T;
   city?: T;
   state?: T;
@@ -1658,6 +1662,7 @@ export interface MembershipsSelect<T extends boolean = true> {
   user?: T;
   plan?: T;
   status?: T;
+  membershipSource?: T;
   membershipKind?: T;
   previousMembership?: T;
   startedAt?: T;

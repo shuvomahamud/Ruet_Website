@@ -20,11 +20,7 @@ export const signupSchema = z
     country: z.string().trim().min(1).max(120).default('United States'),
     email: z.email().transform((value) => value.toLowerCase()),
     firstName: z.string().trim().min(1).max(80),
-    graduationYear: z.coerce
-      .number()
-      .int()
-      .min(1964)
-      .max(new Date().getUTCFullYear() + 8),
+    rollNumber: z.string().trim().min(1, 'Roll number is required.').max(40),
     lastName: z.string().trim().min(1).max(80),
     password: passwordSchema,
     primaryChapter: z.coerce.number().int().positive(),
@@ -53,11 +49,7 @@ export const profileSchema = z.object({
   country: z.string().trim().min(1).max(120),
   employer: optionalText,
   firstName: z.string().trim().min(1).max(80),
-  graduationYear: z.coerce
-    .number()
-    .int()
-    .min(1964)
-    .max(new Date().getUTCFullYear() + 8),
+  rollNumber: z.string().trim().min(1, 'Roll number is required.').max(40),
   lastName: z.string().trim().min(1).max(80),
   phoneNumber: optionalText,
   primaryChapter: z.coerce.number().int().positive(),

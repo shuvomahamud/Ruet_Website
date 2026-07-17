@@ -825,7 +825,7 @@ for (const fixture of userFixtures) {
           allowSystemEmails: true,
         },
         country: 'United States',
-        graduationYear: 2010,
+        rollNumber: 'UAT-2010-001',
         managedChapters: fixture.role === 'chapterAdmin' ? [newYorkChapter.id] : [],
         password,
         primaryChapter: newYorkChapter.id,

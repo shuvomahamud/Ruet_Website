@@ -93,7 +93,7 @@ describe.sequential('member account lifecycle', () => {
         country: 'United States',
         email,
         firstName: 'Phase',
-        graduationYear: 2012,
+        rollNumber: `INT-${Date.now()}-${Math.random()}`,
         lastName: 'Two',
         password,
         primaryChapter: chapter.id,
@@ -108,7 +108,7 @@ describe.sequential('member account lifecycle', () => {
     })
 
     expect(user.role).toBe('member')
-    expect(user.accountStatus).toBe('active')
+    expect(user.accountStatus).toBe('pending')
     expect(user.profileStatus).toBe('complete')
     expect(user.authMethods).toEqual(['password'])
     await expect(
@@ -126,6 +126,16 @@ describe.sequential('member account lifecycle', () => {
     await expect(
       payload.verifyEmail({ collection: 'users', token: hidden._verificationToken ?? '' }),
     ).resolves.toBe(true)
+
+    await expect(
+      payload.login({ collection: 'users', data: { email, password }, overrideAccess: true }),
+    ).rejects.toThrow(/awaiting administrator approval/)
+    user = await payload.update({
+      collection: 'users',
+      data: { accountStatus: 'active' },
+      id: user.id,
+      overrideAccess: true,
+    })
 
     const login = await payload.login({
       collection: 'users',
@@ -247,19 +257,25 @@ describe.sequential('member account lifecycle', () => {
   })
 
   it('creates a new Google-only account without exposing a usable password', async () => {
-    const resolved = await resolveGoogleAccount({
+    const googleEmail = `google-new-${nonce}@example.test`
+    await expect(resolveGoogleAccount({
       identity: {
-        email: `google-new-${nonce}@example.test`,
+        email: googleEmail,
         firstName: 'Google',
         lastName: 'Member',
         subject: `google-new-subject-${nonce}`,
       },
       payload,
+    })).rejects.toMatchObject({ code: 'ACCOUNT_PENDING' })
+    const created = await payload.find({
+      collection: 'users', limit: 1, overrideAccess: true, showHiddenFields: true,
+      where: { email: { equals: googleEmail } },
     })
-    googleUser = resolved.user
+    googleUser = created.docs[0]!
     expect(googleUser.authMethods).toEqual(['google'])
     expect(googleUser._verified).toBe(true)
     expect(googleUser.role).toBe('member')
+    expect(googleUser.accountStatus).toBe('pending')
   })
 
   it('anonymizes account data while preserving financial and audit relationships', async () => {

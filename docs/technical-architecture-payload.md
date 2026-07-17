@@ -234,7 +234,7 @@ Key fields:
 - authProviders
 - phone optional
 - ruetDepartment
-- graduationYear
+- rollNumber (normalized, unique; required for new signups and complete profiles)
 - alumniReference optional
 - city
 - state

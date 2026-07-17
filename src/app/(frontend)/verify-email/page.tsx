@@ -28,7 +28,9 @@ export default async function VerifyEmailPage({
     >
       {verified ? (
         <>
-          <p className="form-message form-message--success">Your email is verified.</p>
+          <p className="form-message form-message--success">
+            Your email is verified. Your account is awaiting administrator approval.
+          </p>
           <Link className="button button--primary auth-button" href="/login">
             Sign in
           </Link>

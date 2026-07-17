@@ -84,7 +84,10 @@ export const Orders: CollectionConfig = {
       name: 'paymentMethod',
       type: 'select',
       defaultValue: 'zelle',
-      options: [{ label: 'Zelle', value: 'zelle' }],
+      options: [
+        { label: 'Zelle', value: 'zelle' },
+        { label: 'Admin Bulk', value: 'adminBulk' },
+      ],
       required: true,
     },
     {

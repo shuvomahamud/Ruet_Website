@@ -16,6 +16,7 @@ import * as migration_20260714_120435_phase_10_signup_policy_versions from './20
 import * as migration_20260714_124641_phase_11_launch from './20260714_124641_phase_11_launch'
 import * as migration_20260714_125832_phase_11_payment_proof_retention from './20260714_125832_phase_11_payment_proof_retention'
 import * as migration_20260714_152945_phase_11_supabase_storage_prefix from './20260714_152945_phase_11_supabase_storage_prefix'
+import * as migration_20260717_084500_admin_bulk_membership_approval_roll_number from './20260717_084500_admin_bulk_membership_approval_roll_number'
 
 export const migrations = [
   {
@@ -107,5 +108,10 @@ export const migrations = [
     up: migration_20260714_152945_phase_11_supabase_storage_prefix.up,
     down: migration_20260714_152945_phase_11_supabase_storage_prefix.down,
     name: '20260714_152945_phase_11_supabase_storage_prefix',
+  },
+  {
+    up: migration_20260717_084500_admin_bulk_membership_approval_roll_number.up,
+    down: migration_20260717_084500_admin_bulk_membership_approval_roll_number.down,
+    name: '20260717_084500_admin_bulk_membership_approval_roll_number',
   },
 ]

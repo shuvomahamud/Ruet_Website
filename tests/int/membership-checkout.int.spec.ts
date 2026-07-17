@@ -46,7 +46,7 @@ describe.sequential('annual membership and Zelle checkout lifecycle', () => {
         country: complete ? 'United States' : undefined,
         email: `membership-${label}-${nonce}@example.test`,
         firstName: complete ? 'Test' : undefined,
-        graduationYear: complete ? 2012 : undefined,
+        rollNumber: complete ? `INT-${Date.now()}-${Math.random()}` : undefined,
         lastName: complete ? label : undefined,
         password: `Membership-${label}-${nonce}!`,
         primaryChapter: complete ? chapter.id : undefined,

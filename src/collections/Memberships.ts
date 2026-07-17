@@ -15,7 +15,10 @@ export const Memberships: CollectionConfig = {
     update: denyAll,
   },
   admin: {
-    defaultColumns: ['user', 'plan', 'membershipKind', 'status', 'renewalAt', 'updatedAt'],
+    components: {
+      beforeListTable: ['@/components/admin/MembershipBulkActions#MembershipBulkActions'],
+    },
+    defaultColumns: ['user', 'plan', 'membershipSource', 'status', 'renewalAt', 'updatedAt'],
     useAsTitle: 'status',
   },
   fields: [
@@ -44,6 +47,15 @@ export const Memberships: CollectionConfig = {
         { label: 'Failed Manual Payment', value: 'failed_manual_payment' },
         { label: 'Cancelled By Admin', value: 'cancelled_by_admin' },
         { label: 'Suspended', value: 'suspended' },
+      ],
+    },
+    {
+      name: 'membershipSource',
+      type: 'select',
+      defaultValue: 'memberCheckout',
+      options: [
+        { label: 'Member Checkout', value: 'memberCheckout' },
+        { label: 'Admin Bulk', value: 'adminBulk' },
       ],
     },
     {
@@ -82,7 +94,10 @@ export const Memberships: CollectionConfig = {
       name: 'paymentMethod',
       type: 'select',
       defaultValue: 'zelle',
-      options: [{ label: 'Zelle', value: 'zelle' }],
+      options: [
+        { label: 'Zelle', value: 'zelle' },
+        { label: 'Admin Bulk', value: 'adminBulk' },
+      ],
       required: true,
     },
     {
@@ -148,6 +163,7 @@ export const Memberships: CollectionConfig = {
         'user',
         'plan',
         'paymentMethod',
+        'membershipSource',
         'membershipKind',
         'previousMembership',
         'chapterAttribution',

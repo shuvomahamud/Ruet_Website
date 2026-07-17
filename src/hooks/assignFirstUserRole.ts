@@ -25,7 +25,7 @@ export const assignFirstUserRole: CollectionBeforeChangeHook = async ({ data, op
   if (!isAdmin(req.user)) {
     return {
       ...data,
-      accountStatus: data?.accountStatus ?? 'active',
+      accountStatus: data?.accountStatus ?? 'pending',
       managedChapters: [],
       role: 'member',
     }

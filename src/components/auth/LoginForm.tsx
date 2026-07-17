@@ -7,6 +7,7 @@ import { FormEvent, useState } from 'react'
 import { FormMessage } from './FormMessage'
 
 const oauthErrors: Record<string, string> = {
+  account_pending: 'Your account is awaiting administrator approval.',
   account_link_required: 'Sign in with your password, then link Google in account settings.',
   google_auth_cancelled: 'Google sign-in was cancelled.',
   oauth_state_invalid: 'The Google sign-in request expired. Please try again.',
@@ -42,7 +43,16 @@ export const LoginForm = () => {
       return
     }
 
-    setMessage('Email or password is incorrect, or the account is not available.')
+    let result: { errors?: Array<{ message?: string }>; message?: string } = {}
+    try {
+      result = await response.json()
+    } catch {}
+    const serverMessage = result.errors?.[0]?.message ?? result.message
+    setMessage(
+      serverMessage?.includes('awaiting administrator approval')
+        ? serverMessage
+        : 'Email or password is incorrect, or the account is not available.',
+    )
     setSubmitting(false)
   }
 

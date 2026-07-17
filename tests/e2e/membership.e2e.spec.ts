@@ -44,7 +44,7 @@ test.describe.serial('Membership and Zelle experience', () => {
         country: complete ? 'United States' : undefined,
         email: `e2e-membership-${label}-${nonce}@example.test`,
         firstName: complete ? 'E2E' : undefined,
-        graduationYear: complete ? 2014 : undefined,
+        rollNumber: complete ? `E2E-${Date.now()}-${Math.random()}` : undefined,
         lastName: complete ? label : undefined,
         password,
         primaryChapter: complete ? chapter.id : undefined,

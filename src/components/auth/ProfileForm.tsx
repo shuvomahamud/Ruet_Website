@@ -30,7 +30,7 @@ export const ProfileForm = ({ chapters, user }: { chapters: Chapter[]; user: Use
         country: form.get('country'),
         employer: form.get('employer'),
         firstName: form.get('firstName'),
-        graduationYear: form.get('graduationYear'),
+        rollNumber: form.get('rollNumber'),
         lastName: form.get('lastName'),
         phoneNumber: form.get('phoneNumber'),
         primaryChapter: form.get('primaryChapter'),
@@ -71,12 +71,11 @@ export const ProfileForm = ({ chapters, user }: { chapters: Chapter[]; user: Use
           <input defaultValue={user.ruetDepartment ?? ''} name="ruetDepartment" required />
         </label>
         <label>
-          Graduation year
+          Roll number
           <input
-            defaultValue={user.graduationYear ?? ''}
-            name="graduationYear"
+            defaultValue={user.rollNumber ?? ''}
+            name="rollNumber"
             required
-            type="number"
           />
         </label>
       </div>

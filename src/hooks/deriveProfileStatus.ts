@@ -4,7 +4,7 @@ const requiredProfileFields = [
   'firstName',
   'lastName',
   'ruetDepartment',
-  'graduationYear',
+  'rollNumber',
   'city',
   'state',
   'country',

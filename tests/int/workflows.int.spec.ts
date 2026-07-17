@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { assertExpectedStatus, assertWorkflowTransition } from '@/domain/workflows'
+import { normalizeRollNumberValue } from '@/hooks/normalizeRollNumber'
 
 describe('workflow state machines', () => {
   it('accepts legal and idempotent transitions', () => {
@@ -25,5 +26,12 @@ describe('workflow state machines', () => {
     expect(() => assertExpectedStatus('active', 'pending_manual_approval')).toThrow(
       /record changed/i,
     )
+  })
+})
+
+describe('roll number normalization', () => {
+  it('preserves punctuation while removing whitespace and normalizing case', () => {
+    expect(normalizeRollNumberValue('  12 a- 34 ')).toBe('12A-34')
+    expect(normalizeRollNumberValue('   ')).toBeUndefined()
   })
 })

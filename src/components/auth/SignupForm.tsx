@@ -25,7 +25,7 @@ export const SignupForm = ({ chapters }: { chapters: ChapterOption[] }) => {
         country: form.get('country'),
         email: form.get('email'),
         firstName: form.get('firstName'),
-        graduationYear: form.get('graduationYear'),
+        rollNumber: form.get('rollNumber'),
         lastName: form.get('lastName'),
         password: form.get('password'),
         primaryChapter: form.get('primaryChapter'),
@@ -90,8 +90,8 @@ export const SignupForm = ({ chapters }: { chapters: ChapterOption[] }) => {
           <input name="ruetDepartment" required />
         </label>
         <label>
-          Graduation year
-          <input inputMode="numeric" name="graduationYear" required type="number" />
+          Roll number
+          <input autoComplete="off" name="rollNumber" required />
         </label>
       </div>
       <label>
