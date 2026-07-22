@@ -196,7 +196,14 @@ test.describe.serial('Public experience', () => {
     await trigger.click()
     const dialog = page.getByRole('dialog', { name: 'Mobile navigation' })
     await expect(dialog).toBeVisible()
+    const viewportHeight = page.viewportSize()?.height ?? 0
+    const drawerBounds = await dialog.boundingBox()
+    expect(drawerBounds?.height).toBeGreaterThanOrEqual(viewportHeight - 1)
     await expect(page.getByRole('button', { name: 'Close navigation menu' }).last()).toBeFocused()
+
+    const aboutSection = dialog.getByText('About', { exact: true })
+    await aboutSection.click()
+    await expect(dialog.getByRole('link', { name: 'RUET history' })).toBeVisible()
 
     await page.keyboard.press('Escape')
     await expect(dialog).toBeHidden()

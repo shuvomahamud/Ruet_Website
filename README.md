@@ -10,6 +10,11 @@ Current stack:
 - Supabase Postgres, private Supabase Storage, and Supabase Cron for production
 - `pnpm`
 
+## User documentation
+
+- [Complete website user guide](docs/website-user-guide.md)
+- [Editable sample content guide](docs/sample-content-guide.md)
+
 ## Current implementation status
 
 The codebase is now:

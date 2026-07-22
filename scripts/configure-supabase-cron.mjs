@@ -5,6 +5,11 @@ const URL_SECRET_NAME = 'ruet_website_jobs_url'
 const AUTH_SECRET_NAME = 'ruet_website_cron_secret'
 const DEFAULT_SCHEDULE = '*/5 * * * *'
 
+const sqlTextExpression = (value) => {
+  const encoded = Buffer.from(value, 'utf8').toString('base64')
+  return `convert_from(decode('${encoded}', 'base64'), 'UTF8')`
+}
+
 const mode = process.argv[2] ?? 'configure'
 const supportedModes = new Set(['configure', 'disable', 'install', 'status'])
 
@@ -145,16 +150,15 @@ if (!/^[0-9*,/\-]+(?:\s+[0-9*,/\-]+){4}$/.test(schedule)) {
 }
 
 const jobsURL = new URL('/api/cron/jobs', siteURL.origin).toString()
+const jobsURLExpression = sqlTextExpression(jobsURL)
+const cronSecretExpression = sqlTextExpression(cronSecret)
+const scheduleExpression = sqlTextExpression(schedule)
 
 runSQL(
   `
-    \\getenv jobs_url SUPABASE_CRON_JOBS_URL
-    \\getenv cron_secret CRON_SECRET
-    \\getenv cron_schedule SUPABASE_CRON_SCHEDULE
-
     SELECT vault.update_secret(
       id,
-      :'jobs_url',
+      ${jobsURLExpression},
       '${URL_SECRET_NAME}',
       'Public HTTPS endpoint used by Supabase Cron to run RUETIAN USA application jobs.'
     )
@@ -162,7 +166,7 @@ runSQL(
     WHERE name = '${URL_SECRET_NAME}';
 
     SELECT vault.create_secret(
-      :'jobs_url',
+      ${jobsURLExpression},
       '${URL_SECRET_NAME}',
       'Public HTTPS endpoint used by Supabase Cron to run RUETIAN USA application jobs.'
     )
@@ -172,7 +176,7 @@ runSQL(
 
     SELECT vault.update_secret(
       id,
-      :'cron_secret',
+      ${cronSecretExpression},
       '${AUTH_SECRET_NAME}',
       'Bearer credential used only for the RUETIAN USA scheduled-jobs endpoint.'
     )
@@ -180,7 +184,7 @@ runSQL(
     WHERE name = '${AUTH_SECRET_NAME}';
 
     SELECT vault.create_secret(
-      :'cron_secret',
+      ${cronSecretExpression},
       '${AUTH_SECRET_NAME}',
       'Bearer credential used only for the RUETIAN USA scheduled-jobs endpoint.'
     )
@@ -194,7 +198,7 @@ runSQL(
 
     SELECT cron.schedule(
       '${JOB_NAME}',
-      :'cron_schedule',
+      ${scheduleExpression},
       $job$
         SELECT net.http_get(
           url := (
@@ -217,11 +221,6 @@ runSQL(
       $job$
     );
   `,
-  {
-    CRON_SECRET: cronSecret,
-    SUPABASE_CRON_JOBS_URL: jobsURL,
-    SUPABASE_CRON_SCHEDULE: schedule,
-  },
 )
 
 const status = runSQL(`
