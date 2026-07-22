@@ -16,6 +16,13 @@ export const validateHomeAdvertisement: GlobalBeforeChangeHook = async ({ data, 
     | undefined
 
   if (!advertisement?.enabled) return data
+
+  // Payload runs global beforeChange hooks during its background autosave. Let editors
+  // switch advertisement types and finish choosing content before enforcing publish rules.
+  const isAutosave = req.searchParams?.get('autosave') === 'true'
+  const isDraft = data._status === 'draft'
+  if (isAutosave || isDraft) return data
+
   const type = advertisement.type ?? 'text'
   if (type === 'text' && !advertisement.headline?.trim() && !advertisement.body?.trim()) {
     throw new AppError('A text advertisement needs a headline or body.', {
