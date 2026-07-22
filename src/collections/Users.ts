@@ -32,7 +32,10 @@ export const Users: CollectionConfig = {
   },
   admin: {
     components: {
-      beforeListTable: ['@/components/admin/UserBulkActions#UserBulkActions'],
+      beforeListTable: [
+        '@/components/admin/UserBulkImport#UserBulkImport',
+        '@/components/admin/UserBulkActions#UserBulkActions',
+      ],
     },
     defaultColumns: ['email', 'rollNumber', 'role', 'accountStatus', 'updatedAt'],
     useAsTitle: 'email',

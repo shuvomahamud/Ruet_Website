@@ -168,6 +168,38 @@ test.describe.serial('Public experience', () => {
     await expect(page.getByText('Annual membership', { exact: true })).toBeVisible()
   })
 
+  test('renders a CMS-managed text advertisement in the homepage hero panel', async ({ page }) => {
+    const original = await payload.findGlobal({ slug: 'home', overrideAccess: true })
+    try {
+      await payload.updateGlobal({
+        slug: 'home',
+        data: {
+          heroAdvertisement: {
+            body: `Advertisement body ${nonce}`,
+            enabled: true,
+            headline: `Advertisement headline ${nonce}`,
+            label: 'Sponsored',
+            type: 'text',
+          },
+        },
+        overrideAccess: true,
+      })
+      await page.goto('/')
+      const advertisement = page.getByRole('complementary', { name: 'Advertisement' })
+      await expect(advertisement.getByText('Sponsored')).toBeVisible()
+      await expect(
+        advertisement.getByRole('heading', { name: `Advertisement headline ${nonce}` }),
+      ).toBeVisible()
+      await expect(advertisement.getByText(`Advertisement body ${nonce}`)).toBeVisible()
+    } finally {
+      await payload.updateGlobal({
+        slug: 'home',
+        data: { heroAdvertisement: original.heroAdvertisement },
+        overrideAccess: true,
+      })
+    }
+  })
+
   test('publishes crawl controls and keeps previews out of public access', async ({ page }) => {
     const robots = await page.request.get('/robots.txt')
     expect(robots.ok()).toBe(true)

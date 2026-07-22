@@ -2196,6 +2196,25 @@ export interface Home {
   networkPanelEyebrow: string;
   networkPanelTitle: string;
   networkPanelDescription: string;
+  /**
+   * When enabled, this replaces the alumni-network panel with a clearly labeled text, image, or video advertisement.
+   */
+  heroAdvertisement: {
+    enabled?: boolean | null;
+    type: 'text' | 'image' | 'video';
+    /**
+     * Disclosure shown above the advertisement.
+     */
+    label?: string | null;
+    headline?: string | null;
+    body?: string | null;
+    /**
+     * Upload or select public media matching the advertisement type.
+     */
+    media?: (number | null) | Media;
+    ctaLabel?: string | null;
+    ctaHref?: string | null;
+  };
   statsSectionEyebrow?: string | null;
   statsSectionTitle?: string | null;
   stats?:
@@ -2415,6 +2434,18 @@ export interface HomeSelect<T extends boolean = true> {
   networkPanelEyebrow?: T;
   networkPanelTitle?: T;
   networkPanelDescription?: T;
+  heroAdvertisement?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        label?: T;
+        headline?: T;
+        body?: T;
+        media?: T;
+        ctaLabel?: T;
+        ctaHref?: T;
+      };
   statsSectionEyebrow?: T;
   statsSectionTitle?: T;
   stats?:

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 
@@ -10,6 +11,7 @@ import { SiteHeader } from '@/components/site/SiteHeader'
 import { Badge } from '@/components/ui/Badge'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
+import type { Home, Media } from '@/payload-types'
 import { formatDateTime } from '@/utilities/date-time'
 import { formatCurrency } from '@/utilities/formatters'
 import { createPageMetadata } from '@/utilities/metadata'
@@ -26,6 +28,66 @@ import {
 } from '@/utilities/payload-public'
 
 export const dynamic = 'force-dynamic'
+
+const mediaRecord = (value: Media | number | null | undefined): Media | null =>
+  value && typeof value === 'object' ? value : null
+
+const HomepageHeroPanel = ({ home }: { home: Home }) => {
+  const advertisement = home.heroAdvertisement
+  const media = mediaRecord(advertisement?.media)
+  const type = advertisement?.type ?? 'text'
+  const showAdvertisement =
+    advertisement?.enabled === true &&
+    (type === 'text' || Boolean(media?.url && media.mimeType?.startsWith(`${type}/`)))
+
+  if (!showAdvertisement) {
+    return (
+      <aside className="hero__panel">
+        <p className="hero__panel-label">{home.networkPanelEyebrow}</p>
+        <h2>{home.networkPanelTitle}</h2>
+        <p>{home.networkPanelDescription}</p>
+        <Link className="surface-card__link" href="/about">
+          Learn about RUETIAN USA
+        </Link>
+      </aside>
+    )
+  }
+
+  return (
+    <aside className="hero__panel hero__panel--advertisement" aria-label="Advertisement">
+      <p className="hero__panel-label">{advertisement.label || 'Advertisement'}</p>
+      {type === 'image' && media?.url ? (
+        <Image
+          alt={media.alt}
+          className="hero-advertisement__media"
+          height={media.height || 720}
+          sizes="(max-width: 1100px) 100vw, 36vw"
+          src={media.url}
+          width={media.width || 960}
+        />
+      ) : null}
+      {type === 'video' && media?.url ? (
+        <video
+          aria-label={advertisement.headline || media.alt}
+          className="hero-advertisement__media"
+          controls
+          playsInline
+          preload="metadata"
+        >
+          <source src={media.url} type={media.mimeType || 'video/mp4'} />
+          Your browser does not support embedded video.
+        </video>
+      ) : null}
+      {advertisement.headline ? <h2>{advertisement.headline}</h2> : null}
+      {advertisement.body ? <p>{advertisement.body}</p> : null}
+      {advertisement.ctaHref && advertisement.ctaLabel ? (
+        <Link className="surface-card__link" href={advertisement.ctaHref}>
+          {advertisement.ctaLabel}
+        </Link>
+      ) : null}
+    </aside>
+  )
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const home = await getHomeGlobal()
@@ -103,14 +165,7 @@ export default async function HomePage() {
                 </div>
               </div>
 
-              <aside className="hero__panel">
-                <p className="hero__panel-label">{home.networkPanelEyebrow}</p>
-                <h2>{home.networkPanelTitle}</h2>
-                <p>{home.networkPanelDescription}</p>
-                <Link className="surface-card__link" href="/about">
-                  Learn about RUETIAN USA
-                </Link>
-              </aside>
+              <HomepageHeroPanel home={home} />
             </div>
           </Container>
         </section>

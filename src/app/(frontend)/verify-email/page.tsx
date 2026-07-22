@@ -34,6 +34,10 @@ export default async function VerifyEmailPage({
           <Link className="button button--primary auth-button" href="/login">
             Sign in
           </Link>
+          <p className="form-help">
+            If an administrator imported your account, first{' '}
+            <Link href="/forgot-password">set your password</Link> using this verified email.
+          </p>
         </>
       ) : (
         <>

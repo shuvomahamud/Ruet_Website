@@ -554,6 +554,28 @@ main {
   margin-top: 20px;
 }
 
+.hero__panel--advertisement {
+  align-content: start;
+  display: grid;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.hero__panel--advertisement h2,
+.hero__panel--advertisement p,
+.hero__panel--advertisement .surface-card__link {
+  margin: 0;
+}
+
+.hero-advertisement__media {
+  aspect-ratio: 16 / 9;
+  background: var(--color-navy-900);
+  border-radius: 8px;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
+}
+
 .hero__meta {
   border-top: 1px solid rgba(18, 48, 107, 0.1);
   display: grid;

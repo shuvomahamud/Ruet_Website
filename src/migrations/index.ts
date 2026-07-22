@@ -17,6 +17,7 @@ import * as migration_20260714_124641_phase_11_launch from './20260714_124641_ph
 import * as migration_20260714_125832_phase_11_payment_proof_retention from './20260714_125832_phase_11_payment_proof_retention'
 import * as migration_20260714_152945_phase_11_supabase_storage_prefix from './20260714_152945_phase_11_supabase_storage_prefix'
 import * as migration_20260717_084500_admin_bulk_membership_approval_roll_number from './20260717_084500_admin_bulk_membership_approval_roll_number'
+import * as migration_20260722_020325 from './20260722_020325'
 
 export const migrations = [
   {
@@ -113,5 +114,10 @@ export const migrations = [
     up: migration_20260717_084500_admin_bulk_membership_approval_roll_number.up,
     down: migration_20260717_084500_admin_bulk_membership_approval_roll_number.down,
     name: '20260717_084500_admin_bulk_membership_approval_roll_number',
+  },
+  {
+    up: migration_20260722_020325.up,
+    down: migration_20260722_020325.down,
+    name: '20260722_020325',
   },
 ]

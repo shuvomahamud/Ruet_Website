@@ -4,6 +4,7 @@ import { adminsOnly } from '@/access/roles'
 import { publishedGlobalRead } from '@/access/authenticatedOrPublished'
 import { revalidateGlobal } from '@/cms/revalidation'
 import { seoFields } from '@/fields/seo'
+import { validateHomeAdvertisement } from '@/hooks/validateHomeAdvertisement'
 import { validateSafeHref } from '@/utilities/links'
 
 export const Home: GlobalConfig = {
@@ -24,7 +25,7 @@ export const Home: GlobalConfig = {
       tabs: [
         {
           label: 'Hero',
-          description: 'Primary homepage message, actions, and alumni-network panel.',
+          description: 'Primary homepage message, actions, and the optional advertisement panel.',
           fields: [
             {
               name: 'heroEyebrow',
@@ -99,6 +100,72 @@ export const Home: GlobalConfig = {
               defaultValue:
                 'Discover chapters, upcoming programs, and stories from RUET alumni across the United States.',
               required: true,
+            },
+            {
+              name: 'heroAdvertisement',
+              type: 'group',
+              admin: {
+                description:
+                  'When enabled, this replaces the alumni-network panel with a clearly labeled text, image, or video advertisement.',
+              },
+              fields: [
+                {
+                  name: 'enabled',
+                  type: 'checkbox',
+                  defaultValue: false,
+                  label: 'Show advertisement',
+                },
+                {
+                  name: 'type',
+                  type: 'select',
+                  defaultValue: 'text',
+                  options: [
+                    { label: 'Text', value: 'text' },
+                    { label: 'Image', value: 'image' },
+                    { label: 'Video', value: 'video' },
+                  ],
+                  required: true,
+                },
+                {
+                  name: 'label',
+                  type: 'text',
+                  defaultValue: 'Advertisement',
+                  admin: { description: 'Disclosure shown above the advertisement.' },
+                },
+                {
+                  name: 'headline',
+                  type: 'text',
+                },
+                {
+                  name: 'body',
+                  type: 'textarea',
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    condition: (_, siblingData) => ['image', 'video'].includes(siblingData?.type),
+                    description: 'Upload or select public media matching the advertisement type.',
+                  },
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'ctaLabel',
+                      type: 'text',
+                      label: 'Link label',
+                    },
+                    {
+                      name: 'ctaHref',
+                      type: 'text',
+                      label: 'Link URL',
+                      validate: (value: unknown) => (value ? validateSafeHref(value) : true),
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
@@ -226,6 +293,7 @@ export const Home: GlobalConfig = {
   ],
   hooks: {
     afterChange: [revalidateGlobal('home')],
+    beforeChange: [validateHomeAdvertisement],
   },
   versions: {
     drafts: {
