@@ -9,7 +9,12 @@ import {
   enforceEditorialWorkflow,
 } from '@/cms/editorial-workflow'
 import { revalidateCollectionPaths } from '@/cms/revalidation'
-import { validateNonNegativeMoney, validatePositiveInteger, validateUSD } from '@/domain/validation'
+import {
+  validateNonNegativeMoney,
+  validateOptionalNonNegativeMoney,
+  validatePositiveInteger,
+  validateUSD,
+} from '@/domain/validation'
 import { seoFields } from '@/fields/seo'
 import { enforceManagedChapter } from '@/hooks/enforceManagedChapter'
 import { AppError } from '@/utilities/errors'
@@ -133,7 +138,39 @@ export const Events: CollectionConfig = {
       name: 'basePrice',
       type: 'number',
       defaultValue: 0,
-      validate: validateNonNegativeMoney,
+      validate: validateOptionalNonNegativeMoney,
+      admin: {
+        description:
+          'Single-ticket fallback price. When price tiers are added below, registrations use the tier prices instead.',
+      },
+    },
+    {
+      name: 'priceTiers',
+      type: 'array',
+      admin: {
+        description:
+          'Optional ticket categories such as Adult, Child, or Under 5. Tier prices replace the single base price.',
+      },
+      fields: [
+        {
+          name: 'label',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'description',
+          type: 'text',
+          admin: {
+            description: 'Optional eligibility note, for example “Ages 6–12”.',
+          },
+        },
+        {
+          name: 'price',
+          type: 'number',
+          required: true,
+          validate: validateNonNegativeMoney,
+        },
+      ],
     },
     {
       name: 'currency',
@@ -278,8 +315,28 @@ export const Events: CollectionConfig = {
 
         const isPaid = data.isPaid ?? originalDoc?.isPaid ?? false
         const basePrice = data.basePrice ?? originalDoc?.basePrice ?? 0
-        if ((isPaid && basePrice <= 0) || (!isPaid && basePrice !== 0)) {
-          throw new Error('Paid events need a positive price; free events must have a zero price.')
+        const priceTiers = data.priceTiers ?? originalDoc?.priceTiers ?? []
+        const tierPrices = Array.isArray(priceTiers)
+          ? priceTiers.map((tier) => Number(tier?.price ?? 0))
+          : []
+        const tierLabels = Array.isArray(priceTiers)
+          ? priceTiers.map((tier) =>
+              String(tier?.label ?? '')
+                .trim()
+                .toLocaleLowerCase(),
+            )
+          : []
+        if (tierLabels.some((label) => !label) || new Set(tierLabels).size !== tierLabels.length) {
+          throw new Error('Event price tier names must be present and unique.')
+        }
+        if (isPaid && tierPrices.length && !tierPrices.some((price) => price > 0)) {
+          throw new Error('A paid event needs at least one price tier above zero.')
+        }
+        if (isPaid && !tierPrices.length && basePrice <= 0) {
+          throw new Error('A paid event needs a positive base price or at least one price tier.')
+        }
+        if (!isPaid && (basePrice !== 0 || tierPrices.some((price) => price !== 0))) {
+          throw new Error('Free events must have zero pricing.')
         }
 
         return data

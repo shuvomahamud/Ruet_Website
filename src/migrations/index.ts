@@ -18,6 +18,7 @@ import * as migration_20260714_125832_phase_11_payment_proof_retention from './2
 import * as migration_20260714_152945_phase_11_supabase_storage_prefix from './20260714_152945_phase_11_supabase_storage_prefix'
 import * as migration_20260717_084500_admin_bulk_membership_approval_roll_number from './20260717_084500_admin_bulk_membership_approval_roll_number'
 import * as migration_20260722_020325 from './20260722_020325'
+import * as migration_20260803_011130_event_price_tiers from './20260803_011130_event_price_tiers'
 
 export const migrations = [
   {
@@ -119,5 +120,10 @@ export const migrations = [
     up: migration_20260722_020325.up,
     down: migration_20260722_020325.down,
     name: '20260722_020325',
+  },
+  {
+    up: migration_20260803_011130_event_price_tiers.up,
+    down: migration_20260803_011130_event_price_tiers.down,
+    name: '20260803_011130_event_price_tiers',
   },
 ]

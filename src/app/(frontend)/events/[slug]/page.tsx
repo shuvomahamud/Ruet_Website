@@ -14,7 +14,11 @@ import { SiteHeader } from '@/components/site/SiteHeader'
 import { Badge } from '@/components/ui/Badge'
 import { Container } from '@/components/ui/Container'
 import type { Chapter, Media } from '@/payload-types'
-import { getEventAvailability, type EventQuote } from '@/services/event-registration'
+import {
+  getEventAvailability,
+  getEventPriceTiers,
+  type EventQuote,
+} from '@/services/event-registration'
 import { formatDateTime } from '@/utilities/date-time'
 import { formatCurrency } from '@/utilities/formatters'
 import { createPageMetadata } from '@/utilities/metadata'
@@ -87,13 +91,40 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
         })
       ).docs[0]
     : undefined
+  const priceTiers = getEventPriceTiers(event)
   const quantity = waitlist?.status === 'promoted' ? waitlist.quantity : 1
+  const defaultLineItems = priceTiers.length
+    ? priceTiers.slice(0, 1).map((tier) => ({
+        label: tier.label,
+        quantity,
+        subtotal: tier.price * quantity,
+        tierID: tier.id,
+        unitPrice: tier.price,
+      }))
+    : [
+        {
+          label: 'General admission',
+          quantity,
+          subtotal: (event.isPaid ? (event.basePrice ?? 0) : 0) * quantity,
+          tierID: 'general',
+          unitPrice: event.isPaid ? (event.basePrice ?? 0) : 0,
+        },
+      ]
+  const savedLineItems =
+    registration?.ticketSelectionsSnapshot ?? waitlist?.ticketSelectionsSnapshot ?? defaultLineItems
   const initialQuote: EventQuote = registrationOrder
     ? {
         currency: registrationOrder.currency,
         discountTotal: registrationOrder.discountTotal ?? 0,
         eventID: event.id,
         eventTitle: event.title,
+        lineItems: savedLineItems.map((item) => ({
+          label: item.label,
+          quantity: item.quantity,
+          subtotal: item.subtotal,
+          tierID: item.tierID,
+          unitPrice: item.unitPrice,
+        })),
         promotionCode: registrationOrder.promotionCodeSnapshot ?? undefined,
         promotionID: getRelationshipID(registrationOrder.promotion),
         quantity: registration?.quantity ?? quantity,
@@ -106,10 +137,17 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
         discountTotal: 0,
         eventID: event.id,
         eventTitle: event.title,
+        lineItems: savedLineItems.map((item) => ({
+          label: item.label,
+          quantity: item.quantity,
+          subtotal: item.subtotal,
+          tierID: item.tierID,
+          unitPrice: item.unitPrice,
+        })),
         quantity,
-        subtotal: (event.isPaid ? (event.basePrice ?? 0) : 0) * quantity,
-        total: (event.isPaid ? (event.basePrice ?? 0) : 0) * quantity,
-        unitPrice: event.isPaid ? (event.basePrice ?? 0) : 0,
+        subtotal: savedLineItems.reduce((total, item) => total + item.subtotal, 0),
+        total: savedLineItems.reduce((total, item) => total + item.subtotal, 0),
+        unitPrice: savedLineItems.reduce((total, item) => total + item.subtotal, 0) / quantity,
       }
   const images = ended
     ? (event.galleryAfterCompletion ?? [])
@@ -140,7 +178,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
             <div>
               <Badge tone={event.isPaid ? 'gold' : 'green'}>
                 {event.isPaid
-                  ? formatCurrency(event.basePrice ?? 0, event.currency ?? 'USD')
+                  ? priceTiers.length
+                    ? `From ${formatCurrency(Math.min(...priceTiers.map((tier) => tier.price)), event.currency ?? 'USD')}`
+                    : formatCurrency(event.basePrice ?? 0, event.currency ?? 'USD')
                   : 'Free event'}
               </Badge>
               <Badge>{event.timezone}</Badge>
@@ -235,7 +275,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                       <dt>Price</dt>
                       <dd>
                         {event.isPaid
-                          ? formatCurrency(event.basePrice ?? 0, event.currency ?? 'USD')
+                          ? priceTiers.length
+                            ? priceTiers
+                                .map(
+                                  (tier) =>
+                                    `${tier.label}: ${formatCurrency(tier.price, event.currency ?? 'USD')}`,
+                                )
+                                .join(' · ')
+                            : formatCurrency(event.basePrice ?? 0, event.currency ?? 'USD')
                           : 'Free'}
                       </dd>
                     </div>
@@ -323,6 +370,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                       manualReviewNote={settings.manualPaymentReviewNote}
                       maxQuantity={event.maxRegistrationQuantity ?? 1}
                       paymentTerms={settings.eventPaymentTerms}
+                      priceTiers={priceTiers}
                       zelleInstructions={settings.zelleInstructions}
                       zelleRecipient={settings.zelleRecipient}
                       zelleRecipientName={settings.zelleRecipientName}

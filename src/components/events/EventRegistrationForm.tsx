@@ -2,10 +2,14 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { FormEvent, useState } from 'react'
+import { FormEvent, Fragment, useState } from 'react'
 
 import { FormMessage } from '@/components/auth/FormMessage'
-import type { EventRegistrationIntent, EventQuote } from '@/services/event-registration'
+import type {
+  EventPriceTier,
+  EventRegistrationIntent,
+  EventQuote,
+} from '@/services/event-registration'
 import { formatCurrency } from '@/utilities/formatters'
 
 type Props = {
@@ -18,6 +22,7 @@ type Props = {
   manualReviewNote: string
   maxQuantity: number
   paymentTerms: string
+  priceTiers: EventPriceTier[]
   zelleInstructions: string
   zelleRecipient?: string | null
   zelleRecipientName?: string | null
@@ -33,12 +38,16 @@ export const EventRegistrationForm = ({
   manualReviewNote,
   maxQuantity,
   paymentTerms,
+  priceTiers,
   zelleInstructions,
   zelleRecipient,
   zelleRecipientName,
 }: Props) => {
   const router = useRouter()
   const [quantity, setQuantity] = useState(fixedQuantity ?? initialQuote.quantity)
+  const [ticketQuantities, setTicketQuantities] = useState<Record<string, number>>(() =>
+    Object.fromEntries(initialQuote.lineItems.map((item) => [item.tierID, item.quantity])),
+  )
   const [quote, setQuote] = useState(initialQuote)
   const [promotionCode, setPromotionCode] = useState('')
   const [message, setMessage] = useState('')
@@ -48,11 +57,20 @@ export const EventRegistrationForm = ({
   const usesPayment = isPaid && intent !== 'waitlist'
   const permitsPromotion = usesPayment && intent !== 'resubmit'
 
-  const refreshQuote = async (nextQuantity = quantity) => {
+  const selectedTickets = (quantities = ticketQuantities) =>
+    priceTiers
+      .map((tier) => ({ quantity: quantities[tier.id] ?? 0, tierID: tier.id }))
+      .filter((selection) => selection.quantity > 0)
+
+  const refreshQuote = async (nextQuantity = quantity, nextTicketQuantities = ticketQuantities) => {
     setCheckingCode(true)
     setMessage('')
     const response = await fetch(`/api/events/${eventSlug}/quote`, {
-      body: JSON.stringify({ promotionCode, quantity: nextQuantity }),
+      body: JSON.stringify({
+        promotionCode,
+        quantity: nextQuantity,
+        ticketSelections: priceTiers.length ? selectedTickets(nextTicketQuantities) : undefined,
+      }),
       headers: { 'content-type': 'application/json' },
       method: 'POST',
     })
@@ -78,6 +96,21 @@ export const EventRegistrationForm = ({
     else setQuote((current) => ({ ...current, quantity: nextQuantity }))
   }
 
+  const changeTicketQuantity = async (tierID: string, nextQuantity: number) => {
+    const nextTicketQuantities = { ...ticketQuantities, [tierID]: nextQuantity }
+    const nextTotal = selectedTickets(nextTicketQuantities).reduce(
+      (total, selection) => total + selection.quantity,
+      0,
+    )
+    setTicketQuantities(nextTicketQuantities)
+    setQuantity(nextTotal)
+    if (nextTotal > 0 && nextTotal <= maxQuantity && usesPayment) {
+      await refreshQuote(nextTotal, nextTicketQuantities)
+    } else {
+      setQuote((current) => ({ ...current, quantity: nextTotal }))
+    }
+  }
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formElement = event.currentTarget
@@ -94,6 +127,9 @@ export const EventRegistrationForm = ({
     }
     form.set('intent', intent)
     form.set('quantity', String(quantity))
+    if (priceTiers.length && intent !== 'resubmit') {
+      form.set('ticketSelections', JSON.stringify(selectedTickets()))
+    }
     if (permitsPromotion) form.set('promotionCode', promotionCode)
     setSubmitting(true)
     setMessage('')
@@ -133,6 +169,30 @@ export const EventRegistrationForm = ({
           This offer reserves <strong>{fixedQuantity}</strong> attendee
           {fixedQuantity === 1 ? '' : 's'}.
         </p>
+      ) : priceTiers.length && intent !== 'resubmit' ? (
+        <fieldset className="form-fieldset">
+          <legend>Tickets</legend>
+          {priceTiers.map((tier) => (
+            <label key={tier.id}>
+              {tier.label} — {formatCurrency(tier.price, quote.currency)}
+              {tier.description ? <span className="form-help">{tier.description}</span> : null}
+              <select
+                aria-label={`${tier.label} quantity`}
+                onChange={(event) => void changeTicketQuantity(tier.id, Number(event.target.value))}
+                value={ticketQuantities[tier.id] ?? 0}
+              >
+                {Array.from({ length: maxQuantity + 1 }, (_, index) => index).map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+          <p className="form-help">
+            {quantity} of {maxQuantity} ticket{maxQuantity === 1 ? '' : 's'} selected.
+          </p>
+        </fieldset>
       ) : intent !== 'resubmit' ? (
         <label>
           Number of attendees
@@ -192,6 +252,16 @@ export const EventRegistrationForm = ({
             </div>
           ) : null}
           <div aria-live="polite" className="membership-total">
+            {quote.lineItems.length > 1
+              ? quote.lineItems.map((item) => (
+                  <Fragment key={item.tierID}>
+                    <span>
+                      {item.label} × {item.quantity}
+                    </span>
+                    <strong>{formatCurrency(item.subtotal, quote.currency)}</strong>
+                  </Fragment>
+                ))
+              : null}
             <span>Ticket subtotal</span>
             <strong>{formatCurrency(quote.subtotal, quote.currency)}</strong>
             {quote.discountTotal > 0 ? (
@@ -237,7 +307,9 @@ export const EventRegistrationForm = ({
 
       <button
         className="button button--primary"
-        disabled={submitting || (usesPayment && !zelleRecipient)}
+        disabled={
+          submitting || quantity < 1 || quantity > maxQuantity || (usesPayment && !zelleRecipient)
+        }
         type="submit"
       >
         {submitting

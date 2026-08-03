@@ -32,11 +32,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       const item = form.get(name)
       return typeof item === 'string' && item.trim() ? item : undefined
     }
+    let ticketSelections: unknown
+    try {
+      ticketSelections = value('ticketSelections')
+        ? JSON.parse(value('ticketSelections') as string)
+        : undefined
+    } catch {
+      return Response.json({ message: 'Check the selected event tickets.' }, { status: 400 })
+    }
     const input = eventRegistrationSchema.safeParse({
       intent: value('intent'),
       paymentTermsAccepted: form.get('paymentTermsAccepted') === 'on',
       promotionCode: value('promotionCode'),
       quantity: value('quantity') ?? '1',
+      ticketSelections,
       transactionId: value('transactionId'),
     })
     if (!input.success) {

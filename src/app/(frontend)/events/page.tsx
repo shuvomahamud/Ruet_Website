@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import type { Chapter } from '@/payload-types'
+import { getEventPriceTiers } from '@/services/event-registration'
 import { formatDateTime } from '@/utilities/date-time'
 import { formatCurrency } from '@/utilities/formatters'
 import { createPageMetadata } from '@/utilities/metadata'
@@ -148,13 +149,16 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                   const chapter =
                     typeof event.chapter === 'object' ? (event.chapter as Chapter) : undefined
                   const archived = new Date(event.endAt) < new Date() || event.status === 'archived'
+                  const priceTiers = getEventPriceTiers(event)
                   return (
                     <article className="surface-card event-card" key={event.id}>
                       <div className="event-card__badges">
                         <Badge>{modeLabel(event.eventMode)}</Badge>
                         <Badge tone={event.isPaid ? 'gold' : 'green'}>
                           {event.isPaid
-                            ? formatCurrency(event.basePrice ?? 0, event.currency ?? 'USD')
+                            ? priceTiers.length
+                              ? `From ${formatCurrency(Math.min(...priceTiers.map((tier) => tier.price)), event.currency ?? 'USD')}`
+                              : formatCurrency(event.basePrice ?? 0, event.currency ?? 'USD')
                             : 'Free'}
                         </Badge>
                         {archived ? (

@@ -23,11 +23,30 @@ import { transitionWorkflowRecord } from './workflow-transitions'
 
 export type EventRegistrationIntent = 'accept_offer' | 'register' | 'resubmit' | 'waitlist'
 
+export type EventTicketSelection = {
+  quantity: number
+  tierID: string
+}
+
+export type EventTicketLineItem = EventTicketSelection & {
+  label: string
+  subtotal: number
+  unitPrice: number
+}
+
+export type EventPriceTier = {
+  description?: string
+  id: string
+  label: string
+  price: number
+}
+
 export type EventQuote = {
   currency: string
   discountTotal: number
   eventID: number
   eventTitle: string
+  lineItems: EventTicketLineItem[]
   promotionCode?: string
   promotionID?: number
   quantity: number
@@ -65,11 +84,20 @@ type SubmissionInput = {
   promotionCode?: string
   quantity?: number
   req: PayloadRequest
+  ticketSelections?: EventTicketSelection[]
   transactionId?: string
 }
 
 const acceptedProofTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
 const money = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
+
+export const getEventPriceTiers = (event: Event): EventPriceTier[] =>
+  (event.priceTiers ?? []).map((tier, index) => ({
+    description: tier.description?.trim() || undefined,
+    id: String(tier.id ?? index),
+    label: tier.label,
+    price: event.isPaid ? money(tier.price) : 0,
+  }))
 
 const assertQuantity = (event: Event, quantity: number): void => {
   if (!Number.isInteger(quantity) || quantity < 1) {
@@ -84,6 +112,65 @@ const assertQuantity = (event: Event, quantity: number): void => {
       { code: 'QUANTITY_LIMIT_EXCEEDED', status: 409 },
     )
   }
+}
+
+const resolveTicketSelection = (
+  event: Event,
+  quantity: number,
+  ticketSelections?: EventTicketSelection[],
+): { lineItems: EventTicketLineItem[]; quantity: number } => {
+  const tiers = getEventPriceTiers(event)
+  if (!tiers.length) {
+    assertQuantity(event, quantity)
+    const unitPrice = event.isPaid ? money(event.basePrice ?? 0) : 0
+    return {
+      lineItems: [
+        {
+          label: 'General admission',
+          quantity,
+          subtotal: money(unitPrice * quantity),
+          tierID: 'general',
+          unitPrice,
+        },
+      ],
+      quantity,
+    }
+  }
+
+  if (!ticketSelections?.length) {
+    throw new AppError('Select at least one event ticket.', {
+      code: 'EVENT_TICKET_SELECTION_REQUIRED',
+      status: 400,
+    })
+  }
+  const tiersByID = new Map(tiers.map((tier) => [tier.id, tier]))
+  const seen = new Set<string>()
+  const lineItems = ticketSelections.map((selection) => {
+    const tier = tiersByID.get(selection.tierID)
+    if (!tier || seen.has(selection.tierID)) {
+      throw new AppError('The selected event ticket is not available.', {
+        code: 'INVALID_EVENT_TICKET',
+        status: 400,
+      })
+    }
+    seen.add(selection.tierID)
+    if (!Number.isInteger(selection.quantity) || selection.quantity < 1) {
+      throw new AppError('Ticket quantities must be positive whole numbers.', {
+        code: 'INVALID_EVENT_TICKET_QUANTITY',
+        status: 400,
+      })
+    }
+    return {
+      label: tier.label,
+      quantity: selection.quantity,
+      subtotal: money(tier.price * selection.quantity),
+      tierID: tier.id,
+      unitPrice: tier.price,
+    }
+  })
+  const selectedQuantity = lineItems.reduce((total, item) => total + item.quantity, 0)
+  assertQuantity(event, selectedQuantity)
+  return { lineItems, quantity: selectedQuantity }
 }
 
 const isRegistrationOpen = (event: Event, now = new Date()): boolean => {
@@ -307,6 +394,7 @@ export const calculateEventQuote = async ({
   promotionCode,
   quantity,
   req,
+  ticketSelections,
   user,
 }: {
   event: Event
@@ -314,17 +402,18 @@ export const calculateEventQuote = async ({
   promotionCode?: string
   quantity: number
   req?: PayloadRequest
+  ticketSelections?: EventTicketSelection[]
   user: User
 }): Promise<{ promotion?: Promotion; quote: EventQuote }> => {
-  assertQuantity(event, quantity)
+  const selection = resolveTicketSelection(event, quantity, ticketSelections)
   let promotion = await getEventPromotion({ code: promotionCode, payload, req, user })
   if (promotion && req) {
     await lockWorkflowRecord(req, 'promotions', promotion.id)
     promotion = await getEventPromotion({ code: promotionCode, payload, req, user })
   }
   if (promotion) await assertPromotionCapacity(payload, promotion, req)
-  const unitPrice = event.isPaid ? money(event.basePrice ?? 0) : 0
-  const subtotal = money(unitPrice * quantity)
+  const subtotal = money(selection.lineItems.reduce((total, item) => total + item.subtotal, 0))
+  const unitPrice = money(subtotal / selection.quantity)
   const discountTotal = promotion
     ? promotion.discountType === 'fixed'
       ? Math.min(subtotal, money(promotion.discountValue))
@@ -344,9 +433,10 @@ export const calculateEventQuote = async ({
       discountTotal,
       eventID: event.id,
       eventTitle: event.title,
+      lineItems: selection.lineItems,
       promotionCode: promotion?.code,
       promotionID: promotion?.id,
-      quantity,
+      quantity: selection.quantity,
       subtotal,
       total,
       unitPrice,
@@ -437,7 +527,7 @@ const activeWaitlistEntry = async (req: PayloadRequest, eventID: number, userID:
 const createWaitlistEntry = async (
   req: PayloadRequest,
   event: Event,
-  quantity: number,
+  lineItems: EventTicketLineItem[],
 ): Promise<WaitlistEntry> => {
   if (!event.waitlistEnabled) {
     throw new AppError('This event is full and its waitlist is not available.', {
@@ -458,8 +548,9 @@ const createWaitlistEntry = async (
     data: {
       event: event.id,
       joinedAt: new Date().toISOString(),
-      quantity,
+      quantity: lineItems.reduce((total, item) => total + item.quantity, 0),
       status: 'waiting',
+      ticketSelectionsSnapshot: lineItems,
       user: userID,
     },
     overrideAccess: false,
@@ -572,6 +663,7 @@ const createRegistration = async ({
       quantity: quote.quantity,
       registrationPriceSnapshot: quote.subtotal,
       status,
+      ticketSelectionsSnapshot: quote.lineItems,
       unitPriceSnapshot: quote.unitPrice,
       user: Number(req.user!.id),
       waitlistEntry: waitlistEntry?.id,
@@ -724,6 +816,21 @@ const resubmitEventPayment = async ({
       discountTotal: order.discountTotal ?? 0,
       eventID: event.id,
       eventTitle: registration.eventTitleSnapshot,
+      lineItems: registration.ticketSelectionsSnapshot?.map((item) => ({
+        label: item.label,
+        quantity: item.quantity,
+        subtotal: item.subtotal,
+        tierID: item.tierID,
+        unitPrice: item.unitPrice,
+      })) ?? [
+        {
+          label: 'General admission',
+          quantity: registration.quantity,
+          subtotal: order.subtotal,
+          tierID: 'general',
+          unitPrice: registration.unitPriceSnapshot,
+        },
+      ],
       promotionCode: order.promotionCodeSnapshot ?? undefined,
       promotionID: getRelationshipID(order.promotion),
       quantity: registration.quantity,
@@ -743,6 +850,7 @@ export const submitEventRegistration = async ({
   promotionCode,
   quantity = 1,
   req,
+  ticketSelections,
   transactionId,
 }: SubmissionInput): Promise<EventRegistrationResult> => {
   if (!req.user?.id) throw new AppError('Sign in to continue.', { status: 401 })
@@ -789,7 +897,11 @@ export const submitEventRegistration = async ({
       return resubmitEventPayment({ event, proofFile, req, transactionId })
     }
 
-    if (intent !== 'accept_offer') assertQuantity(event, quantity)
+    let resolvedSelection =
+      intent === 'accept_offer'
+        ? undefined
+        : resolveTicketSelection(event, quantity, ticketSelections)
+    if (resolvedSelection) quantity = resolvedSelection.quantity
     const existingRegistration = await activeRegistration(req, event.id, userID)
     if (existingRegistration) {
       throw new AppError('You already have an active registration for this event.', {
@@ -823,7 +935,11 @@ export const submitEventRegistration = async ({
         })
       }
       quantity = offer.quantity
-      assertQuantity(event, quantity)
+      ticketSelections = offer.ticketSelectionsSnapshot?.map((item) => ({
+        quantity: item.quantity,
+        tierID: item.tierID,
+      }))
+      resolvedSelection = resolveTicketSelection(event, quantity, ticketSelections)
     } else {
       const activeWaitlist = await activeWaitlistEntry(req, event.id, userID)
       if (activeWaitlist) {
@@ -849,7 +965,7 @@ export const submitEventRegistration = async ({
           status: 409,
         })
       }
-      const waitlistEntry = await createWaitlistEntry(req, event, quantity)
+      const waitlistEntry = await createWaitlistEntry(req, event, resolvedSelection!.lineItems)
       return {
         outcome: 'waitlisted',
         promoted,
@@ -865,7 +981,7 @@ export const submitEventRegistration = async ({
         ? Infinity
         : event.capacity - reserved + offerReservation
     if (quantity > available) {
-      const waitlistEntry = await createWaitlistEntry(req, event, quantity)
+      const waitlistEntry = await createWaitlistEntry(req, event, resolvedSelection!.lineItems)
       return {
         outcome: 'waitlisted',
         promoted,
@@ -881,6 +997,7 @@ export const submitEventRegistration = async ({
       promotionCode,
       quantity,
       req,
+      ticketSelections,
       user,
     })
     if (event.isPaid) validateProof(proofFile, transactionId)

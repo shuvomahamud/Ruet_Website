@@ -729,7 +729,24 @@ export interface Event {
   details?: string | null;
   featuredImage?: (number | null) | Media;
   isPaid?: boolean | null;
+  /**
+   * Single-ticket fallback price. When price tiers are added below, registrations use the tier prices instead.
+   */
   basePrice?: number | null;
+  /**
+   * Optional ticket categories such as Adult, Child, or Under 5. Tier prices replace the single base price.
+   */
+  priceTiers?:
+    | {
+        label: string;
+        /**
+         * Optional eligibility note, for example “Ages 6–12”.
+         */
+        description?: string | null;
+        price: number;
+        id?: string | null;
+      }[]
+    | null;
   currency?: string | null;
   capacity?: number | null;
   /**
@@ -789,6 +806,19 @@ export interface EventRegistration {
   paymentStatus?: ('pending' | 'paid' | 'failed') | null;
   registrationPriceSnapshot: number;
   unitPriceSnapshot: number;
+  /**
+   * Immutable ticket category and price breakdown captured at registration.
+   */
+  ticketSelectionsSnapshot?:
+    | {
+        tierID: string;
+        label: string;
+        quantity: number;
+        unitPrice: number;
+        subtotal: number;
+        id?: string | null;
+      }[]
+    | null;
   currencySnapshot: string;
   eventTitleSnapshot: string;
   eventStartAtSnapshot: string;
@@ -851,6 +881,19 @@ export interface WaitlistEntry {
   event: number | Event;
   user: number | User;
   quantity: number;
+  /**
+   * Requested ticket categories retained while the attendee waits for seats.
+   */
+  ticketSelectionsSnapshot?:
+    | {
+        tierID: string;
+        label: string;
+        quantity: number;
+        unitPrice: number;
+        subtotal: number;
+        id?: string | null;
+      }[]
+    | null;
   joinedAt: string;
   status: 'waiting' | 'promoted' | 'accepted' | 'expired';
   promotedAt?: string | null;
@@ -1705,6 +1748,14 @@ export interface EventsSelect<T extends boolean = true> {
   featuredImage?: T;
   isPaid?: T;
   basePrice?: T;
+  priceTiers?:
+    | T
+    | {
+        label?: T;
+        description?: T;
+        price?: T;
+        id?: T;
+      };
   currency?: T;
   capacity?: T;
   registrationOpensAt?: T;
@@ -1744,6 +1795,16 @@ export interface EventRegistrationsSelect<T extends boolean = true> {
   paymentStatus?: T;
   registrationPriceSnapshot?: T;
   unitPriceSnapshot?: T;
+  ticketSelectionsSnapshot?:
+    | T
+    | {
+        tierID?: T;
+        label?: T;
+        quantity?: T;
+        unitPrice?: T;
+        subtotal?: T;
+        id?: T;
+      };
   currencySnapshot?: T;
   eventTitleSnapshot?: T;
   eventStartAtSnapshot?: T;
@@ -1762,6 +1823,16 @@ export interface WaitlistEntriesSelect<T extends boolean = true> {
   event?: T;
   user?: T;
   quantity?: T;
+  ticketSelectionsSnapshot?:
+    | T
+    | {
+        tierID?: T;
+        label?: T;
+        quantity?: T;
+        unitPrice?: T;
+        subtotal?: T;
+        id?: T;
+      };
   joinedAt?: T;
   status?: T;
   promotedAt?: T;

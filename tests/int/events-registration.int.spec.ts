@@ -2,10 +2,14 @@ import { createLocalReq, type Payload, type PayloadRequest } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import type { Chapter, Event, Media, User } from '@/payload-types'
-import { queueEventSubmissionNotices, queueWaitlistPromotionNotices } from '@/services/event-notifications'
+import {
+  queueEventSubmissionNotices,
+  queueWaitlistPromotionNotices,
+} from '@/services/event-notifications'
 import {
   cancelEventRegistration,
   getEventAvailability,
+  getEventPriceTiers,
   processEventWaitlist,
   submitEventRegistration,
 } from '@/services/event-registration'
@@ -45,7 +49,8 @@ describe.sequential('event registration, Zelle, capacity, waitlist, and archive 
     return created
   }
 
-  const requestFor = (actor: User): Promise<PayloadRequest> => createLocalReq({ user: actor }, payload)
+  const requestFor = (actor: User): Promise<PayloadRequest> =>
+    createLocalReq({ user: actor }, payload)
 
   const event = async ({
     capacity = 4,
@@ -53,6 +58,7 @@ describe.sequential('event registration, Zelle, capacity, waitlist, and archive 
     label,
     maxQuantity = capacity,
     past = false,
+    priceTiers,
     virtual = false,
   }: {
     capacity?: number
@@ -60,6 +66,7 @@ describe.sequential('event registration, Zelle, capacity, waitlist, and archive 
     label: string
     maxQuantity?: number
     past?: boolean
+    priceTiers?: { label: string; price: number }[]
     virtual?: boolean
   }) => {
     const start = new Date(Date.now() + (past ? -172_800_000 : 172_800_000))
@@ -75,6 +82,7 @@ describe.sequential('event registration, Zelle, capacity, waitlist, and archive 
         eventMode: virtual ? 'virtual' : 'inPerson',
         isPaid,
         maxRegistrationQuantity: maxQuantity,
+        priceTiers,
         registrationClosesAt: past
           ? new Date(start.getTime() - 3_600_000).toISOString()
           : new Date(start.getTime() + 3_600_000).toISOString(),
@@ -236,7 +244,11 @@ describe.sequential('event registration, Zelle, capacity, waitlist, and archive 
       where: { user: { in: userIDs } },
     })
     for (const registration of registrations.docs) {
-      await payload.delete({ collection: 'eventRegistrations', id: registration.id, overrideAccess: true })
+      await payload.delete({
+        collection: 'eventRegistrations',
+        id: registration.id,
+        overrideAccess: true,
+      })
     }
     const waitlist = await payload.find({
       collection: 'waitlistEntries',
@@ -381,6 +393,57 @@ describe.sequential('event registration, Zelle, capacity, waitlist, and archive 
     expect(registration).toMatchObject({ paymentStatus: 'paid', status: 'confirmed' })
     expect(order.status).toBe('paid')
     expect((await getEventAvailability({ event: paid, payload })).reservedSeats).toBe(1)
+  })
+
+  it('prices mixed ticket tiers and preserves their registration and waitlist snapshots', async () => {
+    const tiered = await event({
+      capacity: 4,
+      isPaid: true,
+      label: 'tiered-pricing',
+      maxQuantity: 4,
+      priceTiers: [
+        { label: 'Adult', price: 25 },
+        { label: 'Child', price: 10 },
+        { label: 'Under 5', price: 0 },
+      ],
+    })
+    const [adult, child, underFive] = getEventPriceTiers(tiered)
+    const payer = await user('tiered-payer')
+    const result = await submitEventRegistration({
+      eventID: tiered.id,
+      intent: 'register',
+      quantity: 4,
+      req: await requestFor(payer),
+      ticketSelections: [
+        { quantity: 2, tierID: adult.id },
+        { quantity: 1, tierID: child.id },
+        { quantity: 1, tierID: underFive.id },
+      ],
+      transactionId: 'EVENT-TIERED-PRICING',
+    })
+
+    expect(result.quote).toMatchObject({ quantity: 4, subtotal: 60, total: 60 })
+    expect(result.quote?.lineItems).toMatchObject([
+      { label: 'Adult', quantity: 2, subtotal: 50, unitPrice: 25 },
+      { label: 'Child', quantity: 1, subtotal: 10, unitPrice: 10 },
+      { label: 'Under 5', quantity: 1, subtotal: 0, unitPrice: 0 },
+    ])
+    expect(result.registration?.ticketSelectionsSnapshot).toMatchObject(
+      result.quote?.lineItems ?? [],
+    )
+
+    const waitingUser = await user('tiered-waiting')
+    const waiting = await submitEventRegistration({
+      eventID: tiered.id,
+      intent: 'register',
+      quantity: 1,
+      req: await requestFor(waitingUser),
+      ticketSelections: [{ quantity: 1, tierID: adult.id }],
+    })
+    expect(waiting.outcome).toBe('waitlisted')
+    expect(waiting.waitlistEntry?.ticketSelectionsSnapshot).toMatchObject([
+      { label: 'Adult', quantity: 1, subtotal: 25, unitPrice: 25 },
+    ])
   })
 
   it('preserves rejected attempts and creates one new payment on resubmission', async () => {
@@ -639,7 +702,9 @@ describe.sequential('event registration, Zelle, capacity, waitlist, and archive 
     expect(new Set(keys).size).toBe(keys.length)
     expect(keys).toContain(`event-payment:${registration.payment!.id}:submitted`)
     expect(keys).toContain(`event-waitlist:${waiting.waitlistEntry!.id}:joined`)
-    expect(keys.some((key) => key.startsWith(`event-waitlist:${waiting.waitlistEntry!.id}:promoted:`))).toBe(true)
+    expect(
+      keys.some((key) => key.startsWith(`event-waitlist:${waiting.waitlistEntry!.id}:promoted:`)),
+    ).toBe(true)
     expect(keys).toContain(`event-payment:${registration.payment!.id}:reject`)
   })
 })

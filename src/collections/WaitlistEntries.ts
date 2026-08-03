@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { denyAll, eventWorkflowCreateAccess, userOrChapterScopedAccess } from '@/access/roles'
-import { validatePositiveInteger } from '@/domain/validation'
+import { validateNonNegativeMoney, validatePositiveInteger } from '@/domain/validation'
 import { forceAuthenticatedUser } from '@/hooks/forceAuthenticatedUser'
 import { prepareWaitlistEntry } from '@/hooks/prepareRegistration'
 import { protectImmutableFields } from '@/hooks/protectImmutableFields'
@@ -40,6 +40,21 @@ export const WaitlistEntries: CollectionConfig = {
       validate: validatePositiveInteger,
     },
     {
+      name: 'ticketSelectionsSnapshot',
+      type: 'array',
+      admin: {
+        description: 'Requested ticket categories retained while the attendee waits for seats.',
+        readOnly: true,
+      },
+      fields: [
+        { name: 'tierID', type: 'text', required: true },
+        { name: 'label', type: 'text', required: true },
+        { name: 'quantity', type: 'number', required: true, validate: validatePositiveInteger },
+        { name: 'unitPrice', type: 'number', required: true, validate: validateNonNegativeMoney },
+        { name: 'subtotal', type: 'number', required: true, validate: validateNonNegativeMoney },
+      ],
+    },
+    {
       name: 'joinedAt',
       type: 'date',
       required: true,
@@ -72,7 +87,7 @@ export const WaitlistEntries: CollectionConfig = {
     beforeChange: [
       forceAuthenticatedUser('user'),
       prepareWaitlistEntry,
-      protectImmutableFields(['event', 'user', 'quantity', 'joinedAt']),
+      protectImmutableFields(['event', 'user', 'quantity', 'ticketSelectionsSnapshot', 'joinedAt']),
       validateWorkflowTransition('waitlist'),
     ],
   },

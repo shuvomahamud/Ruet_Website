@@ -77,6 +77,21 @@ export const EventRegistrations: CollectionConfig = {
       validate: validateNonNegativeMoney,
     },
     {
+      name: 'ticketSelectionsSnapshot',
+      type: 'array',
+      admin: {
+        description: 'Immutable ticket category and price breakdown captured at registration.',
+        readOnly: true,
+      },
+      fields: [
+        { name: 'tierID', type: 'text', required: true },
+        { name: 'label', type: 'text', required: true },
+        { name: 'quantity', type: 'number', required: true, validate: validatePositiveInteger },
+        { name: 'unitPrice', type: 'number', required: true, validate: validateNonNegativeMoney },
+        { name: 'subtotal', type: 'number', required: true, validate: validateNonNegativeMoney },
+      ],
+    },
+    {
       name: 'currencySnapshot',
       type: 'text',
       defaultValue: 'USD',
@@ -126,6 +141,7 @@ export const EventRegistrations: CollectionConfig = {
         'registrationPriceSnapshot',
         'discountSnapshot',
         'unitPriceSnapshot',
+        'ticketSelectionsSnapshot',
         'currencySnapshot',
         'eventTitleSnapshot',
         'eventStartAtSnapshot',
