@@ -281,7 +281,7 @@ export const Events: CollectionConfig = {
         }
         return data
       },
-      ({ data, originalDoc }) => {
+      ({ data, originalDoc, req }) => {
         const startAt = data.startAt ?? originalDoc?.startAt
         const endAt = data.endAt ?? originalDoc?.endAt
 
@@ -326,17 +326,36 @@ export const Events: CollectionConfig = {
                 .toLocaleLowerCase(),
             )
           : []
-        if (tierLabels.some((label) => !label) || new Set(tierLabels).size !== tierLabels.length) {
-          throw new Error('Event price tier names must be present and unique.')
-        }
-        if (isPaid && tierPrices.length && !tierPrices.some((price) => price > 0)) {
-          throw new Error('A paid event needs at least one price tier above zero.')
-        }
-        if (isPaid && !tierPrices.length && basePrice <= 0) {
-          throw new Error('A paid event needs a positive base price or at least one price tier.')
-        }
-        if (!isPaid && (basePrice !== 0 || tierPrices.some((price) => price !== 0))) {
-          throw new Error('Free events must have zero pricing.')
+        const isAutosave = req.searchParams?.get('autosave') === 'true'
+        const payloadStatus = data._status ?? originalDoc?._status ?? 'draft'
+        if (!isAutosave && payloadStatus === 'published') {
+          if (
+            tierLabels.some((label) => !label) ||
+            new Set(tierLabels).size !== tierLabels.length
+          ) {
+            throw new AppError('Event price tier names must be present and unique.', {
+              code: 'INVALID_EVENT_PRICE_TIERS',
+              status: 400,
+            })
+          }
+          if (isPaid && tierPrices.length && !tierPrices.some((price) => price > 0)) {
+            throw new AppError('A paid event needs at least one price tier above zero.', {
+              code: 'EVENT_PRICE_REQUIRED',
+              status: 400,
+            })
+          }
+          if (isPaid && !tierPrices.length && basePrice <= 0) {
+            throw new AppError(
+              'Enter a positive base price or add at least one paid price tier before publishing.',
+              { code: 'EVENT_PRICE_REQUIRED', status: 400 },
+            )
+          }
+          if (!isPaid && (basePrice !== 0 || tierPrices.some((price) => price !== 0))) {
+            throw new AppError('Free events must have zero pricing.', {
+              code: 'FREE_EVENT_PRICE_INVALID',
+              status: 400,
+            })
+          }
         }
 
         return data
